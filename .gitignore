@@ -1,0 +1,17 @@
+a.out
+test_files/*
+test_files/
+*.swp
+*.d
+*.o
+*.a
+*.ods
+*.ods#
+*.ppm
+*tmp*
+infile*
+outfile*
+cache/
+.cache/
+*subject.pdf
+compile_commands.json
