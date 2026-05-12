@@ -1,0 +1,52 @@
+* FINISHED:
+	* created the socket
+	* made the socket non-blocking
+	* finished bind socket
+	
+
+* after calling socket()
+		if there's no data to be processed, then the function returns with an error. 
+		It's an error because conditions prevented the function for performing its task. 
+		What condition? No data. 
+		What's the error? A special one created specifically for this situation: 
+		EWOULDBLOCK, 
+			that basically says that this socket would have blocked if it had been a blocking socket.
+
+	TODO: if socket try to read data and returns an error -> test whether that error is EWOULDBLOCK
+		if EWOULDBLOCK-> continue processing other sockets, then come back to this socket and try again
+	resource: http://dwise1.net/pgm/sockets/blocking.html
+
+TODO: 
+	on error cases, handle closing socket's _fd
+
+TODO:
+	add constructor to receive port and IP values from config side
+	change port and INADDR_ANY values when the config part is ready
+	now they are hardcoded
+	config will pass something like this:
+		server {
+			listen 8080;
+			host 127.0.0.1;
+		}
+
+		or
+		server {listen 127.0.0.1:8080;}
+	receive them like this: ServerSocket server(config.host, config.port);
+	logic:
+	if (host == "0.0.0.0")
+		_address.sin_addr.s_addr = INADDR_ANY;
+	else
+		_address.sin_addr.s_addr = inet_addr(host.c_str());
+
+TODO: 
+	add listen 
+	After that, run your program and in another terminal:
+
+	lsof -iTCP:8080 -sTCP:LISTEN -P -n
+
+	You should see your program using port 8080.
+	nc -vz 127.0.0.1 8080
+
+If it works, you may see something like:
+
+Connection to 127.0.0.1 8080 port [tcp/*] succeeded!

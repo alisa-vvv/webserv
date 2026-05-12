@@ -1,31 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/10 19:57:27 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/12 14:11:50 by tcakir-y         ###   ########.fr       */
+/*   Created: 2026/05/12 13:34:42 by tcakir-y          #+#    #+#             */
+/*   Updated: 2026/05/12 13:36:52 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerSocket.hpp"
 
-int main (int argc, char *argv[])
+void *ft_memset(void *s, int c, size_t n)
 {
-	(void) argv;
-	if (argc < 2)
+	unsigned char *ptr;
+	size_t counter;
+
+	ptr = (unsigned char *)s;
+	counter = 0;
+	while (counter < n)
 	{
-		std::cerr << "Error! No config file provided" << std::endl;
-		return (ERROR);
+		ptr[counter] = (unsigned char)c;
+		counter++;
 	}
-	ServerSocket server;
-	if (server.setup() == ERROR)
-	{
-		return (1);
-	}
-	std::cout << "Server listening on port 8080" << std::endl;
-	close(server.get_fd());
-	return (0);
+	return (s);
 }
