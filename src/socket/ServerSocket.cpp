@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerSocket.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 21:31:15 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/10 22:47:07 by tutku            ###   ########.fr       */
+/*   Updated: 2026/05/12 14:17:30 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,38 +16,40 @@ int ServerSocket::setup(void)
 {
 	this->createSocket();
 	this->bindSocket();
-	listen(this->get_fd(), 5);// TODO: change 5
+	this->listenSocket();
+	return SUCCESS;
 }
 
 /*
+	create a socket and make it non-blocking
 	AF_INET : IPv4 protocol
 	SOCK_STREAM: TCP socket
 */
 int ServerSocket::createSocket()
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_fd < 0)
+	if (_fd == ERROR)
 	{
-		std::cerr << "Error opening socket" << std::endl;
+		std::cerr << "Error opening socket: " << std::strerror(errno) << std::endl;
 		return ERROR;
 	}
+	int flags = fcntl(_fd, F_GETFL, 0);
+	if (flags < 0)
+	{
+		std::cerr << "Error fcntl F_GETFL: " << std::strerror(errno) << std::endl;
+		close(_fd); //TODO: check
+		return (ERROR);
+	}
+	int status = fcntl(_fd, F_SETFL, flags | O_NONBLOCK);
+	if (status == ERROR)
+	{
+		std::cerr << "Error making the socket non-blocking: " << std::strerror(errno) << std::endl;
+		close(_fd); //TODO: check
+		return ERROR;
+	}
+	std::cout << "Socket created successfully!" << std::endl;
 	return SUCCESS;
 
-}
-
-void *ft_memset(void *s, int c, size_t n) //TODO:move somewhere else
-{
-	unsigned char *ptr;
-	size_t counter;
-
-	ptr = (unsigned char *)s;
-	counter = 0;
-	while (counter < n)
-	{
-		ptr[counter] = (unsigned char)c;
-		counter++;
-	}
-	return (s);
 }
 
 // finish this function by checking the documentation
@@ -56,32 +58,35 @@ int ServerSocket::bindSocket()
 {
 	ft_memset(&_address, 0, sizeof(_address));
 	_address.sin_family = AF_INET;
-	// htons() which converts a port number in host byte order to a port number in network byte order.
-	_address.sin_port = htons(8080); //TODO:change passed port value
-	// s_addr will always be the IP address of the machine on which the server is running
-	/*
-	INADDR_ANY: It is used when we don't want to bind our socket 
-		to any particular IP and instead make it listen to all the available IPs.
+	_address.sin_port = htons(8080); //TODO: change later when config is ready
+	_address.sin_addr.s_addr = INADDR_ANY; // TODO: later change value, IP address of the host/server
 
-	*/
-	_address.sin_addr.s_addr = INADDR_ANY; // TODO: change value, IP address of the host
-
-	if (bind(this->get_fd(), (struct sockaddr *)&this->getAddress(), sizeof(this->getAddress())) == -1)
+	if (bind(this->get_fd(), (struct sockaddr *)&this->getAddress(), sizeof(this->getAddress())) == ERROR)
 	{
-		std::cerr << "Couldn't bind the port!" << std::endl;
+		std::cerr << "Couldn't bind the port!: " << std::strerror(errno) << std::endl;
 		return ERROR;
 	}
+	std::cout << "Bind successful" << std::endl;
+	return SUCCESS;
 }
+
+int ServerSocket::listenSocket()
+{
+	if (listen(this->_fd, BACKLOG) == ERROR)
+	{
+		std::cerr << "Couldn't listen socket!: " << std::strerror(errno) << std::endl;
+		return ERROR;
+	}
+	std::cout << "Listen successful" << std::endl;
+	return SUCCESS;
+}
+
 
 ServerSocket::ServerSocket()
 {
 }
 
-ServerSocket::~ServerSocket()
-{
-}
-
-ServerSocket &ServerSocket::operator = (const ServerSocket &other)
+ServerSocket &ServerSocket::operator= (const ServerSocket &other)
 {
 	if (this != &other)
 	{
@@ -95,12 +100,16 @@ ServerSocket::ServerSocket(const ServerSocket &other)
 	*this = other;
 }
 
+ServerSocket::~ServerSocket()
+{
+}
+
 int ServerSocket::get_fd()
 {
 	return (this->_fd);
 }
 
-struct sockaddr_in ServerSocket::getAddress()
+struct sockaddr_in &ServerSocket::getAddress()
 {
 	return (this->_address);
 }
