@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerSocket.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 21:29:33 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/12 14:06:55 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/05/25 16:28:53 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class ServerSocket
 		int listenSocket(void);
 		int get_fd();
 		struct sockaddr_in &getAddress();
+		void closeSocket();
 };
 
 void *ft_memset(void *s, int c, size_t n);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 19:57:27 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/12 14:11:50 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/05/25 16:50:22 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ int main (int argc, char *argv[])
 	{
 		return (1);
 	}
-	std::cout << "Server listening on port 8080" << std::endl;
-	close(server.get_fd());
+	std::cout << "Socket created, started listening" << std::endl;
 	return (0);
 }
