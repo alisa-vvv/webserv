@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 21:31:15 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/25 17:20:21 by tutku            ###   ########.fr       */
+/*   Updated: 2026/05/25 23:31:30 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,16 @@ int ServerSocket::setup(void)
 		closeSocket();
 		return ERROR;
 	}
+	if (this->setSocketOptions() == ERROR)
+	{
+		closeSocket();
+		return ERROR;
+	}
+	if (this->setAddress() == ERROR)
+	{
+		closeSocket();
+		return ERROR;
+	}
 	if (this->bindSocket() == ERROR)
 	{
 		closeSocket();
@@ -42,9 +52,42 @@ int ServerSocket::setup(void)
 }
 
 /*
+	Sets a file descriptor to non-blocking mode.
+
+	fd:
+		The file descriptor to modify. This can be a listening socket,
+		client socket, or another fd such as a pipe.
+
+	How it works:
+		1. F_GETFL gets the fd's current file status flags.
+		2. O_NONBLOCK is added to those flags.
+		3. F_SETFL applies the updated flags back to the fd.
+
+	Return:
+		SUCCESS on success, ERROR on failure.
+*/
+int ServerSocket::setNonBlocking(int fd)
+{
+	int flags = fcntl(fd, F_GETFL, 0);
+	if (flags == ERROR)
+	{
+		std::cerr << "Error fcntl F_GETFL: " << std::strerror(errno) << std::endl;
+		return ERROR;
+	}
+	int status = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+	if (status == ERROR)
+	{
+		std::cerr << "Error making fd non-blocking: " << std::strerror(errno) << std::endl;
+		return ERROR;
+	}
+	return SUCCESS;
+}
+
+/*
 	create a socket and make it non-blocking
 	AF_INET : IPv4 protocol
 	SOCK_STREAM: TCP socket
+	0: default protocol
 */
 int ServerSocket::createSocket()
 {
@@ -54,32 +97,47 @@ int ServerSocket::createSocket()
 		std::cerr << "Error opening socket: " << std::strerror(errno) << std::endl;
 		return ERROR;
 	}
-	int flags = fcntl(_fd, F_GETFL, 0);
-	if (flags == ERROR)
-	{
-		std::cerr << "Error fcntl F_GETFL: " << std::strerror(errno) << std::endl;
-		return (ERROR);
-	}
-	int status = fcntl(_fd, F_SETFL, flags | O_NONBLOCK);
-	if (status == ERROR)
-	{
-		std::cerr << "Error making the socket non-blocking: " << std::strerror(errno) << std::endl;
+	if (setNonBlocking(_fd) == ERROR)
 		return ERROR;
-	}
 	std::cout << "Socket created successfully!" << std::endl;
 	return SUCCESS;
+}
 
+/*
+ SO_REUSEADDR option for when you restart the server, dont get:
+	Address already in use
+*/
+int ServerSocket::setSocketOptions()
+{
+	int opt = 1;
+
+	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == ERROR)
+	{
+		std::cerr << "Error setsockopt: " << std::strerror(errno) << std::endl;
+		return ERROR;
+	}
+	return SUCCESS;
+}
+
+/*
+takes _host and _port
+converts them  into sockaddr_in
+Store result in _address
+*/
+int ServerSocket::setAddress()
+{
+	_address.sin_family = AF_INET;
+	_address.sin_port = htons(_port);
+	_address.sin_addr.s_addr = htonl(_host);
+
+	return SUCCESS;
 }
 
 // finish this function by checking the documentation
 // https://www.linuxhowtos.org/C_C++/socket.htm
 int ServerSocket::bindSocket()
 {
-	_address.sin_family = AF_INET;
-	_address.sin_port = htons(8080); //TODO: change later when config is ready
-	_address.sin_addr.s_addr = INADDR_ANY; // TODO: later change value, IP address of the host/server
-
-	if (bind(this->get_fd(), (struct sockaddr *)&_address, sizeof(_address)) == ERROR)
+	if (bind(_fd, (struct sockaddr *)&_address, sizeof(_address)) == ERROR)
 	{
 		std::cerr << "Couldn't bind the port!: " << std::strerror(errno) << std::endl;
 		return ERROR;
@@ -90,7 +148,7 @@ int ServerSocket::bindSocket()
 
 int ServerSocket::listenSocket()
 {
-	if (listen(this->_fd, BACKLOG) == ERROR)
+	if (listen(this->_fd, 128) == ERROR)
 	{
 		std::cerr << "Couldn't listen socket!: " << std::strerror(errno) << std::endl;
 		return ERROR;
@@ -99,13 +157,17 @@ int ServerSocket::listenSocket()
 	return SUCCESS;
 }
 
-
 ServerSocket::ServerSocket() : _fd(-1)
 {
 	ft_memset(&_address, 0, sizeof(_address));
 }
 
-//TODO: check if they would cause double close
+ServerSocket::ServerSocket(uint32_t &host, int port) 
+	: _fd(-1), _host(host), _port(port)
+{
+	ft_memset(&_address, 0, sizeof(_address));
+}
+
 // ServerSocket &ServerSocket::operator= (const ServerSocket &other)
 // {
 // 	if (this != &other)
@@ -126,7 +188,7 @@ ServerSocket::~ServerSocket()
 	closeSocket();
 }
 
-int ServerSocket::get_fd()
+int ServerSocket::get_fd() const
 {
 	return (this->_fd);
 }

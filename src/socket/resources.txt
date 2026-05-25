@@ -2,7 +2,18 @@ how to create socket?
 	https://www.geeksforgeeks.org/cpp/socket-programming-in-cpp/
 socket address
 	https://man7.org/linux/man-pages/man3/sockaddr.3type.html
+
+	getaddrinfo() for config side
+		https://www.ibm.com/docs/en/zos/2.5.0?topic=functions-getaddrinfo-get-address-information
+		https://man7.org/linux/man-pages/man3/getaddrinfo.3.html (!)
+
+
 sockets
 	http://dwise1.net/pgm/sockets/blocking.html
 	https://pubs.opengroup.org/onlinepubs/009696599/functions/socket.html
 	https://www.tutorialspoint.com/cplusplus/cpp_socket_programming.htm#:~:text=C%2B%2B%20socket%20programming%20is%20the,the%20network%20using%20C%2B%2B.
+
+
+bind
+	https://www.ibm.com/docs/en/zvm/7.4.0?topic=descriptions-bind-bind-name-socket
+

@@ -1,10 +1,14 @@
 * FINISHED:
 	* created the socket
 	* made the socket non-blocking
+		* moved it to another function to use it for client side as well
 	* finished bind socket
+	* finished the function for socket's address
+	* finished listen
+	* on error cases, handled closing socket's _fd
 	
 
-* after calling socket()
+* after calling socket() -> after recv()
 		if there's no data to be processed, then the function returns with an error. 
 		It's an error because conditions prevented the function for performing its task. 
 		What condition? No data. 
@@ -15,9 +19,6 @@
 	TODO: if socket try to read data and returns an error -> test whether that error is EWOULDBLOCK
 		if EWOULDBLOCK-> continue processing other sockets, then come back to this socket and try again
 	resource: http://dwise1.net/pgm/sockets/blocking.html
-
-TODO: 
-	on error cases, handle closing socket's _fd
 
 TODO:
 	add constructor to receive port and IP values from config side
@@ -50,3 +51,14 @@ TODO:
 If it works, you may see something like:
 
 Connection to 127.0.0.1 8080 port [tcp/*] succeeded!
+
+
+Possible next steps
+1. Keep server fd non-blocking — already done
+2. Add poll()
+3. Add server fd to poll list
+4. When server fd has POLLIN, call accept()
+5. Make returned client fd non-blocking
+6. Add client fd to poll list
+7. When client fd has POLLIN, call recv() (?)
+8. Print received request
