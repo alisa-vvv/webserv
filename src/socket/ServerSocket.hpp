@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 21:29:33 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/25 16:28:53 by tutku            ###   ########.fr       */
+/*   Updated: 2026/05/25 23:33:12 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 #include <cerrno>		// errno
 #include <cstring>		// std::strerror
 #include <fcntl.h>
-
+#include <arpa/inet.h>
 
 #define SUCCESS 0
 #define ERROR -1
@@ -30,19 +30,25 @@ class ServerSocket
 {
 	private:
 		int _fd;
-		struct sockaddr_in _address; //address of the socket
+		int _port;
+		uint32_t _host;
+		struct sockaddr_in _address; // address of the socket
 
 	public:
 		ServerSocket();
-		ServerSocket &operator=(const ServerSocket &other);
-		ServerSocket(const ServerSocket &other);
+		ServerSocket(uint32_t &host, int port);
+		// ServerSocket &operator=(const ServerSocket &other);
+		// ServerSocket(const ServerSocket &other);
 		~ServerSocket();
 
 		int setup(void);
 		int createSocket(void);
+		int setNonBlocking(int fd);
+		int setSocketOptions();
+		int setAddress();
 		int bindSocket(void);
 		int listenSocket(void);
-		int get_fd();
+		int get_fd() const;
 		struct sockaddr_in &getAddress();
 		void closeSocket();
 };
