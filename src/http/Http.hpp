@@ -12,7 +12,8 @@ enum httpType {
 enum httpVersion {
 	HTTP_1_0,
 	HTTP_1_1,
-	HTTP_2
+	HTTP_2,
+	UNKNOWN
 };
 
 std::map<int, std::string> STATUS_MESSAGE = {
@@ -35,19 +36,21 @@ enum httpMethod {
 
 class Http {
 	private:
-		httpType							type;
-		httpMethod							method;
-		httpVersion							version;
-		int									statusCode;
-		int									contentLen;
-		bool								hasBody;
-		std::string							uri;
-		std::string							body;
-		std::map<std::string, std::string>	headers;
+		httpType							_type;
+		httpMethod							_method;
+		httpVersion							_version;
+		int									_statusCode;
+		int									_contentLen;
+		bool								_hasBody;
+		std::string							_uri;
+		std::string							_body;
+		std::map<std::string, std::string>	_headers;
 
 	public:
 		Http();
 		void			parseRequest(std::string rawString);
+		void			parseRequestLine(const std::string line);
+		void			parseHeaders(const std::string &headers);
 	
 		httpType		getType() const;
 		httpMethod		getMethod() const;
@@ -57,12 +60,13 @@ class Http {
 		std::string		getUri() const;
 		httpVersion		getVersion() const;
 		int				getStatusCode() const;
+		std::string		getResponseString(); //back to raw string for response
+
 	
 		void			setResponse(int code); //give statuscode, set header, set body
 		void			setHeader(const std::string &key, const std::string &value);
 		void			setBody(const std::string &body);
 
-		std::string		getResponseString(); //back to raw string for response
 		void			debugPrint();
 		
 	class HttpException : public std::exception {
@@ -77,7 +81,11 @@ class Http {
 			const char *what() const noexcept override {
 				return message.c_str();
 			}
-	}
+	};
 };
+
+void handleHttpRequest(Http &httpObject);
+std::string handleHttpResponse(Http &httpObject); //must take socket as param
+
 
 #endif
