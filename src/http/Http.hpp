@@ -64,6 +64,20 @@ class Http {
 
 		std::string		getResponseString(); //back to raw string for response
 		void			debugPrint();
+		
+	class HttpException : public std::exception {
+		private:
+			int statusCode;
+			std::string message;
+		public:
+			HttpException(int code) : statusCode(code){
+				message = "HTTP Error " + std::to_string(code) + ": " 
+				+ STATUS_MESSAGE.at(code);
+			}
+			const char *what() const noexcept override {
+				return message.c_str();
+			}
+	}
 };
 
 #endif
