@@ -6,11 +6,11 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 19:57:27 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/25 23:14:39 by tutku            ###   ########.fr       */
+/*   Updated: 2026/05/26 16:20:12 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ServerSocket.hpp"
+#include "Server.hpp"
 
 int main (int argc, char *argv[])
 {
@@ -25,7 +25,7 @@ int main (int argc, char *argv[])
 	int port = 8080;
 	uint32_t host = INADDR_ANY;
 	
-	ServerSocket server(host, port);
+	Server server(host, port); //later this should be argv[1] for config part(?)
 	if (server.setup() == ERROR)
 	{
 		return (1);
@@ -38,4 +38,15 @@ int main (int argc, char *argv[])
 Examples:
 0.0.0.0   -> INADDR_ANY / 0
 127.0.0.1 -> 0x7F000001
+*/
+
+/*
+flow:
+
+socket()
+setsockopt()
+fcntl(non-blocking)
+setAddress()
+bind()
+listen()
 */

@@ -1,49 +1,45 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerSocket.cpp                                   :+:      :+:    :+:   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/10 21:31:15 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/25 23:31:30 by tutku            ###   ########.fr       */
+/*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
+/*   Updated: 2026/05/26 16:49:36 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ServerSocket.hpp"
+#include "Server.hpp"
 
-void ServerSocket::closeSocket() //TODO: move to utils
+int Server::setup(void)
 {
-	if (_fd != -1)
-	{
-		close(_fd);
-		_fd = -1;
-	}
-}
-
-int ServerSocket::setup(void)
-{
-	if (this->createSocket() == ERROR)
+	if (this->_createSocket() == ERROR)
 	{
 		closeSocket();
 		return ERROR;
 	}
-	if (this->setSocketOptions() == ERROR)
+	if (this->_setSocketOptions() == ERROR)
 	{
 		closeSocket();
 		return ERROR;
 	}
-	if (this->setAddress() == ERROR)
+	if (_setNonBlocking(_fd) == ERROR)
 	{
 		closeSocket();
 		return ERROR;
 	}
-	if (this->bindSocket() == ERROR)
+	if (this->_setAddress() == ERROR)
 	{
 		closeSocket();
 		return ERROR;
 	}
-	if (this->listenSocket() == ERROR)
+	if (this->_bindSocket() == ERROR)
+	{
+		closeSocket();
+		return ERROR;
+	}
+	if (this->_listenSocket() == ERROR)
 	{
 		closeSocket();
 		return ERROR;
@@ -66,7 +62,7 @@ int ServerSocket::setup(void)
 	Return:
 		SUCCESS on success, ERROR on failure.
 */
-int ServerSocket::setNonBlocking(int fd)
+int Server::_setNonBlocking(int fd)
 {
 	int flags = fcntl(fd, F_GETFL, 0);
 	if (flags == ERROR)
@@ -89,7 +85,7 @@ int ServerSocket::setNonBlocking(int fd)
 	SOCK_STREAM: TCP socket
 	0: default protocol
 */
-int ServerSocket::createSocket()
+int Server::_createSocket()
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_fd == ERROR)
@@ -97,8 +93,8 @@ int ServerSocket::createSocket()
 		std::cerr << "Error opening socket: " << std::strerror(errno) << std::endl;
 		return ERROR;
 	}
-	if (setNonBlocking(_fd) == ERROR)
-		return ERROR;
+	// if (_setNonBlocking(_fd) == ERROR)
+	// 	return ERROR;
 	std::cout << "Socket created successfully!" << std::endl;
 	return SUCCESS;
 }
@@ -107,7 +103,7 @@ int ServerSocket::createSocket()
  SO_REUSEADDR option for when you restart the server, dont get:
 	Address already in use
 */
-int ServerSocket::setSocketOptions()
+int Server::_setSocketOptions()
 {
 	int opt = 1;
 
@@ -124,8 +120,10 @@ takes _host and _port
 converts them  into sockaddr_in
 Store result in _address
 */
-int ServerSocket::setAddress()
+int Server::_setAddress()
 {
+	ft_memset(&_address, 0, sizeof(_address));
+
 	_address.sin_family = AF_INET;
 	_address.sin_port = htons(_port);
 	_address.sin_addr.s_addr = htonl(_host);
@@ -135,7 +133,7 @@ int ServerSocket::setAddress()
 
 // finish this function by checking the documentation
 // https://www.linuxhowtos.org/C_C++/socket.htm
-int ServerSocket::bindSocket()
+int Server::_bindSocket()
 {
 	if (bind(_fd, (struct sockaddr *)&_address, sizeof(_address)) == ERROR)
 	{
@@ -146,9 +144,15 @@ int ServerSocket::bindSocket()
 	return SUCCESS;
 }
 
-int ServerSocket::listenSocket()
+/*
+int listen(int sockfd, int backlog);
+
+backlog is the max num of connections
+	that will be queued while the server is busy
+*/
+int Server::_listenSocket()
 {
-	if (listen(this->_fd, 128) == ERROR)
+	if (listen(this->_fd, BACKLOG) == ERROR)
 	{
 		std::cerr << "Couldn't listen socket!: " << std::strerror(errno) << std::endl;
 		return ERROR;
@@ -157,18 +161,23 @@ int ServerSocket::listenSocket()
 	return SUCCESS;
 }
 
-ServerSocket::ServerSocket() : _fd(-1)
+/*
+in case main is like, default values for host and port
+Server server;
+server.setup();
+*/
+Server::Server() : _fd(-1), _port(8080), _host(INADDR_ANY)
 {
 	ft_memset(&_address, 0, sizeof(_address));
 }
 
-ServerSocket::ServerSocket(uint32_t &host, int port) 
-	: _fd(-1), _host(host), _port(port)
+Server::Server(uint32_t host, int port)
+	: _fd(-1), _port(port), _host(host)
 {
 	ft_memset(&_address, 0, sizeof(_address));
 }
 
-// ServerSocket &ServerSocket::operator= (const ServerSocket &other)
+// Server &Server::operator= (const Server &other)
 // {
 // 	if (this != &other)
 // 	{
@@ -178,22 +187,31 @@ ServerSocket::ServerSocket(uint32_t &host, int port)
 // 	return (*this);
 // }
 
-// ServerSocket::ServerSocket(const ServerSocket &other)
+// Server::Server(const Server &other)
 // {
 // 	*this = other;
 // }
 
-ServerSocket::~ServerSocket()
+Server::~Server()
 {
 	closeSocket();
 }
 
-int ServerSocket::get_fd() const
+int Server::get_fd() const
 {
 	return (this->_fd);
 }
 
-struct sockaddr_in &ServerSocket::getAddress()
+struct sockaddr_in &Server::_getAddress()
 {
 	return (this->_address);
+}
+
+void Server::closeSocket()
+{
+	if (_fd != -1)
+	{
+		close(_fd);
+		_fd = -1;
+	}
 }
