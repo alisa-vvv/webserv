@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/26 18:30:34 by tutku            ###   ########.fr       */
+/*   Updated: 2026/05/28 00:27:41 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,15 @@
 #define SERVER_HPP
 
 #include <iostream>
+#include <vector>
 #include <unistd.h>		// close
 #include <sys/socket.h> // socket, AF_INET, SOCK_STREAM
 #include <netinet/in.h> // sockaddr_in
 #include <cerrno>		// errno
 #include <cstring>		// std::strerror
 #include <fcntl.h>
-#include <arpa/inet.h>
+#include <poll.h>
+#include <stdint.h>
 
 #define SUCCESS 0
 #define ERROR -1
@@ -34,7 +36,8 @@ private:
 	struct sockaddr_in _address; // address of the socket
 
 	int _fd;
-	std::vector<int> _fds;
+	// std::vector<int> _fds;
+	std::vector<struct pollfd> _pollFds;
 
 	int _createSocket(void);
 	int _setNonBlocking(int fd);
@@ -42,13 +45,14 @@ private:
 	int _setAddress();
 	int _bindSocket(void);
 	int _listenSocket(void);
-	
-	public:
+	int _initPollEvent(void);
+	Server(const Server &other);
+	Server &operator=(const Server &other);
+
+public:
 	Server();
 	Server(uint32_t host, int port);
 	~Server();
-	// Server &operator=(const Server &other);
-	// Server(const Server &other);
 	int setup(void);
 	int get_fd() const;
 	void closeSocket();
