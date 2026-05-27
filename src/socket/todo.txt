@@ -55,10 +55,66 @@ Connection to 127.0.0.1 8080 port [tcp/*] succeeded!
 
 Possible next steps
 1. Keep server fd non-blocking — already done
-2. Add poll()
+2. Add poll() - currently working on
 3. Add server fd to poll list
 4. When server fd has POLLIN, call accept()
 5. Make returned client fd non-blocking
 6. Add client fd to poll list
 7. When client fd has POLLIN, call recv() (?)
 8. Print received request
+
+// pseudocode for poll
+run server:
+
+    create pollfd for listening socket
+    add it to vector
+
+    while true:
+
+        ready_count = poll(vector.data, vector.size, -1)
+
+        if poll failed:
+            print error
+            return ERROR
+
+        i = 0
+        while i < vector.size:
+
+            current_fd = vector[i].fd
+            happened = vector[i].revents
+
+            if happened == 0:
+                i++
+                continue
+
+            if happened contains POLLERR or POLLHUP or POLLNVAL:
+                close current_fd
+                remove vector[i]
+                continue
+
+            if current_fd == server_fd:
+                accept all waiting clients
+                i++
+                continue
+
+            if happened contains POLLIN:
+                receive request from client
+
+                if client closed connection:
+                    close current_fd
+                    remove vector[i]
+                    continue
+
+                if full HTTP request is ready:
+                    create response
+                    vector[i].events = POLLOUT
+
+            else if happened contains POLLOUT:
+                send response to client
+
+                if response fully sent:
+                    close current_fd
+                    remove vector[i]
+                    continue
+
+            i++

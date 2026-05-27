@@ -20,3 +20,8 @@ sockets
 bind
 	https://www.ibm.com/docs/en/zvm/7.4.0?topic=descriptions-bind-bind-name-socket
 
+poll
+	https://pubs.opengroup.org/onlinepubs/009695399/functions/poll.html
+	https://www.youtube.com/watch?v=O-yMs3T0APU
+	https://man7.org/linux/man-pages/man2/poll.2.html
+	
