@@ -16,7 +16,7 @@ enum httpVersion {
 	UNKNOWN
 };
 
-std::map<int, std::string> STATUS_MESSAGE = {
+std::map<int, std::string> HTTP_STATUS_MESSAGE = {
 	{200, "OK"},
 	{201, "Created"},
 	{400, "Bad request"},
@@ -42,6 +42,7 @@ class Http {
 		int									_statusCode;
 		int									_contentLen;
 		bool								_hasBody;
+		bool								_hasExtension;
 		std::string							_uri;
 		std::string							_body;
 		std::map<std::string, std::string>	_headers;
@@ -76,7 +77,7 @@ class Http {
 		public:
 			HttpException(int code) : statusCode(code){
 				message = "HTTP Error " + std::to_string(code) + ": " 
-				+ STATUS_MESSAGE.at(code);
+				+ HTTP_STATUS_MESSAGE.at(code);
 			}
 			const char *what() const noexcept override {
 				return message.c_str();

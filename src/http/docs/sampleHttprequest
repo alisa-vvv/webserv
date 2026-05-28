@@ -4,5 +4,6 @@ Content-Type: application/json
 Content-Length: 37
 Connection: keep-alive
 Authorization: Bearer eyJhbGci...
+
 /r/n/r/n ->blank line indicates separator for header and body
 {"username": "ally", "active": true}
