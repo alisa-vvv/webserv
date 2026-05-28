@@ -15,3 +15,5 @@ cache/
 .cache/
 *subject.pdf
 compile_commands.json
+
+config_parser
