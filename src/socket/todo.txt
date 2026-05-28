@@ -6,6 +6,9 @@
 	* finished the function for socket's address
 	* finished listen
 	* on error cases, handled closing socket's _fd
+	* finished poll (current step)
+	* finished accept
+
 	
 
 * after calling socket() -> after recv()
@@ -20,7 +23,7 @@
 		if EWOULDBLOCK-> continue processing other sockets, then come back to this socket and try again
 	resource: http://dwise1.net/pgm/sockets/blocking.html
 
-TODO:
+TODO: handle received host and port values
 	add constructor to receive port and IP values from config side
 	change port and INADDR_ANY values when the config part is ready
 	now they are hardcoded
@@ -39,8 +42,8 @@ TODO:
 	else
 		_address.sin_addr.s_addr = inet_addr(host.c_str());
 
-TODO: 
-	add listen 
+TODO: add listen 
+	
 	After that, run your program and in another terminal:
 
 	lsof -iTCP:8080 -sTCP:LISTEN -P -n
@@ -48,20 +51,27 @@ TODO:
 	You should see your program using port 8080.
 	nc -vz 127.0.0.1 8080
 
-If it works, you may see something like:
+	If it works, you may see something like:
 
-Connection to 127.0.0.1 8080 port [tcp/*] succeeded!
+	Connection to 127.0.0.1 8080 port [tcp/*] succeeded!
 
 
 Possible next steps
-1. Keep server fd non-blocking — already done
-2. Add poll() - currently working on
-3. Add server fd to poll list
-4. When server fd has POLLIN, call accept()
-5. Make returned client fd non-blocking
-6. Add client fd to poll list
-7. When client fd has POLLIN, call recv() (?)
-8. Print received request
+	1. Keep server fd non-blocking — already done
+	2. Add poll() - currently working on
+	3. Add server fd to poll list
+	4. When server fd has POLLIN, call accept()
+	5. Make returned client fd non-blocking
+	6. Add client fd to poll list
+	7. When client fd has POLLIN, call recv() (?)
+	8. Print received request
+
+EWOULDBLOCK
+	This fd is non-blocking, and there is nothing more to read/accept right now.
+	poll()
+		-> tells you fd is ready
+		-> then call accept()/recv()
+		-> inside accept()/recv() loop, check EWOULDBLOCK
 
 // pseudocode for poll
 run server:

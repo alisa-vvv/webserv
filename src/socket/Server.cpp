@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/28 00:50:33 by tutku            ###   ########.fr       */
+/*   Updated: 2026/05/28 16:19:03 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,11 @@ int Server::setup(void)
 		return ERROR;
 	}
 	if (this->_initPollEvent() == ERROR)
+	{
+		closeSocket();
+		return ERROR;
+	}
+	if (this->_accept() == ERROR)
 	{
 		closeSocket();
 		return ERROR;
@@ -108,8 +113,6 @@ int Server::_createSocket()
 		std::cerr << "Error opening socket: " << std::strerror(errno) << std::endl;
 		return ERROR;
 	}
-	// if (_setNonBlocking(_fd) == ERROR)
-	// 	return ERROR;
 	std::cout << "Socket created successfully!" << std::endl;
 	return SUCCESS;
 }
@@ -178,19 +181,21 @@ int Server::_listenSocket()
 
 /*
 int poll(struct pollfd *fds, nfds_t nfds, int timeout);
-
-POLLIN There is data to read.
+poll() tells you which fd is ready to do something.
+poll() only fills revents inside existing _pollFds
 
 fd      = the fd you want to watch
 events  = what you are interested in
 revents = what actually happened
-          if fd<0 -> revents return 0
+if fd < 0 --> revents return 0
 
 return values:
-	> 0   number of fds with events
-	0     timeout happened
-	-1    error, wait forever until something happens
+> 0   number of fds with events
+0   timeout happened
+-1   error, wait forever until something happens
 
+POLLIN There is data to read -> a new client is trying to connect
+if TIMEOUT is -1, block until an event occurs
 */
 int Server::_initPollEvent()
 {
@@ -200,23 +205,66 @@ int Server::_initPollEvent()
 	pollFdServer.fd = this->_fd;
 	pollFdServer.events = POLLIN;
 	pollFdServer.revents = 0;
-	_pollFds.push_back(pollFdServer);
+	 _pollFds.push_back(pollFdServer);
 
 	while (1)
 	{
-		pollFdCount = poll(_pollFds.data(), _pollFds.size(), 100);
+		pollFdCount = poll(_pollFds.data(), _pollFds.size(), 1000); //TODO: check if -1 is correct
+		//_pollFds.push_back(pollfd_for_clientFd);
+		//_clients[clientFd] = Client(clientFd);
 		if (pollFdCount == -1) //error and wait
 		{
-			
+			continue;
 		}
-		else if (pollFdCount == 0) //timeout
+		//handle timeouts
+		//check all fds
+		if (pollFdCount == 0) //timeout
 		{
-
+			continue;
 		}
-		
-		
 	}
 }
+
+/*
+setup()
+    socket()  -> creates server fd, example fd 3
+    bind()    -> attaches fd 3 to IP/port
+    listen()  -> fd 3 starts listening
+    add fd 3 to _pollFds
+
+run()
+    while server is running:
+        poll(_pollFds)
+
+        for each fd in _pollFds:
+
+            if fd is server fd:
+                if revents has POLLIN:
+                    accept(serverFd)
+                        -> returns new client fd, example fd 7
+                    add fd 7 to _pollFds
+                    create Client object for fd 7
+
+            else if fd is client fd:
+                if revents has POLLIN:
+                    recv(clientFd)
+                    store data in that Client object
+
+                if revents has POLLOUT:
+                    send(clientFd)
+                    send data from that Client object
+*/
+/*
+if (server_fd has POLLIN)
+{
+    accept clients until accept() says EWOULDBLOCK;
+}
+
+if (client_fd has POLLIN)
+{
+    recv data until recv() says EWOULDBLOCK;
+}
+*/
 
 /*
 pseudocode for poll
@@ -258,10 +306,50 @@ while server is running:
 					remove from poll list
 */
 
+
+/*
+Use this listening/server fd to accept one waiting connection.
+It returns a new client fd.
+
+if clientFd== -1
+This fd is non-blocking.
+You tried to accept/read more,
+but there is nothing more available right now.
+Go back to poll().
+*/
+int Server::_accept(void) //TODO:finish
+{
+	//if (_pollFds[i].fd == serverFd && _pollFds[i].revents & POLLIN) //Someone is trying to connect to the server.
+    // accept new clients
+
+	int clientFd = accept(_fd, (struct sockaddr*)&_address, (socklen_t*)&_address);
+
+	if (clientFd == ERROR)
+	{
+		if (errno == EWOULDBLOCK || errno == EAGAIN)
+		{
+			// not a real fatal error
+        	// no more clients waiting right now
+		}
+		else
+		{
+			std::cerr << "Failed to grab connection. " << std::strerror(errno) << std::endl;
+			return ERROR;
+		}
+	}
+	else
+	{
+		//accepted one client
+		//add it to poll/client storage
+	}
+
+	//START READING
+}
+
 /*
 in case main is like, default values for host and port
-Server server;
-server.setup();
+	Server server;
+	server.setup();
 */
 Server::Server() : _port(8080), _host(INADDR_ANY), _fd(-1)
 {
@@ -273,21 +361,6 @@ Server::Server(uint32_t host, int port)
 {
 	ft_memset(&_address, 0, sizeof(_address));
 }
-
-// Server &Server::operator= (const Server &other)
-// {
-// 	if (this != &other)
-// 	{
-// 		this->_fd = other._fd;
-// 		this->_address = other._address;
-// 	}
-// 	return (*this);
-// }
-
-// Server::Server(const Server &other)
-// {
-// 	*this = other;
-// }
 
 Server::~Server()
 {
@@ -307,3 +380,31 @@ void Server::closeSocket()
 		_fd = -1;
 	}
 }
+
+//test
+void Server::printPortNumber()
+{
+	 /* Find out assigned port number and print it out. */
+	int length = sizeof(_address);
+	if (getsockname(_fd, (struct sockaddr *)&_address, (socklen_t*)&length))
+	{
+		perror("getting socket name");
+		exit(1);
+	}
+	printf("Socket has port #%d\n", ntohs(_address.sin_port));
+}
+
+// Server &Server::operator= (const Server &other)
+// {
+// 	if (this != &other)
+// 	{
+// 		this->_fd = other._fd;
+// 		this->_address = other._address;
+// 	}
+// 	return (*this);
+// }
+
+// Server::Server(const Server &other)
+// {
+// 	*this = other;
+// }

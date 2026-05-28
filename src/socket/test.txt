@@ -1,0 +1,20 @@
+how to test with curl
+
+# GET a static file
+curl -v http://localhost:8080/
+
+# Upload a file
+curl -v -X POST http://localhost:8080/upload \
+  -F "file=@/path/to/file.txt"
+
+# Delete a file
+curl -v -X DELETE http://localhost:8080/upload/file.txt
+
+# Test redirection
+curl -v http://localhost:8080/concerts
+
+Load test with siege
+
+siege -c 10 -t 30s http://localhost:8080/
+
+-c sets the number of concurrent users, -t sets the duration.

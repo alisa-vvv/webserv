@@ -3,15 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/28 00:27:41 by tutku            ###   ########.fr       */
+/*   Updated: 2026/05/28 15:44:18 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
+
+#include "Client.hpp"
 
 #include <iostream>
 #include <vector>
@@ -23,6 +25,7 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <stdint.h>
+#include <map>
 
 #define SUCCESS 0
 #define ERROR -1
@@ -37,7 +40,8 @@ private:
 
 	int _fd;
 	// std::vector<int> _fds;
-	std::vector<struct pollfd> _pollFds;
+	std::vector<struct pollfd> _pollFds; //stores the fds you want poll() to watch
+	std::map<int, Client>      _clients;
 
 	int _createSocket(void);
 	int _setNonBlocking(int fd);
@@ -46,6 +50,7 @@ private:
 	int _bindSocket(void);
 	int _listenSocket(void);
 	int _initPollEvent(void);
+	int _accept(void);
 	Server(const Server &other);
 	Server &operator=(const Server &other);
 
@@ -56,6 +61,7 @@ public:
 	int setup(void);
 	int get_fd() const;
 	void closeSocket();
+	void printPortNumber();
 };
 
 void *ft_memset(void *s, int c, size_t n);
