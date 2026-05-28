@@ -21,11 +21,11 @@ std::map<int, std::string> STATUS_MESSAGE = {
 	{201, "Created"},
 	{400, "Bad request"},
 	{401, "Unauthorized"},
-	{403, "Forbidden"},
+	{403, "Forbidden"}, //no permission
 	{404, "Not Found"},
 	{408, "Request Timeout"},
 	{500, "Internal Server Error"}
-};
+}; //405 408 409 413 415 500 502 504
 
 enum httpMethod {
 	GET,
