@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/05/28 13:16:53 by avaliull            #+#    #+#           */
-/*   Updated: 2026/05/28 16:17:38 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/05/28 17:10:04 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,15 @@ typedef enum e_token_type {
 } e_token_type;
 
 typedef struct	s_token {
-	e_token_type	token_type;
-	std::string		token_val;
+	e_token_type	type;
+	std::string		val;
 }	t_config_token;
 
+class	parsingInfo {
+public:
+	const std::string	depth0_valid_block_names	{ "server", };
+	const std::string	depth1_valid_block_names	{};
+};
 class	config {
 public:
 private:
