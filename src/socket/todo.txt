@@ -128,3 +128,84 @@ run server:
                     continue
 
             i++
+
+/*
+setup()
+    socket()  -> creates server fd, example fd 3
+    bind()    -> attaches fd 3 to IP/port
+    listen()  -> fd 3 starts listening
+    add fd 3 to _pollFds
+
+run()
+    while server is running:
+        poll(_pollFds)
+
+        for each fd in _pollFds:
+
+            if fd is server fd:
+                if revents has POLLIN:
+                    accept(serverFd)
+                        -> returns new client fd, example fd 7
+                    add fd 7 to _pollFds
+                    create Client object for fd 7
+
+            else if fd is client fd:
+                if revents has POLLIN:
+                    recv(clientFd)
+                    store data in that Client object
+
+                if revents has POLLOUT:
+                    send(clientFd)
+                    send data from that Client object
+*/
+/*
+if (server_fd has POLLIN)
+{
+    accept clients until accept() says EWOULDBLOCK;
+}
+
+if (client_fd has POLLIN)
+{
+    recv data until recv() says EWOULDBLOCK;
+}
+*/
+
+/*
+pseudocode for poll
+server.setup()
+
+add server fd to poll list with POLLIN
+
+while server is running:
+	call poll()
+
+	for each pollfd in poll list:  while i < vector.size:
+		if nothing happened:
+			continue
+
+		if fd has error/hangup:
+			close fd
+			remove from poll list
+			continue
+
+		if fd is server fd:
+			accept new client(s)
+			set client fd non-blocking
+			add client fd to poll list with POLLIN
+
+		else:
+			if client fd has POLLIN:
+				recv data from client
+				give data to HTTP parser
+
+				if full request is ready:
+					prepare response
+					change client events to POLLOUT
+
+			if client fd has POLLOUT:
+				send response
+
+				if full response is sent:
+					close client
+					remove from poll list
+*/

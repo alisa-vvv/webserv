@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/28 15:44:18 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/05/31 17:52:55 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,8 @@ private:
 	int _bindSocket(void);
 	int _listenSocket(void);
 	int _initPollEvent(void);
-	int _accept(void);
+	void _addFdToPoll(int fd);
+	int _accept(int serverListenFd);
 	Server(const Server &other);
 	Server &operator=(const Server &other);
 
