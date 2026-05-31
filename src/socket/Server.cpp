@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/28 16:19:03 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/05/31 18:42:38 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,11 +55,6 @@ int Server::setup(void)
 		return ERROR;
 	}
 	if (this->_initPollEvent() == ERROR)
-	{
-		closeSocket();
-		return ERROR;
-	}
-	if (this->_accept() == ERROR)
 	{
 		closeSocket();
 		return ERROR;
@@ -140,7 +135,7 @@ Store result in _address
 */
 int Server::_setAddress()
 {
-	ft_memset(&_address, 0, sizeof(_address));
+	memset(&_address, 0, sizeof(_address));
 
 	_address.sin_family = AF_INET;
 	_address.sin_port = htons(_port);
@@ -179,6 +174,18 @@ int Server::_listenSocket()
 	return SUCCESS;
 }
 
+// Add fd to the list of fds that poll() should watch
+void Server::_addFdToPoll(int fd)
+{
+	struct pollfd pollFdServer;
+
+	pollFdServer.fd = fd;
+	pollFdServer.events = POLLIN;
+	pollFdServer.revents = 0;
+
+	_pollFds.push_back(pollFdServer);
+}
+
 /*
 int poll(struct pollfd *fds, nfds_t nfds, int timeout);
 poll() tells you which fd is ready to do something.
@@ -199,151 +206,69 @@ if TIMEOUT is -1, block until an event occurs
 */
 int Server::_initPollEvent()
 {
-	struct pollfd pollFdServer;
 	int pollFdCount;
 
-	pollFdServer.fd = this->_fd;
-	pollFdServer.events = POLLIN;
-	pollFdServer.revents = 0;
-	 _pollFds.push_back(pollFdServer);
-
+	_addFdToPoll(_fd); // add listening socket fd
 	while (1)
 	{
-		pollFdCount = poll(_pollFds.data(), _pollFds.size(), 1000); //TODO: check if -1 is correct
+		pollFdCount = poll(_pollFds.data(), _pollFds.size(), 1000);
 		//_pollFds.push_back(pollfd_for_clientFd);
 		//_clients[clientFd] = Client(clientFd);
-		if (pollFdCount == -1) //error and wait
+		if (pollFdCount == ERROR) //error and wait
 		{
 			continue;
 		}
-		//handle timeouts
-		//check all fds
-		if (pollFdCount == 0) //timeout
+		for (int i = 0; i < _pollFds.size(); i++)
 		{
-			continue;
+			if (_pollFds[i].revents != 0)
+			{
+				printf("  fd=%d; events: %s%s%s\n", _pollFds[i].fd,
+					   (_pollFds[i].revents & POLLIN) ? "POLLIN " : "",
+					   (_pollFds[i].revents & POLLHUP) ? "POLLHUP " : "",
+					   (_pollFds[i].revents & POLLERR) ? "POLLERR " : "");
+				if (_pollFds[i].fd == _fd && _pollFds[i].revents & POLLIN)
+				{
+					// _accept();
+				}
+			}
 		}
+			// handle timeouts
+			// check all fds
+			if (pollFdCount == 0) // timeout
+			{
+				continue;
+			}
 	}
 }
 
 /*
-setup()
-    socket()  -> creates server fd, example fd 3
-    bind()    -> attaches fd 3 to IP/port
-    listen()  -> fd 3 starts listening
-    add fd 3 to _pollFds
-
-run()
-    while server is running:
-        poll(_pollFds)
-
-        for each fd in _pollFds:
-
-            if fd is server fd:
-                if revents has POLLIN:
-                    accept(serverFd)
-                        -> returns new client fd, example fd 7
-                    add fd 7 to _pollFds
-                    create Client object for fd 7
-
-            else if fd is client fd:
-                if revents has POLLIN:
-                    recv(clientFd)
-                    store data in that Client object
-
-                if revents has POLLOUT:
-                    send(clientFd)
-                    send data from that Client object
-*/
-/*
-if (server_fd has POLLIN)
-{
-    accept clients until accept() says EWOULDBLOCK;
-}
-
-if (client_fd has POLLIN)
-{
-    recv data until recv() says EWOULDBLOCK;
-}
-*/
-
-/*
-pseudocode for poll
-server.setup()
-
-add server fd to poll list with POLLIN
-
-while server is running:
-	call poll()
-
-	for each pollfd in poll list:  while i < vector.size:
-		if nothing happened:
-			continue
-
-		if fd has error/hangup:
-			close fd
-			remove from poll list
-			continue
-
-		if fd is server fd:
-			accept new client(s)
-			set client fd non-blocking
-			add client fd to poll list with POLLIN
-
-		else:
-			if client fd has POLLIN:
-				recv data from client
-				give data to HTTP parser
-
-				if full request is ready:
-					prepare response
-					change client events to POLLOUT
-
-			if client fd has POLLOUT:
-				send response
-
-				if full response is sent:
-					close client
-					remove from poll list
-*/
-
-
-/*
-Use this listening/server fd to accept one waiting connection.
+Use listening/server fd to accept one waiting connection.
 It returns a new client fd.
-
-if clientFd== -1
-This fd is non-blocking.
-You tried to accept/read more,
-but there is nothing more available right now.
-Go back to poll().
 */
-int Server::_accept(void) //TODO:finish
+int Server::_accept(int serverListenFd)
 {
-	//if (_pollFds[i].fd == serverFd && _pollFds[i].revents & POLLIN) //Someone is trying to connect to the server.
-    // accept new clients
-
-	int clientFd = accept(_fd, (struct sockaddr*)&_address, (socklen_t*)&_address);
-
-	if (clientFd == ERROR)
+	while (1)
 	{
-		if (errno == EWOULDBLOCK || errno == EAGAIN)
-		{
-			// not a real fatal error
-        	// no more clients waiting right now
-		}
-		else
-		{
-			std::cerr << "Failed to grab connection. " << std::strerror(errno) << std::endl;
-			return ERROR;
-		}
-	}
-	else
-	{
-		//accepted one client
-		//add it to poll/client storage
-	}
+		int clientFd = accept(serverListenFd, NULL, NULL);
 
-	//START READING
+		if (clientFd >= 0)
+		{
+			if (_setNonBlocking(clientFd) == ERROR)
+			{
+				close(clientFd);
+				continue;
+			}
+			_addFdToPoll(clientFd);
+			continue;
+		}
+		else if (errno == EWOULDBLOCK || errno == EAGAIN)
+			break;
+		// TODO: add if case for signals:
+		// check man page for accept() -> EINTR and ECONNABORTED
+		std::cerr << "Error accept(): " << std::strerror(errno) << std::endl;
+		break;
+	}
+	return SUCCESS;
 }
 
 /*
@@ -353,13 +278,13 @@ in case main is like, default values for host and port
 */
 Server::Server() : _port(8080), _host(INADDR_ANY), _fd(-1)
 {
-	ft_memset(&_address, 0, sizeof(_address));
+	memset(&_address, 0, sizeof(_address));
 }
 
 Server::Server(uint32_t host, int port)
 	: _port(port), _host(host), _fd(-1)
 {
-	ft_memset(&_address, 0, sizeof(_address));
+	memset(&_address, 0, sizeof(_address));
 }
 
 Server::~Server()
