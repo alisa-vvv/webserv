@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/02 14:12:19 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/02 16:56:27 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,17 @@ void Server::_addFdToPoll(int fd)
 	_pollFds.push_back(pollFdServer);
 }
 
+//test
+void Server::printPollInfo(int i)
+{
+	std::cout << "fd=" << _pollFds[i].fd
+			  << "events:"
+			  << ((_pollFds[i].revents & POLLIN) ? "POLLIN " : "")
+			  << ((_pollFds[i].revents & POLLHUP) ? "POLLHUP " : "")
+			  << ((_pollFds[i].revents & POLLERR) ? "POLLERR " : "")
+			  << std::endl;
+}
+
 /*
 int poll(struct pollfd *fds, nfds_t nfds, int timeout);
 poll() tells you which fd is ready to do something.
@@ -106,17 +117,25 @@ int Server::_initPollEvent()
 		{
 			continue;
 		}
+		if (pollFdCount == 0) //timeout, nothing happened
+		{
+			continue;
+		}
 		for (int i = 0; i < (int)(_pollFds.size()); i++)
 		{
+			if (_pollFds[i].revents == 0)
+				continue;
 			if (_pollFds[i].revents != 0)
 			{
-				printf("  fd=%d; events: %s%s%s\n", _pollFds[i].fd,
-					   (_pollFds[i].revents & POLLIN) ? "POLLIN " : "",
-					   (_pollFds[i].revents & POLLHUP) ? "POLLHUP " : "",
-					   (_pollFds[i].revents & POLLERR) ? "POLLERR " : "");
-				if (_pollFds[i].fd == _fd && _pollFds[i].revents & POLLIN)
+				printPollInfo(i); //test
+				if (_pollFds[i].fd == _fd && (_pollFds[i].revents & POLLIN)) //new client waiting to connect
 				{
-					// _accept();
+					_accept(_fd);
+				}
+				else if (_pollFds[i].revents & POLLIN)
+				{
+					// client fd is ready: recv data
+					printf("TODO: recv comes here");
 				}
 			}
 		}

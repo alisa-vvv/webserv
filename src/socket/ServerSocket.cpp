@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 14:04:20 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/02 14:09:14 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/02 16:43:41 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,10 @@ int Server::_accept(int serverListenFd)
 				continue;
 			}
 			_addFdToPoll(clientFd);
+
+			Client newClient(clientFd);
+			_clients[clientFd] = newClient;
+			
 			continue;
 		}
 		else if (errno == EWOULDBLOCK || errno == EAGAIN)
