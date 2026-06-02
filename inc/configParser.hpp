@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/05/28 13:16:53 by avaliull            #+#    #+#           */
-/*   Updated: 2026/05/28 17:10:04 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/02 18:16:03 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,12 +58,6 @@ typedef struct	s_token {
 	e_token_type	type;
 	std::string		val;
 }	t_config_token;
-
-class	parsingInfo {
-public:
-	const std::string	depth0_valid_block_names	{ "server", };
-	const std::string	depth1_valid_block_names	{};
-};
 
 class	Config {
 	typedef struct cfg_server_t {
