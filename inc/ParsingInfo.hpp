@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/06/02 18:15:08 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/02 18:22:25 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/02 19:48:12 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ public:
 		"error_page",
 		"client_max_body_size",
 		"cgi_pass",
+		"autoindex",
 	};
 	const std::vector<std::string>	location_valid_block_names {
 		"root",
@@ -33,6 +34,7 @@ public:
 		"upload_store",
 		"cgi_pass",
 		"return",
+		"autoindex",
 	};
 	const std::vector<std::string>	method_valid_names {
 		"GET",
