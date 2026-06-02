@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/05/28 13:13:56 by avaliull            #+#    #+#           */
-/*   Updated: 2026/05/28 17:41:20 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/02 19:44:59 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ bool	tokenIsAlpha(t_config_token& token) {
 // FINDING_BLOCK
 e_state_label	findBlock(
 	std::vector<t_config_token>& tokens,
-	size_t& i,
+	size_t i,
 	int& depth
 ) {
 	t_config_token&	cur_token = tokens.at(i);
@@ -177,14 +177,13 @@ void	evalTokensError(int depth, bool in_keyval) {
 int	evaluateTokens(std::vector<t_config_token>& tokens) {
 	int				depth = 0;
 	bool			in_keyval = false;
-	size_t			i = 0;
 	e_state_label	cur_state = FINDING_BLOCK;
 
-	while (i < tokens.size()) {
+	for (size_t i = 0; i < tokens.size(); i++) {
 		if (tokens.at(i).type != UNDEFINED_TYPE) {
-			;
 			//std::cout << "skipping evalled token: ";
 			//TEST_print_one_token(tokens.at(i), i);
+			continue ;
 		}
 		else if (cur_state == FINDING_BLOCK) {
 			cur_state = findBlock(tokens, i, depth);
@@ -202,11 +201,11 @@ int	evaluateTokens(std::vector<t_config_token>& tokens) {
 			//TEST_print_one_token(tokens.at(i), i);
 			//std::cout << "after STATE_4, returned: " << TEST_state_to_str(cur_state) << '\n';
 		}
+		// this else should never happen unless things are broken. remove later!
 		else {
 			std::cout << "breaking nwes: \n" << TEST_state_to_str(cur_state) << '\n';
 			break ;
 		}
-		i++;
 	}
 	if (in_keyval == true || depth > 0) {
 		evalTokensError(depth, in_keyval);
@@ -223,6 +222,5 @@ int	parseConfig() {
 		return (1);
 	else
 		TEST_print_tokens(tokens);
-
 	return (0);
 }
