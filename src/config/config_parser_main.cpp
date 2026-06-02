@@ -20,7 +20,4 @@
 int	main(void) {
 	const	ParsingInfo	parsing_info;
 	parseConfig();
-	Config	newConf;
-
-	std::cout << newConf.servers[0].listen.host;
 }

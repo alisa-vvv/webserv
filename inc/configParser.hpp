@@ -21,20 +21,9 @@
 #  define	CLR_GRN "\033[92m"
 #  define	CLR_MAG "\033[95m"
 # endif // CLR_NON and other CLR defines
-//
+
 #define CONFIG_PATH_DEFAULT "config/default.conf"
 #define CONFIG_PATH_TEST "config/test.conf"
-
-// Config format::
-// name {
-// 	key	value;
-//
-// 	key	value1
-// 		value2
-// 		value3;
-// }
-// etc.
-//
 
 typedef enum e_config_mode {
 	CONFIG_MODE_TEST,
@@ -44,8 +33,8 @@ typedef enum e_config_mode {
 
 typedef enum e_token_type {
 	UNDEFINED_TYPE,
-	BLOCK_NAME, // example: location
-	BLOCK_PREFIX, // example: /cgi-bin
+	BLOCK_NAME,
+	BLOCK_PREFIX,
 	BRACE_OPEN,
 	BRACE_CLOSE,
 	KEY,
@@ -54,10 +43,16 @@ typedef enum e_token_type {
 	NEWLINE,
 } e_token_type;
 
+
 typedef struct	s_token {
 	e_token_type	type;
 	std::string		val;
 }	t_config_token;
+
+typedef enum	e_state_label {
+	FINDING_BLOCK,
+	FINDING_VALUES,
+}	e_state_label;
 
 class	Config {
 	typedef struct cfg_server_t {

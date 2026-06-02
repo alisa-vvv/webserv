@@ -24,12 +24,15 @@ public:
 		"location",
 		"error_page",
 		"client_max_body_size",
+		"cgi_pass",
 	};
 	const std::vector<std::string>	location_valid_block_names {
 		"root",
 		"index",
 		"allowed_methods",
 		"upload_store",
+		"cgi_pass",
+		"return",
 	};
 	const std::vector<std::string>	method_valid_names {
 		"GET",
@@ -37,4 +40,3 @@ public:
 		"DELETE",
 	};
 };
-
