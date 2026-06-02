@@ -3,12 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:18 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/05/28 15:46:44 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/02 16:27:30 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "Client.hpp"
 
+Client::Client() //set fd=-1??
+{
+
+}
+
+Client::Client(int fd) : fd(fd)
+{
+
+}
+
+Client ::~Client()
+{
+
+}

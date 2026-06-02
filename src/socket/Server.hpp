@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/31 17:52:55 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/02 16:24:41 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 #include <poll.h>
 #include <stdint.h>
 #include <map>
+#include <ctime>
 
 #define SUCCESS 0
 #define ERROR -1
@@ -38,10 +39,10 @@ private:
 	uint32_t _host;
 	struct sockaddr_in _address; // address of the socket
 
-	int _fd;
+	int _fd;								// the server/listening socket
 	// std::vector<int> _fds;
-	std::vector<struct pollfd> _pollFds; //stores the fds you want poll() to watch
-	std::map<int, Client>      _clients;
+	std::vector<struct pollfd> _pollFds;	// the list poll() watches
+	std::map<int, Client> _clients;			// client state, found by client fd
 
 	int _createSocket(void);
 	int _setNonBlocking(int fd);
@@ -63,9 +64,34 @@ public:
 	int get_fd() const;
 	void closeSocket();
 	void printPortNumber();
+	void printPollInfo(int i);
 };
 
 void *ft_memset(void *s, int c, size_t n);
 
 #endif
 
+/*
+_fd
+  the listening/server socket
+
+clientFd
+  one connected client socket, returned by accept()
+
+_pollFds vector -> who should I watch?, tells who is ready
+  list of all fds poll() should watch
+  pollfds has both:
+	server fd  -> used for accept()
+	client fds -> used for recv()/send()
+
+_clients map -> what do I know about this client?
+  actual per-client data/state, looked up by fd
+*/
+
+/*
+server fd  + POLLIN = accept()
+		a new client is waiting to connect
+
+client fd  + POLLIN = recv()
+		this connected client sent data, so recv() can read it
+*/
