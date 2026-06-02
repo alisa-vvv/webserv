@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include <string>
+#include <vector>
 
 # ifndef CLR_NON
 #  define	CLR_NON "\033[0m"
@@ -42,8 +43,9 @@ typedef enum e_config_mode {
 }	e_config_mode;
 
 typedef enum e_token_type {
+	UNDEFINED_TYPE,
 	BLOCK_NAME, // example: location
-	BLOCK_VAL, // example: /cgi-bin
+	BLOCK_PREFIX, // example: /cgi-bin
 	BRACE_OPEN,
 	BRACE_CLOSE,
 	KEY,
@@ -62,10 +64,16 @@ public:
 	const std::string	depth0_valid_block_names	{ "server", };
 	const std::string	depth1_valid_block_names	{};
 };
-class	config {
+
+class	Config {
+	typedef struct cfg_server_t {
+		struct {
+			char*	host;
+			char*	port;
+		}	listen;
+	}	cfg_server_t;
 public:
-private:
-	// int[2]? interface_port_pair;
+	std::vector<cfg_server_t>	servers;
 	// default errror pages;
 	// maximum size allowed for client request bodies
 	// rules on url route:
