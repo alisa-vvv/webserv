@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/02 16:56:27 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/04 00:15:10 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ return values:
 
 POLLIN There is data to read -> a new client is trying to connect
 if TIMEOUT is -1, block until an event occurs
+// A POLLHUP means the socket is no longer connected
 */
 int Server::_initPollEvent()
 {
@@ -137,6 +138,11 @@ int Server::_initPollEvent()
 					// client fd is ready: recv data
 					printf("TODO: recv comes here");
 				}
+				else if (_pollFds[i].revents & (POLLHUP | POLLERR | POLLNVAL)) //TODO:recheck
+				{
+					_closeClientFd(_pollFds[i].fd);
+					continue;
+				}
 			}
 		}
 			// handle timeouts
@@ -146,6 +152,17 @@ int Server::_initPollEvent()
 				continue;
 			}
 	}
+}
+
+/*
+TODO: finish this function
+close fd
+remove clientFd from _pollFds
+erase clientFd from _clients
+*/
+void Server::_closeClientFd(int fd)
+{
+	close(fd);
 }
 
 /*

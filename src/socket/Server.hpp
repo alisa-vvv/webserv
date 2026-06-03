@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/02 16:24:41 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/02 17:08:23 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ private:
 	int _initPollEvent(void);
 	void _addFdToPoll(int fd);
 	int _accept(int serverListenFd);
+	void _closeClientFd(int fd);
 	Server(const Server &other);
 	Server &operator=(const Server &other);
 
