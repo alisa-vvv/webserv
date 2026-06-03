@@ -47,10 +47,11 @@ typedef enum e_token_type {
 	VALUE,
 	SEMICOLON,
 	NEWLINE,
+	EVALUATED,
 } e_token_type;
 
 
-typedef struct	s_token {
+typedef struct	t_config_token {
 	e_token_type	type;
 	std::string		val;
 }	t_config_token;
@@ -60,27 +61,68 @@ typedef enum	e_state_label {
 	FINDING_VALUES,
 }	e_state_label;
 
+/*
+* Data structures that are used inside Config class
+*/
+	/*	error_page	*/
+typedef struct t_error_page {
+	int			error_num;
+	std::string	redirect;
+}	t_error_page;
+
+	/*	methods	*/
+typedef enum {
+	GET,
+	POST,
+	DELETE,
+}	e_method;
+
+	/* cgi_pass	*/
+typedef struct t_cgi_pass {
+	std::vector<std::string>	params; // not sure what these should look like
+}	t_cgi_pass;
+
+	/*	return	*/
+typedef struct t_return {
+	std::vector<std::string>	params; // not sure what these should look like
+}	t_return;
+
+	/*	location	*/
+typedef struct t_location {
+	std::string				prefix;
+	std::string				root;
+	std::string				index;
+	bool					autoindex;
+	std::vector<e_method>	allowed_methods;
+	std::string				upload_store;
+	t_cgi_pass				cgi_pass;
+	t_return				returns;
+	// djahsds
+}	t_location;
+
+	/*	server	*/
+typedef struct cfg_server_t {
+	struct {
+		char*		host;
+		char*		port;
+		uint32_t	ip_addr;
+	}	listen;
+	std::string					root;
+	size_t						client_max_body_size;
+	std::vector<t_error_page>	error_pages;
+	std::vector<t_location>		locations;
+	bool						autoindex;
+	//	"cgi_pass", - need that here as well
+}	cfg_server_t;
+/*
+*/
+
 class	Config {
-	typedef struct cfg_server_t {
-		struct {
-			char*	host;
-			char*	port;
-		}	listen;
-	}	cfg_server_t;
 public:
+	bool	is_correct = false;
 	std::vector<cfg_server_t>	servers;
-	// default errror pages;
-	// maximum size allowed for client request bodies
-	// rules on url route:
-	// 	list of accepted HTTP methods for the rotue;
-	// 	HTTP redirection;
-	// 	Directory where the requested file should be located;
-	// 	enable or disable directory listing;
-	// 	default file to serve when the requested resource is a directory;
-	// 	is uploading authorized
-	// 	extension of cgi
 };
 
-int							parseConfig([[maybe_unused]] const ParsingInfo parsing_info);
+int							parseConfig(const ParsingInfo parsing_info);
 std::vector<t_config_token>	tokenize(std::ifstream&	config_file);
 int							evaluateTokens(std::vector<t_config_token>& tokens);

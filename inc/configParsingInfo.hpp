@@ -16,21 +16,44 @@
 #include <string>
 #include <vector>
 
+typedef enum	e_context {
+	GLOBAL,
+	SERVER,
+	LOCATION,
+}	e_context;
+
+// Function pointer type for token parsers
+typedef	bool (*tokenParserFnPtr_t)(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& block_start_idx,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+);
+bool fillListenField(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& block_start_idx,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+);
+
+// Adds a new server to the Config
+bool fillServerField(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& block_start_idx,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+);
+
 // Contains vectors with allowed block names.
 // Each allowed block name corresponds to a function that fills the corresponding
 // values inside a Config instance.
-
 class	ParsingInfo {
 public:
 	const std::vector<std::string>	depth0_valid_block_names {
 		"server",
 	};
-	const std::vector<
-		bool (*)(
-			const ParsingInfo&,
-			const size_t&,
-			const std::vector<t_config_token>&
-	)>	depth_0_matching_functions {
+	const std::vector<tokenParserFnPtr_t>	depth_0_matching_functions {
+		(tokenParserFnPtr_t) fillServerField,
 	};
 
 	const std::vector<std::string>	server_valid_block_names {
@@ -42,6 +65,10 @@ public:
 		"cgi_pass",
 		"autoindex",
 	};
+	const std::vector<tokenParserFnPtr_t>	server_matching_functions {
+		(tokenParserFnPtr_t) fillListenField,
+	};
+
 	const std::vector<std::string>	location_valid_block_names {
 		"root",
 		"index",
