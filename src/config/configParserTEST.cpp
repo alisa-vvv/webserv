@@ -28,6 +28,9 @@ void	TEST_print_one_token(t_config_token& token, size_t token_idx) {
 		std::cout << "\tTYPE:\t";
 		std::cout << CLR_GRN;
 		switch (token.type) {
+			case EVALUATED:
+				std::cout << CLR_CYA <<  "EVALUATED" << CLR_GRN;
+				break ;
 			case UNDEFINED_TYPE:
 				std::cout << CLR_RED <<  "UNDEFINED_TYPE" << CLR_GRN;
 				break ;
