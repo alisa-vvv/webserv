@@ -6,15 +6,15 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/05/28 13:13:56 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/02 19:44:59 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/03 15:50:42 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "configParser.hpp"
-#include <iostream>
+#include "configParserTEST.hpp"
+#include "configParsingInfo.hpp"
 #include <fstream>
 #include <vector>
-#include <sstream>
 
 bool	tokenIsAlpha(t_config_token& token) {
 	if (token.val.find_first_not_of("abcdefghijklmnopqrstuvwxyz_") != std::string::npos)
@@ -22,205 +22,54 @@ bool	tokenIsAlpha(t_config_token& token) {
 	return (true);
 }
 
-// FINDING_BLOCK
-e_state_label	findBlock(
-	std::vector<t_config_token>& tokens,
-	size_t i,
-	int& depth
+//bool fillServerField(
+//	const ParsingInfo parsing_info,
+//	const size_t& block_start_idx,
+//	const std::vector<t_config_token>& tokens
+//) {
+//	for (size_t i = block_start_idx; i < tokens.size(); i++) {
+//
+//	}
+//	return (true);
+//}
+
+bool	matchBlockName(
+	const std::vector<std::string> allowed_strings,
+	const t_config_token& token
 ) {
-	t_config_token&	cur_token = tokens.at(i);
-
-	if (cur_token.val == "}") {
-		depth--;
-		cur_token.type = BRACE_CLOSE;
-		return (FINDING_BLOCK);
+	for (size_t i = 0; i < allowed_strings.size(); i++) {
+		if (token.val == allowed_strings.at(i))
+	  		return (true);
 	}
-	if (i + 1 < tokens.size()) {
-		t_config_token&	next_token = tokens.at(i + 1);
-		if (next_token.val == "{") {
-			depth++;
-			next_token.type = BRACE_OPEN;
-			cur_token.type = BLOCK_NAME;
-			return (FINDING_BLOCK);
-		}
-		if (i + 2 < tokens.size()) {
-			t_config_token&	next_next_token = tokens.at(i + 2);
-			if (next_next_token.val == "{") {
-				depth++;
-				cur_token.type = BLOCK_NAME;
-				next_token.type = BLOCK_PREFIX;
-				next_next_token.type = BRACE_OPEN;
-				return (FINDING_BLOCK);
-			}
-		}
-	}
-	cur_token.type = KEY;
-	return (FINDING_VALUES);
+	return (false);
 }
 
-// FINDING_VALUES
-e_state_label	findValues(
-	std::vector<t_config_token>& tokens,
-	size_t	i,
-	bool& in_keyval
-) {
-	in_keyval = true;
-	tokens.at(i).type = VALUE;
-	if (tokens.at(i).val.back() != ';') {
-		return (FINDING_VALUES);
-	}
-	in_keyval = false;
-	return (FINDING_BLOCK);
-}
-
-std::vector<t_config_token>	tokenize(
-	std::ifstream&	config_file
-) {
-	std::string					cur_line;
-	std::vector<t_config_token>	tokens;
-	t_config_token				new_token;
-
-	while (std::getline(config_file, cur_line)) {
-		std::istringstream	cur_line_stream(cur_line);
-
-		while (cur_line_stream >> new_token.val) {
-			if (new_token.val[0] == '#') {
-				break ;
-			}
-			if (!new_token.val.empty()) {
-				new_token.type = UNDEFINED_TYPE;
-				tokens.push_back(new_token);
-			}
-		}
-		//new_token.val = '\n';
-		//new_token.type = NEWLINE;
-		//tokens.push_back(new_token);
-	}
-
-	return (tokens);
-}
-
-std::string	TEST_state_to_str(e_state_label	state) {
-	switch (state) {
-		case FINDING_BLOCK:
-			return ("FINDING_BLOCK");
-		case FINDING_VALUES:
-			return ("FINDING_VALUES");
-	}
-}
-
-void	TEST_print_one_token(t_config_token& token, size_t token_idx) {
-		std::cout << "Tok " << token_idx << ".\n";
-		std::cout << "\tTYPE:\t";
-		std::cout << CLR_GRN;
-		switch (token.type) {
-			case UNDEFINED_TYPE:
-				std::cout << CLR_RED <<  "UNDEFINED_TYPE" << CLR_GRN;
-				break ;
-			case BLOCK_NAME:
-				std::cout << "BLOCK_NAME";
-				break ;
-			case BLOCK_PREFIX:
-				std::cout << "BLOCK_PREFIX";
-				break ;
-			case BRACE_OPEN:
-				std::cout << "BRACE_OPEN";
-				break ;
-			case BRACE_CLOSE:
-				std::cout << "BRACE_CLOSE";
-				break ;
-			case KEY:
-				std::cout << "KEY";
-				break ;
-			case VALUE:
-				std::cout << "VALUE";
-				break ;
-			case SEMICOLON:
-				std::cout << "SEMICOLON";
-				break ;
-			case NEWLINE:
-				std::cout << "NEWLINE";
-			break ;
-		}
-		std::cout << CLR_NON;
-		std::cout << '\n';
-		std::cout << "\tVAL:\t";
-		std::cout << CLR_YEL;
-		if (token.val == "\n") {
-			std::cout << CLR_CYA << "\\n" << CLR_NON;
-		}
-		else
-			std::cout << token.val;
-		std::cout << CLR_NON;
-		std::cout << '\n';
-}
-
-void	TEST_print_tokens(std::vector<t_config_token> tokens) {
-	std::cout << "checking tokens, size: \n" << tokens.size() << '\n';
-	for (size_t i = 0; i < tokens.size(); i++) {
-		TEST_print_one_token(tokens.at(i), i);
-	}
-
-}
-
-void	evalTokensError(int depth, bool in_keyval) {
-	std::cout << CLR_RED << "Error! Incorrect configuration file:\n";
-	if (in_keyval == true)
-		std::cout << "\tMissing \";\" in key-value pair";
-	if (depth > 0)
-		std::cout << "\tMissing a closing brace in a block";
-	if (depth < 0)
-		std::cout << "\tMissing an opening brace in a block";
-	std::cout << "\n";
-}
-
-int	evaluateTokens(std::vector<t_config_token>& tokens) {
-	int				depth = 0;
-	bool			in_keyval = false;
-	e_state_label	cur_state = FINDING_BLOCK;
+Config	tokensToConfig(const ParsingInfo parsing_info,
+			const std::vector<t_config_token>&	tokens) {
+	Config	config;
 
 	for (size_t i = 0; i < tokens.size(); i++) {
-		if (tokens.at(i).type != UNDEFINED_TYPE) {
-			//std::cout << "skipping evalled token: ";
-			//TEST_print_one_token(tokens.at(i), i);
-			continue ;
-		}
-		else if (cur_state == FINDING_BLOCK) {
-			cur_state = findBlock(tokens, i, depth);
-			if (depth < 0) {
-				evalTokensError(depth, in_keyval);
-				return (1);
+		const t_config_token&	cur_token = tokens.at(i);
+		if (cur_token.type == BLOCK_NAME) {
+			if (!matchBlockName(parsing_info.depth0_valid_block_names, cur_token)) {
+				// exception, error, w/e
+				return (config);
 			}
-			//std::cout << "evalled token: ";
-			//TEST_print_one_token(tokens.at(i), i);
-			//std::cout << "after FINDING_BLOCK, returned: " << TEST_state_to_str(cur_state) << '\n';
-		}
-		else if (cur_state == FINDING_VALUES) {
-			cur_state = findValues(tokens, i, in_keyval);
-			//std::cout << "evalled token: ";
-			//TEST_print_one_token(tokens.at(i), i);
-			//std::cout << "after STATE_4, returned: " << TEST_state_to_str(cur_state) << '\n';
-		}
-		// this else should never happen unless things are broken. remove later!
-		else {
-			std::cout << "breaking nwes: \n" << TEST_state_to_str(cur_state) << '\n';
-			break ;
 		}
 	}
-	if (in_keyval == true || depth > 0) {
-		evalTokensError(depth, in_keyval);
-		return (1);
-	}
-	return (0);
+	return (config);
 }
 
-int	parseConfig() {
+int	parseConfig([[maybe_unused]] const ParsingInfo parsing_info) {
 	std::ifstream				config_file(CONFIG_PATH_TEST);
-	std::vector<t_config_token>	tokens = tokenize(config_file);
+	std::vector<t_config_token>	tokens;
 
+	tokens = tokenize(config_file);
 	if (evaluateTokens(tokens) == 1)
 		return (1);
 	else
 		TEST_print_tokens(tokens);
+
+	//Config config = tokensToConfig(parsing_info, tokens);
 	return (0);
 }

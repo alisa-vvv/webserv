@@ -15,7 +15,9 @@
 NAME	=	config_parser
 
 CXXFILES	=	config_parser_main.cpp\
-				configParser.cpp
+				configParser.cpp\
+				configParserTEST.cpp\
+				configParserTokenize.cpp
 
 OFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.o))
 DEPFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.d))

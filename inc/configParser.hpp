@@ -6,9 +6,11 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/05/28 13:16:53 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/02 18:16:03 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/03 15:50:18 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
+
+#pragma once
 
 #include <string>
 #include <vector>
@@ -24,6 +26,10 @@
 
 #define CONFIG_PATH_DEFAULT "config/default.conf"
 #define CONFIG_PATH_TEST "config/test.conf"
+#define SHOW_DEBUG true
+
+// dummy class, defined in configParsingInfo.hpp
+class ParsingInfo;
 
 typedef enum e_config_mode {
 	CONFIG_MODE_TEST,
@@ -75,4 +81,6 @@ public:
 	// 	extension of cgi
 };
 
-int	parseConfig();
+int							parseConfig([[maybe_unused]] const ParsingInfo parsing_info);
+std::vector<t_config_token>	tokenize(std::ifstream&	config_file);
+int							evaluateTokens(std::vector<t_config_token>& tokens);
