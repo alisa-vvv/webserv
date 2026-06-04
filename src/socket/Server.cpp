@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/04 00:15:10 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/04 11:42:59 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ non-blocking →
 bind →
 listen →
 poll →
-accept
+accept(inside poll)
 */
 int Server::setup(void)
 {
@@ -49,6 +49,7 @@ int Server::setup(void)
 		closeSocket();
 		return ERROR;
 	}
+	this->_printSocketName(); //test
 	if (this->_listenSocket() == ERROR)
 	{
 		closeSocket();
@@ -77,12 +78,18 @@ void Server::_addFdToPoll(int fd)
 //test
 void Server::printPollInfo(int i)
 {
-	std::cout << "fd=" << _pollFds[i].fd
-			  << "events:"
-			  << ((_pollFds[i].revents & POLLIN) ? "POLLIN " : "")
-			  << ((_pollFds[i].revents & POLLHUP) ? "POLLHUP " : "")
-			  << ((_pollFds[i].revents & POLLERR) ? "POLLERR " : "")
-			  << std::endl;
+	std::cout << "fd " << _pollFds[i].fd << " revents: ";
+	if (_pollFds[i].revents & POLLIN)
+		std::cout << "POLLIN ";
+	if (_pollFds[i].revents & POLLOUT)
+		std::cout << "POLLOUT ";
+	if (_pollFds[i].revents & POLLHUP)
+		std::cout << "POLLHUP ";
+	if (_pollFds[i].revents & POLLERR)
+		std::cout << "POLLERR ";
+	if (_pollFds[i].revents & POLLNVAL)
+		std::cout << "POLLNVAL ";
+	std::cout << std::endl;
 }
 
 /*
@@ -129,6 +136,7 @@ int Server::_initPollEvent()
 			if (_pollFds[i].revents != 0)
 			{
 				printPollInfo(i); //test
+				
 				if (_pollFds[i].fd == _fd && (_pollFds[i].revents & POLLIN)) //new client waiting to connect
 				{
 					_accept(_fd);
