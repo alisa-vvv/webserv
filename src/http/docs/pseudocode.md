@@ -35,11 +35,20 @@ Parse request line
 4. Extract content-type
 5. Extract content length
 6. E
+
+
 Send response
 1. create enum for http status codes
 2. headers - build valid http headers
 3. send response back to client
 
+To check: 
+-If file permission fails, do I error right away? Do i just throw an exception or do I skip all steps and return a response string with error no access?
+
+-If so, does http parser literally just parse?
+-If method is GETTT -> obv it's no method found -> do I error while parsing or do I continue on and error later but still to parse everything first?
+
+-Response handler - make a delete controller, get controller, post controller
 To do
 Receive:
 -Make class for parsed http

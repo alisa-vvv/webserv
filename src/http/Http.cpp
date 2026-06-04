@@ -27,17 +27,22 @@ class httpBuffer {
 	void					append();
 };
 
-receiveStatus checkStatus(char *buffer)
-{
-	
-}
-
 httpBuffer::httpBuffer()
 	:totalBytesReceived(0), isBufferComplete(false)
 	{};
 
+receiveStatus checkStatus(char *buffer)
+{
+	const char = *separator = "\r\n\r\n";
+	char *endHeader = strstr(buffer, separator);
+	if (!endheader)
+		return = INCOMPLETE;
+	
+}
 
-receiveStatus recvHttpRequest(httpBuffer bufferObj, int sockFd) //must take socket as param
+
+
+receiveStatus recvHttpRequest(httpBuffer &bufferObj, int sockFd) //must take socket as param
 {
 	ssize_t			bytesRead;
 

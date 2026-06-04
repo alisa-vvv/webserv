@@ -52,6 +52,8 @@ class Http {
 		void			parseRequest(std::string rawString);
 		void			parseRequestLine(const std::string line);
 		void			parseHeaders(const std::string &headers);
+		void			validateLayer();
+		void			buildResponse(); //give statuscode, set header, set body
 	
 		httpType		getType() const;
 		httpMethod		getMethod() const;
@@ -64,7 +66,7 @@ class Http {
 		std::string		getResponseString(); //back to raw string for response
 
 	
-		void			setResponse(int code); //give statuscode, set header, set body
+		void			setResponse(int code); 
 		void			setHeader(const std::string &key, const std::string &value);
 		void			setBody(const std::string &body);
 
