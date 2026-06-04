@@ -51,6 +51,11 @@ bool fillListenField(
 	port = listen_value.substr(del_pos + 1, listen_value.length() - del_pos - 2);
 	std::cout << "host_name: " << host_name << '\n';
 	std::cout << "port: " << port << '\n';
+	if (port.find_first_not_of("0123456789") != std::string::npos) {
+		/// ERROR, brr brr, error
+		return (false);
+	}
+	port = 
 	return (true);
 }
 

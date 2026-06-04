@@ -103,9 +103,10 @@ typedef struct t_location {
 	/*	server	*/
 typedef struct cfg_server_t {
 	struct {
-		char*		host;
-		char*		port;
+		char*		host_str;
+		char*		port_str;
 		uint32_t	ip_addr;
+		int			port;
 	}	listen;
 	std::string					root;
 	size_t						client_max_body_size;
