@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerSocket.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 14:04:20 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/02 16:43:41 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/04 11:44:40 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,6 @@ int Server::_setAddress()
 	_address.sin_family = AF_INET;
 	_address.sin_port = htons(_port);
 	_address.sin_addr.s_addr = htonl(_host);
-
 	return SUCCESS;
 }
 
@@ -178,4 +177,23 @@ void Server::printPortNumber()
 		exit(1);
 	}
 	printf("Socket has port #%d\n", ntohs(_address.sin_port));
+}
+
+int Server::_printSocketName()
+{
+	struct sockaddr_in addr;
+	socklen_t len;
+
+	memset(&addr, 0, sizeof(addr));
+	len = sizeof(addr);
+
+	if (getsockname(_fd, (struct sockaddr *)&addr, &len) == ERROR)
+	{
+		std::cerr << "getsockname failed" << std::endl;
+		return ERROR;
+	}
+
+	std::cout << "Bound port: " << ntohs(addr.sin_port) << std::endl;
+
+	return SUCCESS;
 }
