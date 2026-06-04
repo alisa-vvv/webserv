@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 14:04:20 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/04 11:44:40 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/04 15:10:42 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,36 +164,4 @@ void Server::closeSocket()
 		close(_fd);
 		_fd = -1;
 	}
-}
-
-// test
-void Server::printPortNumber()
-{
-	/* Find out assigned port number and print it out. */
-	int length = sizeof(_address);
-	if (getsockname(_fd, (struct sockaddr *)&_address, (socklen_t *)&length))
-	{
-		perror("getting socket name");
-		exit(1);
-	}
-	printf("Socket has port #%d\n", ntohs(_address.sin_port));
-}
-
-int Server::_printSocketName()
-{
-	struct sockaddr_in addr;
-	socklen_t len;
-
-	memset(&addr, 0, sizeof(addr));
-	len = sizeof(addr);
-
-	if (getsockname(_fd, (struct sockaddr *)&addr, &len) == ERROR)
-	{
-		std::cerr << "getsockname failed" << std::endl;
-		return ERROR;
-	}
-
-	std::cout << "Bound port: " << ntohs(addr.sin_port) << std::endl;
-
-	return SUCCESS;
 }

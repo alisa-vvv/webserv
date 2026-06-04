@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/04 11:42:59 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/04 13:30:05 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,23 +75,6 @@ void Server::_addFdToPoll(int fd)
 	_pollFds.push_back(pollFdServer);
 }
 
-//test
-void Server::printPollInfo(int i)
-{
-	std::cout << "fd " << _pollFds[i].fd << " revents: ";
-	if (_pollFds[i].revents & POLLIN)
-		std::cout << "POLLIN ";
-	if (_pollFds[i].revents & POLLOUT)
-		std::cout << "POLLOUT ";
-	if (_pollFds[i].revents & POLLHUP)
-		std::cout << "POLLHUP ";
-	if (_pollFds[i].revents & POLLERR)
-		std::cout << "POLLERR ";
-	if (_pollFds[i].revents & POLLNVAL)
-		std::cout << "POLLNVAL ";
-	std::cout << std::endl;
-}
-
 /*
 int poll(struct pollfd *fds, nfds_t nfds, int timeout);
 poll() tells you which fd is ready to do something.
@@ -125,7 +108,7 @@ int Server::_initPollEvent()
 		{
 			continue;
 		}
-		if (pollFdCount == 0) //timeout, nothing happened
+		if (pollFdCount == 0)
 		{
 			continue;
 		}
@@ -146,19 +129,16 @@ int Server::_initPollEvent()
 					// client fd is ready: recv data
 					printf("TODO: recv comes here");
 				}
-				else if (_pollFds[i].revents & (POLLHUP | POLLERR | POLLNVAL)) //TODO:recheck
+				else if (_pollFds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 				{
 					_closeClientFd(_pollFds[i].fd);
+					i--;
 					continue;
 				}
 			}
+			//_checkTimeouts(); //TODO
 		}
-			// handle timeouts
-			// check all fds
-			if (pollFdCount == 0) // timeout
-			{
-				continue;
-			}
+		// check all fds
 	}
 }
 
@@ -174,7 +154,8 @@ void Server::_closeClientFd(int fd)
 }
 
 /*
-in case main is like, default values for host and port
+default values for host and port
+in case main is like, 
 	Server server;
 	server.setup();
 */
