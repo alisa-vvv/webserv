@@ -100,14 +100,17 @@ typedef struct t_location {
 	// djahsds
 }	t_location;
 
-	/*	server	*/
-typedef struct cfg_server_t {
-	struct {
+	/*	listen	*/
+typedef	struct	listen_t {
 		char*		host_str;
 		char*		port_str;
 		uint32_t	ip_addr;
 		int			port;
-	}	listen;
+	}	listen_t;
+
+	/*	server	*/
+typedef struct cfg_server_t {
+	std::vector<listen_t>		listen;
 	std::string					root;
 	size_t						client_max_body_size;
 	std::vector<t_error_page>	error_pages;
