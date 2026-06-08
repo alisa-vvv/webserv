@@ -49,6 +49,10 @@ socket examples
 map
 	https://www.w3schools.com/cpp/cpp_maps.asp
 
+enums for error handling
+https://www.w3schools.com/cpp/cpp_enum.asp
+https://mropert.github.io/2025/11/11/enum_class_error_codes/
+
 
 https://beej.us/guide/bgnet/html/split/system-calls-or-bust.html#connect
 https://medium.com/@ahmadesekak/setting-up-a-server-using-c-sockets-124e404593c9

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/04 13:30:05 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/08 14:41:41 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,45 +22,61 @@ listen →
 poll →
 accept(inside poll)
 */
-int Server::setup(void)
+eServerError Server::setup(void)
 {
-	if (this->_createSocket() == ERROR)
+	eServerError err;
+
+	err = this->_createSocket();
+	if (err != SERVER_OK)
 	{
 		closeSocket();
-		return ERROR;
+		return err;
 	}
-	if (this->_setSocketOptions() == ERROR)
+	err = this->_setSocketOptions();
+	if (err != SERVER_OK)
 	{
 		closeSocket();
-		return ERROR;
+		return err;
 	}
-	if (_setNonBlocking(_fd) == ERROR)
+	err = this->_setNonBlocking(_fd);
+	if (err != SERVER_OK)
 	{
 		closeSocket();
-		return ERROR;
+		return err;
 	}
-	if (this->_setAddress() == ERROR)
+	err = this->_setAddress();
+	if (err != SERVER_OK)
 	{
 		closeSocket();
-		return ERROR;
+		return err;
 	}
-	if (this->_bindSocket() == ERROR)
+	err = this->_bindSocket();
+	if (err != SERVER_OK)
 	{
 		closeSocket();
-		return ERROR;
+		return err;
 	}
 	this->_printSocketName(); //test
-	if (this->_listenSocket() == ERROR)
+	err = this->_listenSocket();
+	if (err != SERVER_OK)
 	{
 		closeSocket();
-		return ERROR;
+		return err;
 	}
-	if (this->_initPollEvent() == ERROR)
+	return SERVER_OK;
+}
+
+eServerError Server::run(void)
+{
+	eServerError err;
+
+	err = this->_initPollEvent();
+	if (err != SERVER_OK)
 	{
 		closeSocket();
-		return ERROR;
+		return SERVER_POLL_ERR;
 	}
-	return SUCCESS;
+	return SERVER_OK;
 }
 
 // Add fd to the list of fds that poll() should watch
@@ -94,11 +110,11 @@ POLLIN There is data to read -> a new client is trying to connect
 if TIMEOUT is -1, block until an event occurs
 // A POLLHUP means the socket is no longer connected
 */
-int Server::_initPollEvent()
+eServerError Server::_initPollEvent()
 {
 	int pollFdCount;
 
-	_addFdToPoll(_fd); // add listening socket fd
+	_addFdToPoll(_fd);
 	while (1)
 	{
 		pollFdCount = poll(_pollFds.data(), _pollFds.size(), 1000);
@@ -120,7 +136,7 @@ int Server::_initPollEvent()
 			{
 				printPollInfo(i); //test
 				
-				if (_pollFds[i].fd == _fd && (_pollFds[i].revents & POLLIN)) //new client waiting to connect
+				if (_pollFds[i].fd == _fd && (_pollFds[i].revents & POLLIN)) //new client waiting to connect //TODO: change later, now it only works for one listening socket
 				{
 					_accept(_fd);
 				}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/04 11:16:39 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/08 14:41:54 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,19 @@
 #define ERROR -1
 #define BACKLOG 128 // how many pending connections queue can hold
 
+enum eServerError
+{
+	SERVER_OK = 0,
+	SERVER_CREATESOCK_ERR,
+	SERVER_SETSOCKOPT_ERR,
+	SERVER_SETNONBLOCKING_ERR,
+	SERVER_SETADDRESS_ERR,
+	SERVER_BIND_ERR,
+	SERVER_LISTEN_ERR,
+	SERVER_ACCEPT_ERR,
+	SERVER_POLL_ERR
+};
+
 class Server
 {
 private:
@@ -40,19 +53,19 @@ private:
 	struct sockaddr_in _address; // address of the socket
 
 	int _fd;								// the server/listening socket
-	// std::vector<int> _fds;
+	// std::vector<int> _listenFds;
 	std::vector<struct pollfd> _pollFds;	// the list poll() watches
 	std::map<int, Client> _clients;			// client state, found by client fd
 
-	int _createSocket(void);
-	int _setNonBlocking(int fd);
-	int _setSocketOptions();
-	int _setAddress();
-	int _bindSocket(void);
-	int _listenSocket(void);
-	int _initPollEvent(void);
+	eServerError _createSocket(void);
+	eServerError _setNonBlocking(int fd);
+	eServerError _setSocketOptions();
+	eServerError _setAddress();
+	eServerError _bindSocket(void);
+	eServerError _listenSocket(void);
+	eServerError _initPollEvent(void);
 	void _addFdToPoll(int fd);
-	int _accept(int serverListenFd);
+	eServerError _accept(int serverListenFd);
 	void _closeClientFd(int fd);
 	Server(const Server &other);
 	Server &operator=(const Server &other);
@@ -61,12 +74,16 @@ public:
 	Server();
 	Server(uint32_t host, int port);
 	~Server();
-	int setup(void);
+	eServerError setup(void);
+	eServerError run(void);
 	int get_fd() const;
 	void closeSocket();
+	
+	//test
 	void printPortNumber();
 	void printPollInfo(int i);
 	int _printSocketName();
+	
 };
 
 void *ft_memset(void *s, int c, size_t n);
