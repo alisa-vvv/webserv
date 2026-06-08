@@ -18,7 +18,27 @@
 #include <sstream>
 #include <vector>
 #include <stack>
+#include <optional>
 #include <arpa/inet.h> // for testing only, remove!
+
+/*
+ * configParserError
+ */
+void	configParserError(
+	Config& config,
+	const std::string& message,
+	const std::optional<std::string>& prefix = std::nullopt,
+	const std::optional<int> line_number = std::nullopt
+) {
+
+	config.is_correct = false;
+	if (line_number)
+		std::cout << "Line " << *line_number << ": ";
+	if (prefix)
+		std::cout << *prefix << ": ";
+	std::cout << message;
+ 	std::cout << std::endl;
+}
 
 /*
 * Helpers
@@ -43,10 +63,10 @@ bool fillListenField(
 	size_t		del_pos;
 	std::string	listen_value = tokens.at(block_start_idx + 1).val;
 
-
-	(void) config; // remove this
-
+	//	test
 	std::cout << "listen_value: " << listen_value << '\n';
+	//	testend
+
 	del_pos = listen_value.find(del);
 	if (del_pos == std::string::npos) {
 		/// ERROR, brr brr, error
@@ -60,35 +80,87 @@ bool fillListenField(
 
 	host_name = listen_value.substr(0, del_pos);
 	port = listen_value.substr(del_pos + 1, listen_value.length() - del_pos - 2);
+	if (port.find_first_not_of("0123456789") != std::string::npos) {
+		/// ERROR, brr brr, error
+		return (false);
+	}
+
+	config.servers.back().listen.push_back(listen_t {});
+	try {
+		config.servers.back().listen.back().port = stoi(port);
+	} catch(std::exception out_of_range) {
+		/// ERROR, brr brr, error
+		std::cout << "exception!\n";
+		return (false);
+	}
 
 	//	test
 	std::cout << "host_name: " << host_name << '\n';
 	std::cout << "port: " << port << '\n';
 	//	testend
 
-	if (port.find_first_not_of("0123456789") != std::string::npos) {
-		/// ERROR, brr brr, error
-		return (false);
-	}
-	// Converting host string to ipv4 address
+
+	// Parse IP adress and convert it into uint32_t form
 	{
-		std::stringstream	addr_stream(host_name);
-		uint32_t			first;
-		uint32_t			second;
-		uint32_t			third;
-		uint32_t			fourth;
-		char				dot;
-		uint32_t			result;
+		std::string	address_part;
+		int			byte_val = 0;
+		size_t		start = 0;
+		size_t		end = 0;
+		int			dot_count = 0;
+		int			bit_shift_val = 24;
+		uint32_t	result = 0;
 
-		addr_stream >> first >> dot >> second >> dot >> third >> dot >> fourth;
-		result = htonl((first << 24) + (second << 16) + (third << 8) + fourth);
-		config.servers.end()->listen.end()->ip_addr = result;
+		while (dot_count < 3) {
+			end = host_name.find_first_of(".");
+			if (end == std::string::npos) {
+				return (false);
+			}
+	   		dot_count++;
+			if (end - start > 3) {
+				/// ERROR, brr brr, error
+				std::cout << "ERROR, brr brr, error\n";
+				std::cout << "end: " << end << '\n';
+				std::cout << "start: " << start << '\n';
+				std::cout << "dot_count: " << dot_count << '\n';
+				return (false);
+			}
+			address_part = host_name.substr(start, end);
+			try {
+				byte_val = stoi(address_part);
+			} catch (std::exception invalid_argument) {
+				/// ERROR, brr brr, error
+				//std::cout << "exception!\n";
+				configParserError(
+					config,
+					"Host address bad",
+					"Exception",
+					tokens.at(block_start_idx).line_number
+				);
+				return (false);
+			}
+			if (byte_val > 255 || byte_val < 0) {
+				/// ERROR, brr brr, error
+				return (false);
+			}
+			result += byte_val << bit_shift_val;
+			bit_shift_val -= 8;
+			host_name.erase(0, end + 1);
+		}
+		byte_val = stoi(address_part);
+		if (byte_val > 255 || byte_val < 0) {
+			/// ERROR, brr brr, error
+			return (false);
+		}
+		result += byte_val << bit_shift_val;
+		bit_shift_val -= 8;
+		config.servers.back().listen.back().ip_addr = htonl(result);
 	}
-	std::cout << config.servers.end()->listen.end()->ip_addr << '\n';
-
 	//	test
 	char buffer[32] { 0 };
-	std::cout << "checking: " << inet_ntop(AF_INET, &config.servers.end()->listen.end()->ip_addr, buffer, 32) << '\n';
+	std::cout << "checking unint32 op value: ";
+	std::cout << config.servers.back().listen.back().ip_addr;
+	std::cout << "\nchecking ip as str: ";
+	std::cout << inet_ntop(AF_INET, &config.servers.back().listen.back().ip_addr, buffer, 32) << '\n';
 	//	testend
 
 	return (true);

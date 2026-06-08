@@ -73,8 +73,10 @@ std::vector<t_config_token>	tokenize(
 	std::string					cur_line;
 	std::vector<t_config_token>	tokens;
 	t_config_token				new_token;
+	int							line_number = 0;
 
 	while (std::getline(config_file, cur_line)) {
+		line_number++;
 		std::istringstream	cur_line_stream(cur_line);
 
 		while (cur_line_stream >> new_token.val) {
@@ -83,6 +85,7 @@ std::vector<t_config_token>	tokenize(
 			}
 			if (!new_token.val.empty()) {
 				new_token.type = UNDEFINED_TYPE;
+				new_token.line_number = line_number;
 				tokens.push_back(new_token);
 			}
 		}
