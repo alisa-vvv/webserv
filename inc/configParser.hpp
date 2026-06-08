@@ -54,6 +54,7 @@ typedef enum e_token_type {
 typedef struct	t_config_token {
 	e_token_type	type;
 	std::string		val;
+	int				line_number;
 }	t_config_token;
 
 typedef enum	e_state_label {
@@ -102,11 +103,11 @@ typedef struct t_location {
 
 	/*	listen	*/
 typedef	struct	listen_t {
-		char*		host_str;
-		char*		port_str;
-		uint32_t	ip_addr;
-		int			port;
-	}	listen_t;
+	char*		host_str = nullptr;
+	char*		port_str = nullptr;
+	uint32_t	ip_addr = 0;
+	int			port = 0;
+}	listen_t;
 
 	/*	server	*/
 typedef struct cfg_server_t {
