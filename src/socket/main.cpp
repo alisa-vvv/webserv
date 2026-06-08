@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 19:57:27 by tutku             #+#    #+#             */
-/*   Updated: 2026/05/26 16:20:12 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/08 14:11:17 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,14 @@ int main (int argc, char *argv[])
 	uint32_t host = INADDR_ANY;
 	
 	Server server(host, port); //later this should be argv[1] for config part(?)
-	if (server.setup() == ERROR)
+	eServerError err = server.setup();
+	if (err != SERVER_OK)
+	{
+		std::cerr << "Server setup failed" << std::endl;
+		return (1);
+	}
+	err = server.run();
+	if (err != SERVER_OK)
 	{
 		return (1);
 	}
