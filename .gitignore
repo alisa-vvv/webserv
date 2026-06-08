@@ -17,3 +17,4 @@ cache/
 compile_commands.json
 
 config_parser
+webserv

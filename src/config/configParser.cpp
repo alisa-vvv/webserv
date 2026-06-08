@@ -15,15 +15,21 @@
 #include "configParsingInfo.hpp"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <stack>
+#include <arpa/inet.h> // for testing only, remove!
 
+/*
+* Helpers
+*/
 bool	tokenIsAlpha(t_config_token& token) {
 	if (token.val.find_first_not_of("abcdefghijklmnopqrstuvwxyz_") != std::string::npos)
 		return (false);
 	return (true);
 }
-
+/*
+*/
 
 bool fillListenField(
 	Config& config,
@@ -38,24 +44,53 @@ bool fillListenField(
 	std::string	listen_value = tokens.at(block_start_idx + 1).val;
 
 
-	(void) config;
+	(void) config; // remove this
+
 	std::cout << "listen_value: " << listen_value << '\n';
 	del_pos = listen_value.find(del);
 	if (del_pos == std::string::npos) {
 		/// ERROR, brr brr, error
 		return (false);
 	}
+
+	//	test
 	std::cout << "del pos: " << del_pos << '\n';
 	std::cout << "listen_value.size(): " << listen_value.size() << '\n';
+	//	testend
+
 	host_name = listen_value.substr(0, del_pos);
 	port = listen_value.substr(del_pos + 1, listen_value.length() - del_pos - 2);
+
+	//	test
 	std::cout << "host_name: " << host_name << '\n';
 	std::cout << "port: " << port << '\n';
+	//	testend
+
 	if (port.find_first_not_of("0123456789") != std::string::npos) {
 		/// ERROR, brr brr, error
 		return (false);
 	}
-	port = 
+	// Converting host string to ipv4 address
+	{
+		std::stringstream	addr_stream(host_name);
+		uint32_t			first;
+		uint32_t			second;
+		uint32_t			third;
+		uint32_t			fourth;
+		char				dot;
+		uint32_t			result;
+
+		addr_stream >> first >> dot >> second >> dot >> third >> dot >> fourth;
+		result = htonl((first << 24) + (second << 16) + (third << 8) + fourth);
+		config.servers.end()->listen.end()->ip_addr = result;
+	}
+	std::cout << config.servers.end()->listen.end()->ip_addr << '\n';
+
+	//	test
+	char buffer[32] { 0 };
+	std::cout << "checking: " << inet_ntop(AF_INET, &config.servers.end()->listen.end()->ip_addr, buffer, 32) << '\n';
+	//	testend
+
 	return (true);
 }
 
