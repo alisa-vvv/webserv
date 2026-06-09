@@ -16,6 +16,9 @@
 #include <string>
 #include <vector>
 
+
+#define CLIENT_MAX_BODY_SIZE 1000
+
 typedef enum	e_context {
 	GLOBAL,
 	SERVER,
@@ -53,6 +56,18 @@ bool fillServerLocationField(
 	[[maybe_unused]] const size_t& token_index,
 	[[maybe_unused]] std::vector<t_config_token>& tokens
 );
+bool fillServerErrorPageField(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& token_index,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+);
+bool fillServerMaxBodySize(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& token_index,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+);
 
 // Contains vectors with allowed block names.
 // Each allowed block name corresponds to a function that fills the corresponding
@@ -79,6 +94,8 @@ public:
 		(tokenParserFnPtr_t) fillListenField,
 		(tokenParserFnPtr_t) fillServerRootField,
 		(tokenParserFnPtr_t) fillServerLocationField,
+		(tokenParserFnPtr_t) fillServerErrorPageField,
+		(tokenParserFnPtr_t) fillServerMaxBodySize,
 	};
 
 	const std::vector<std::string>	location_valid_block_names {

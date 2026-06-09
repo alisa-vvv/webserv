@@ -47,6 +47,22 @@ bool	tokenIsAlpha(t_config_token& token) {
 		return (false);
 	return (true);
 }
+
+constexpr int	lengthOfInt(int val) {
+	int	length = 0;
+
+	do {
+		length++;
+		val /= 10;
+	} while(val != 0);
+	return (length);
+}
+
+bool	pathIsValid(std::string path) { // add more checks here
+	if (path.at(0) != '/')
+		return (false);
+	return (true);
+}
 /*
 */
 
@@ -94,7 +110,7 @@ bool fillListenField(
 	//	testend
 
 	host_name = listen_value.substr(0, del_pos);
-	port = listen_value.substr(del_pos + 1, listen_value.length() - del_pos - 2);
+	port = listen_value.substr(del_pos + 1, listen_value.length() - del_pos - 1);
 	if (port.find_first_not_of("0123456789") != std::string::npos) {
 		/// ERROR, brr brr, error
 		return (false);
@@ -148,7 +164,7 @@ bool fillListenField(
 				configParserError(
 					config,
 					"Host address bad",
-					"Exception",
+					"Config Error",
 					tokens.at(token_index).line_number
 				);
 				return (false);
@@ -189,10 +205,10 @@ bool fillServerRootField(
 	[[maybe_unused]] const size_t& token_index,
 	[[maybe_unused]] std::vector<t_config_token>& tokens
 ) {
-	if (tokens.at(token_index + 1).val.at(0) != '/') {
+	if (!pathIsValid(tokens.at(token_index + 1).val)) {
 		configParserError(
 			config,
-			"value of field root must start with a forward slash to be a valid path",
+			"value of field root is not a valid path",
 			"Config Error",
 			tokens.at(token_index).line_number);
 		return (false);
@@ -218,7 +234,7 @@ bool fillServerLocationField(
 			tokens.at(token_index).line_number);
 		return (false);
 	}
-	if (tokens.at(token_index + 1).val.at(0) != '/') {
+	if (!pathIsValid(tokens.at(token_index + 1).val)) {
 		configParserError(
 			config,
 			"value of a prefix must start with a forward slash to be a valid path",
@@ -229,6 +245,156 @@ bool fillServerLocationField(
 	config.servers.back().locations.back().prefix = tokens.at(token_index + 1).val;
 	tokens.at(token_index).type = EVALUATED;
 	tokens.at(token_index + 1).type = EVALUATED;
+	return (true);
+}
+
+bool fillServerErrorPageField(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& token_index,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+) {
+	int				error_code;
+	t_config_token&	error_code_token = tokens.at(token_index + 1);
+	t_config_token&	error_page_token = tokens.at(token_index + 2);
+
+	if (error_code_token.type != VALUE
+		&& error_page_token.type != VALUE) {
+		configParserError(
+			config,
+			"HTML error field needs to keys: error code and error page path",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	if (error_code_token.val.size() != 3) {
+		configParserError(
+			config,
+			"html error code not in defined range (4XX and 5XX)",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}	
+	try {
+		error_code = std::stoi(error_code_token.val);
+	} catch (std::exception invalid_argument) {
+		configParserError(
+			config,
+			"html error code not in defined range (4XX and 5XX)",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	if (error_code > 599 || error_code < 400) {
+		configParserError(
+			config,
+			"html error code not in defined range (4XX and 5XX)",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	if (!pathIsValid(error_page_token.val)) {
+		configParserError(
+			config,
+			"error page path must begin with a forward slash",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	auto it = config.servers.back().error_pages.find(error_code);
+	if (it != config.servers.back().error_pages.end()) {
+		config.servers.back().error_pages[error_code] = error_page_token.val;
+	}
+	else
+		config.servers.back().error_pages.insert({error_code, error_page_token.val});
+	tokens.at(token_index).type = EVALUATED;
+	error_code_token.type = EVALUATED;
+	error_page_token.type = EVALUATED;
+	return (true);
+}
+
+bool fillServerMaxBodySize(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& token_index,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+) {
+	t_config_token&	size_token = tokens.at(token_index + 1);
+
+	// add check for if it's bigger than max value
+	if (size_token.val.length() > lengthOfInt(CLIENT_MAX_BODY_SIZE)) {
+		configParserError(
+			config,
+			"value for client_max_body_size option is too long",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	if (size_token.val.back() == 'm' || size_token.val.back() == 'M') {
+		size_token.val.pop_back();
+	}
+	if (size_token.val.find_first_not_of("0123456789") != std::string::npos) {
+		configParserError(
+			config,
+			"format for client_max_body_size has to be [positive int][opt. M or m]",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	config.servers.back().client_max_body_size = std::stol(size_token.val);
+	if (config.servers.back().client_max_body_size > CLIENT_MAX_BODY_SIZE) { // ADD ACTUAL VALUE
+		configParserError(
+			config,
+			"value for client_max_body_size to big",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	tokens.at(token_index).type = EVALUATED;
+	tokens.at(token_index + 1).type = EVALUATED;
+	return (true);
+}
+
+bool fillServerCgiPass(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& token_index,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+) {
+	t_config_token	ext_token = tokens.at(token_index + 1);
+	t_config_token	path_token = tokens.at(token_index + 2);
+
+	if (path_token.type != VALUE) {
+		configParserError(
+			config,
+			"missing path to CGI script in cgi_pass",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	if (ext_token.val == CGI_EXT_STR_PY) {
+		config.servers.back().cgi_pass.extension = CGI_EXT_PY;
+	}
+	else {
+		configParserError(
+			config,
+			"CGI extension in cgi_pass doesn't match allowed extensions",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	if (!pathIsValid(path_token.val)) {
+		configParserError(
+			config,
+			"invalid path to CGI in cgi_pass",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	config.servers.back().cgi_pass.path = path_token.val;
+	tokens.at(token_index).type = EVALUATED;
+	tokens.at(token_index + 1).type = EVALUATED;
+	tokens.at(token_index + 2).type = EVALUATED;
 	return (true);
 }
 

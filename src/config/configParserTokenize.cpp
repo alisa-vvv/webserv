@@ -63,6 +63,7 @@ static e_state_label	findValues(
 	if (tokens.at(i).val.back() != ';') {
 		return (FINDING_VALUES);
 	}
+	tokens.at(i).val.pop_back(); // remove ;
 	in_keyval = false;
 	return (FINDING_BLOCK);
 }
