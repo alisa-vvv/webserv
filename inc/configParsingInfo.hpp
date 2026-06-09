@@ -26,21 +26,31 @@ typedef enum	e_context {
 typedef	bool (*tokenParserFnPtr_t)(
 	Config& config,
 	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& block_start_idx,
+	[[maybe_unused]] const size_t& token_index,
 	[[maybe_unused]] std::vector<t_config_token>& tokens
 );
 bool fillListenField(
 	Config& config,
 	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& block_start_idx,
+	[[maybe_unused]] const size_t& token_index,
 	[[maybe_unused]] std::vector<t_config_token>& tokens
 );
-
-// Adds a new server to the Config
+bool fillServerRootField(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& token_index,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+);
 bool fillServerField(
 	Config& config,
 	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& block_start_idx,
+	[[maybe_unused]] const size_t& token_index,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+);
+bool fillServerLocationField(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& token_index,
 	[[maybe_unused]] std::vector<t_config_token>& tokens
 );
 
@@ -67,6 +77,8 @@ public:
 	};
 	const std::vector<tokenParserFnPtr_t>	server_matching_functions {
 		(tokenParserFnPtr_t) fillListenField,
+		(tokenParserFnPtr_t) fillServerRootField,
+		(tokenParserFnPtr_t) fillServerLocationField,
 	};
 
 	const std::vector<std::string>	location_valid_block_names {

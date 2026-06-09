@@ -90,14 +90,14 @@ typedef struct t_return {
 
 	/*	location	*/
 typedef struct t_location {
-	std::string				prefix;
-	std::string				root;
-	std::string				index;
-	bool					autoindex;
-	std::vector<e_method>	allowed_methods;
-	std::string				upload_store;
-	t_cgi_pass				cgi_pass;
-	t_return				returns;
+	std::string				prefix; // needed
+	std::string				root; // needed
+	std::string				index; // opt if cgi_pass is not set
+	bool					autoindex; // needed
+	std::vector<e_method>	allowed_methods; // needed
+	std::string				upload_store; // opt
+	t_cgi_pass				cgi_pass; // opt
+	t_return				returns; // opt
 	// djahsds
 }	t_location;
 
