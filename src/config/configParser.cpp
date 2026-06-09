@@ -15,7 +15,6 @@
 #include "configParsingInfo.hpp"
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <vector>
 #include <stack>
 #include <optional>
@@ -51,17 +50,33 @@ bool	tokenIsAlpha(t_config_token& token) {
 /*
 */
 
+bool fillServerField(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& token_index,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+) {
+	cfg_server_t	new_server;
+
+	config.servers.push_back(new_server);
+	config.is_correct = false;
+	//for (size_t i = token_index; i < tokens.size(); i++) {
+	//	std::cout << "hello\n";
+	//}
+	return (true);
+}
+
 bool fillListenField(
 	Config& config,
 	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& block_start_idx,
+	[[maybe_unused]] const size_t& token_index,
 	[[maybe_unused]] std::vector<t_config_token>& tokens
 ) {
 	std::string	host_name;
 	std::string	port;
 	std::string	del = ":";
 	size_t		del_pos;
-	std::string	listen_value = tokens.at(block_start_idx + 1).val;
+	std::string	listen_value = tokens.at(token_index + 1).val;
 
 	//	test
 	std::cout << "listen_value: " << listen_value << '\n';
@@ -134,7 +149,7 @@ bool fillListenField(
 					config,
 					"Host address bad",
 					"Exception",
-					tokens.at(block_start_idx).line_number
+					tokens.at(token_index).line_number
 				);
 				return (false);
 			}
@@ -163,22 +178,57 @@ bool fillListenField(
 	std::cout << inet_ntop(AF_INET, &config.servers.back().listen.back().ip_addr, buffer, 32) << '\n';
 	//	testend
 
+	tokens.at(token_index).type = EVALUATED;
+	tokens.at(token_index + 1).type = EVALUATED;
 	return (true);
 }
 
-bool fillServerField(
+bool fillServerRootField(
 	Config& config,
 	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& block_start_idx,
+	[[maybe_unused]] const size_t& token_index,
 	[[maybe_unused]] std::vector<t_config_token>& tokens
 ) {
-	cfg_server_t	new_server;
+	if (tokens.at(token_index + 1).val.at(0) != '/') {
+		configParserError(
+			config,
+			"value of field root must start with a forward slash to be a valid path",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	config.servers.back().root = tokens.at(token_index + 1).val;
+	tokens.at(token_index).type = EVALUATED;
+	tokens.at(token_index + 1).type = EVALUATED;
+	return (true);
+}
 
-	config.servers.push_back(new_server);
-	config.is_correct = false;
-	//for (size_t i = block_start_idx; i < tokens.size(); i++) {
-	//	std::cout << "hello\n";
-	//}
+bool fillServerLocationField(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& token_index,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+) {
+	config.servers.back().locations.push_back(t_location {});
+	if (tokens.at(token_index + 1).type != BLOCK_PREFIX) {
+		configParserError(
+			config,
+			"location block need a prefix path before braces",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	if (tokens.at(token_index + 1).val.at(0) != '/') {
+		configParserError(
+			config,
+			"value of a prefix must start with a forward slash to be a valid path",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	config.servers.back().locations.back().prefix = tokens.at(token_index + 1).val;
+	tokens.at(token_index).type = EVALUATED;
+	tokens.at(token_index + 1).type = EVALUATED;
 	return (true);
 }
 
