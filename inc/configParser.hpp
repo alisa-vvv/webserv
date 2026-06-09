@@ -27,7 +27,7 @@
 
 #define CONFIG_PATH_DEFAULT "config/default.conf"
 #define CONFIG_PATH_TEST "config/test.conf"
-#define SHOW_DEBUG true
+#define SHOW_CONFIG_PARSER_DEBUG true
 
 // dummy class, defined in configParsingInfo.hpp
 class ParsingInfo;

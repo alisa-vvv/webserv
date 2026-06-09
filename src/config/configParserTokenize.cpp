@@ -116,7 +116,7 @@ int	evaluateTokens(std::vector<t_config_token>& tokens) {
 
 	for (size_t i = 0; i < tokens.size(); i++) {
 		if (tokens.at(i).type != UNDEFINED_TYPE) {
-			if (SHOW_DEBUG == true) {
+			if (SHOW_CONFIG_PARSER_DEBUG == true) {
 				std::cout << "skipping evalled token: ";
 				TEST_print_one_token(tokens.at(i), i);
 			}
@@ -128,7 +128,7 @@ int	evaluateTokens(std::vector<t_config_token>& tokens) {
 				evalTokensError(depth, in_keyval);
 				return (1);
 			}
-			if (SHOW_DEBUG == true) {
+			if (SHOW_CONFIG_PARSER_DEBUG == true) {
 				std::cout << "evalled token: ";
 				TEST_print_one_token(tokens.at(i), i);
 				std::cout << "after FINDING_BLOCK, returned: " << TEST_state_to_str(cur_state) << '\n';
@@ -136,7 +136,7 @@ int	evaluateTokens(std::vector<t_config_token>& tokens) {
 		}
 		else if (cur_state == FINDING_VALUES) {
 			cur_state = findValues(tokens, i, in_keyval);
-			if (SHOW_DEBUG == true) {
+			if (SHOW_CONFIG_PARSER_DEBUG == true) {
 				std::cout << "evalled token: ";
 				TEST_print_one_token(tokens.at(i), i);
 				std::cout << "after FINDING_VALUES, returned: " << TEST_state_to_str(cur_state) << '\n';

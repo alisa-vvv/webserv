@@ -40,6 +40,13 @@ void	configParserError(
 }
 
 /*
+* Debug
+*/
+void	printYellowDebug(void) {
+	std::cout << CLR_YEL << "DEBUG:\n" << CLR_NON;
+}
+
+/*
 * Helpers
 */
 bool	tokenIsAlpha(t_config_token& token) {
@@ -94,28 +101,17 @@ bool fillListenField(
 	size_t		del_pos;
 	std::string	listen_value = tokens.at(token_index + 1).val;
 
-	//	test
-	std::cout << "listen_value: " << listen_value << '\n';
-	//	testend
-
 	del_pos = listen_value.find(del);
 	if (del_pos == std::string::npos) {
 		/// ERROR, brr brr, error
 		return (false);
 	}
-
-	//	test
-	std::cout << "del pos: " << del_pos << '\n';
-	std::cout << "listen_value.size(): " << listen_value.size() << '\n';
-	//	testend
-
 	host_name = listen_value.substr(0, del_pos);
 	port = listen_value.substr(del_pos + 1, listen_value.length() - del_pos - 1);
 	if (port.find_first_not_of("0123456789") != std::string::npos) {
 		/// ERROR, brr brr, error
 		return (false);
 	}
-
 	config.servers.back().listen.push_back(listen_t {});
 	try {
 		config.servers.back().listen.back().port = stoi(port);
@@ -124,13 +120,6 @@ bool fillListenField(
 		std::cout << "exception!\n";
 		return (false);
 	}
-
-	//	test
-	std::cout << "host_name: " << host_name << '\n';
-	std::cout << "port: " << port << '\n';
-	//	testend
-
-
 	// Parse IP adress and convert it into uint32_t form
 	{
 		std::string	address_part;
@@ -150,17 +139,12 @@ bool fillListenField(
 			if (end - start > 3) {
 				/// ERROR, brr brr, error
 				std::cout << "ERROR, brr brr, error\n";
-				std::cout << "end: " << end << '\n';
-				std::cout << "start: " << start << '\n';
-				std::cout << "dot_count: " << dot_count << '\n';
 				return (false);
 			}
 			address_part = host_name.substr(start, end);
 			try {
 				byte_val = stoi(address_part);
 			} catch (std::exception invalid_argument) {
-				/// ERROR, brr brr, error
-				//std::cout << "exception!\n";
 				configParserError(
 					config,
 					"Host address bad",
@@ -186,12 +170,16 @@ bool fillListenField(
 		bit_shift_val -= 8;
 		config.servers.back().listen.back().ip_addr = htonl(result);
 	}
+
 	//	test
-	char buffer[32] { 0 };
-	std::cout << "checking unint32 op value: ";
-	std::cout << config.servers.back().listen.back().ip_addr;
-	std::cout << "\nchecking ip as str: ";
-	std::cout << inet_ntop(AF_INET, &config.servers.back().listen.back().ip_addr, buffer, 32) << '\n';
+	if (SHOW_CONFIG_PARSER_DEBUG == true) {
+		printYellowDebug();
+		char buffer[32] { 0 };
+		std::cout << "checking unint32 op value: ";
+		std::cout << config.servers.back().listen.back().ip_addr;
+		std::cout << "\nchecking ip as str: ";
+		std::cout << inet_ntop(AF_INET, &config.servers.back().listen.back().ip_addr, buffer, 32) << '\n';
+	}
 	//	testend
 
 	tokens.at(token_index).type = EVALUATED;
@@ -216,6 +204,15 @@ bool fillServerRootField(
 	config.servers.back().root = tokens.at(token_index + 1).val;
 	tokens.at(token_index).type = EVALUATED;
 	tokens.at(token_index + 1).type = EVALUATED;
+	if (SHOW_CONFIG_PARSER_DEBUG == true) {
+		printYellowDebug();
+		std::cout << CLR_YEL << "Filled server loot field:\n";
+		std::cout << "  ";
+		std::cout << CLR_CYA << "config.servers.back().root";
+		std::cout << " = [" << CLR_NON;
+		std::cout << config.servers.back().root;
+		std::cout << CLR_CYA << "]" << CLR_NON << std::endl;
+	}
 	return (true);
 }
 
