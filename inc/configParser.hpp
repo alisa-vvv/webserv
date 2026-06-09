@@ -14,6 +14,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 # ifndef CLR_NON
 #  define	CLR_NON "\033[0m"
@@ -79,9 +80,17 @@ typedef enum {
 }	e_method;
 
 	/* cgi_pass	*/
+#define CGI_EXT_STR_PY ".py"
+
+typedef enum	e_cgi_extension {
+	CGI_EXT_PY,
+}	e_cgi_extension;
+
 typedef struct t_cgi_pass {
-	std::vector<std::string>	params; // not sure what these should look like
+	std::string		path;
+	e_cgi_extension	extension;
 }	t_cgi_pass;
+/**/
 
 	/*	return	*/
 typedef struct t_return {
@@ -98,7 +107,6 @@ typedef struct t_location {
 	std::string				upload_store; // opt
 	t_cgi_pass				cgi_pass; // opt
 	t_return				returns; // opt
-	// djahsds
 }	t_location;
 
 	/*	listen	*/
@@ -114,10 +122,10 @@ typedef struct cfg_server_t {
 	std::vector<listen_t>		listen;
 	std::string					root;
 	size_t						client_max_body_size;
-	std::vector<t_error_page>	error_pages;
+	std::map<int, std::string>	error_pages;
 	std::vector<t_location>		locations;
+	t_cgi_pass					cgi_pass; // opt
 	bool						autoindex;
-	//	"cgi_pass", - need that here as well
 }	cfg_server_t;
 /*
 */
