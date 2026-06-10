@@ -31,6 +31,9 @@ poll
 	https://www.youtube.com/watch?v=O-yMs3T0APU
 	https://man7.org/linux/man-pages/man2/poll.2.html
 	https://www.ibm.com/docs/en/i/7.4.0?topic=designs-using-poll-instead-select
+	return values for poll: EINTR:
+	https://man7.org/linux/man-pages/man7/signal.7.html
+
 
 
 receiving data
@@ -52,6 +55,12 @@ map
 enums for error handling
 https://www.w3schools.com/cpp/cpp_enum.asp
 https://mropert.github.io/2025/11/11/enum_class_error_codes/
+
+how to erase from a vector
+https://www.geeksforgeeks.org/cpp/vector-erase-in-cpp-stl/
+
+signals
+https://pubs.opengroup.org/onlinepubs/009695399/functions/sigaction.html
 
 
 https://beej.us/guide/bgnet/html/split/system-calls-or-bust.html#connect

@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 19:57:27 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/08 14:11:17 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/11 00:33:46 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,11 @@ int main (int argc, char *argv[])
 		return (ERROR);
 	}
 
-	//TODO: change after receiving them from config side
+	if (setupSignal() != SERVER_OK)
+	{
+		return 1;
+	}
+	// TODO: change after receiving them from config side
 	int port = 8080;
 	uint32_t host = INADDR_ANY;
 	

@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+         #
+#    By: tutku <tutku@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/05/12 13:35:28 by tcakir-y          #+#    #+#              #
-#    Updated: 2026/06/04 11:57:55 by tcakir-y         ###   ########.fr        #
+#    Updated: 2026/06/11 00:21:36 by tutku            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,8 @@ SRC = 	main.cpp\
 		Server.cpp\
 		ServerSocket.cpp\
 		Client.cpp\
-		ServerDebug.cpp
+		ServerDebug.cpp\
+		Signal.cpp
 
 # Convert source file name into object file path inside obj/
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
