@@ -68,6 +68,18 @@ bool fillServerMaxBodySize(
 	[[maybe_unused]] const size_t& token_index,
 	[[maybe_unused]] std::vector<t_config_token>& tokens
 );
+bool fillServerCgiPass(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& token_index,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+);
+bool fillServerAutoindex(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& token_index,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+);
 
 // Contains vectors with allowed block names.
 // Each allowed block name corresponds to a function that fills the corresponding
@@ -96,6 +108,8 @@ public:
 		(tokenParserFnPtr_t) fillServerLocationField,
 		(tokenParserFnPtr_t) fillServerErrorPageField,
 		(tokenParserFnPtr_t) fillServerMaxBodySize,
+		(tokenParserFnPtr_t) fillServerCgiPass,
+		(tokenParserFnPtr_t) fillServerAutoindex,
 	};
 
 	const std::vector<std::string>	location_valid_block_names {

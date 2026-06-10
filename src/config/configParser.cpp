@@ -9,7 +9,6 @@
 /*   Updated: 2026/06/03 15:50:42 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include "configParser.hpp"
 #include "configParserTEST.hpp"
 #include "configParsingInfo.hpp"
@@ -42,10 +41,6 @@ void	configParserError(
 /*
 * Debug
 */
-void	printYellowDebug(void) {
-	std::cout << CLR_YEL << "DEBUG:\n" << CLR_NON;
-}
-
 /*
 * Helpers
 */
@@ -161,23 +156,25 @@ bool fillListenField(
 			bit_shift_val -= 8;
 			host_name.erase(0, end + 1);
 		}
-		byte_val = stoi(address_part);
+		byte_val = stoi(host_name);
 		if (byte_val > 255 || byte_val < 0) {
 			/// ERROR, brr brr, error
 			return (false);
 		}
-		result += byte_val << bit_shift_val;
-		bit_shift_val -= 8;
+		result += byte_val;
 		config.servers.back().listen.back().ip_addr = htonl(result);
 	}
 
 	//	test
+	printParserDebug("server listen field",
+				  "config.servers.back().listen.back().ip_addr", true,
+				  std::nullopt, std::nullopt, config.servers.back().listen.back().ip_addr);
+	printParserDebug("server listen field",
+				  "config.servers.back().listen.back().port", false,
+				  std::nullopt, config.servers.back().listen.back().port, std::nullopt);
 	if (SHOW_CONFIG_PARSER_DEBUG == true) {
-		printYellowDebug();
 		char buffer[32] { 0 };
-		std::cout << "checking unint32 op value: ";
-		std::cout << config.servers.back().listen.back().ip_addr;
-		std::cout << "\nchecking ip as str: ";
+		std::cout << "checking ip as str: ";
 		std::cout << inet_ntop(AF_INET, &config.servers.back().listen.back().ip_addr, buffer, 32) << '\n';
 	}
 	//	testend
@@ -204,15 +201,8 @@ bool fillServerRootField(
 	config.servers.back().root = tokens.at(token_index + 1).val;
 	tokens.at(token_index).type = EVALUATED;
 	tokens.at(token_index + 1).type = EVALUATED;
-	if (SHOW_CONFIG_PARSER_DEBUG == true) {
-		printYellowDebug();
-		std::cout << CLR_YEL << "Filled server loot field:\n";
-		std::cout << "  ";
-		std::cout << CLR_CYA << "config.servers.back().root";
-		std::cout << " = [" << CLR_NON;
-		std::cout << config.servers.back().root;
-		std::cout << CLR_CYA << "]" << CLR_NON << std::endl;
-	}
+	printParserDebug("server root field", "config.servers.back().root", true,
+				  config.servers.back().root, std::nullopt, std::nullopt);
 	return (true);
 }
 
@@ -242,6 +232,12 @@ bool fillServerLocationField(
 	config.servers.back().locations.back().prefix = tokens.at(token_index + 1).val;
 	tokens.at(token_index).type = EVALUATED;
 	tokens.at(token_index + 1).type = EVALUATED;
+
+	printParserDebug("server location block",
+				  "config.servers.back().locations.back().prefix", true,
+				  config.servers.back().locations.back().prefix,
+				  std::nullopt, std::nullopt);
+
 	return (true);
 }
 
@@ -307,6 +303,24 @@ bool fillServerErrorPageField(
 	tokens.at(token_index).type = EVALUATED;
 	error_code_token.type = EVALUATED;
 	error_page_token.type = EVALUATED;
+
+	printParserDebug(
+					"server error page field",
+					"error_code",
+					true,
+					std::nullopt,
+					error_code,
+					std::nullopt
+	);
+	printParserDebug(
+					"server error page field",
+					"config.servers.back().error_pages[error_code]",
+					false,
+					config.servers.back().error_pages[error_code],
+					std::nullopt,
+					std::nullopt
+	);
+
 	return (true);
 }
 
@@ -349,6 +363,16 @@ bool fillServerMaxBodySize(
 	}
 	tokens.at(token_index).type = EVALUATED;
 	tokens.at(token_index + 1).type = EVALUATED;
+
+	printParserDebug(
+					"server client_max_body_size field",
+					"config.servers.back().client_max_body_size",
+					true,
+					std::nullopt,
+					std::nullopt,
+					config.servers.back().client_max_body_size
+	);
+
 	return (true);
 }
 
@@ -392,6 +416,60 @@ bool fillServerCgiPass(
 	tokens.at(token_index).type = EVALUATED;
 	tokens.at(token_index + 1).type = EVALUATED;
 	tokens.at(token_index + 2).type = EVALUATED;
+
+	printParserDebug(
+					"server cgi_pass field",
+					"config.servers.back().cgi_pass.path",
+					true,
+					config.servers.back().cgi_pass.path,
+					std::nullopt,
+					std::nullopt
+	);
+	printParserDebug(
+					"server cgi_pass field",
+					"config.servers.back().cgi_pass.extension",
+					false,
+					std::nullopt,
+					config.servers.back().cgi_pass.extension,
+					std::nullopt
+	);
+
+	return (true);
+}
+
+bool fillServerAutoindex(
+	Config& config,
+	[[maybe_unused]] const ParsingInfo& parsing_info,
+	[[maybe_unused]] const size_t& token_index,
+	[[maybe_unused]] std::vector<t_config_token>& tokens
+) {
+
+	if (tokens.at(token_index + 1).val == "on") {
+		config.servers.back().autoindex = true;
+	}
+	else if (tokens.at(token_index + 1).val == "off") {
+		config.servers.back().autoindex = false;
+	}
+	else {
+		configParserError(
+			config,
+			"autoindex value can only be on/off",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	tokens.at(token_index).type = EVALUATED;
+	tokens.at(token_index + 1).type = EVALUATED;
+
+	printParserDebug(
+					"server autoindex field",
+					"config.servers.back().autoindex",
+					true,
+					std::nullopt,
+					config.servers.back().autoindex,
+					std::nullopt
+	);
+
 	return (true);
 }
 
