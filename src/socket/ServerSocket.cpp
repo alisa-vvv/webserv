@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 14:04:20 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/08 14:42:38 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/10 22:55:07 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,9 +95,11 @@ eServerError Server::_setAddress()
 
 // finish this function by checking the documentation
 // https://www.linuxhowtos.org/C_C++/socket.htm
+// reinterpret casting-> Keep the same memory address, 
+//    but treat the pointer as a different pointer type.
 eServerError Server::_bindSocket()
 {
-	if (bind(_fd, (struct sockaddr *)&_address, sizeof(_address)) == ERROR)
+	if (bind(_fd, reinterpret_cast<const struct sockaddr *>(&_address), sizeof(_address)) == ERROR)
 	{
 		std::cerr << "Couldn't bind the port!: " << std::strerror(errno) << std::endl;
 		return SERVER_BIND_ERR;
