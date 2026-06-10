@@ -14,6 +14,35 @@
 #include "configParserTEST.hpp"
 #include <iostream>
 
+void	printYellowDebug(void) {
+	std::cout << CLR_YEL << "DEBUG:\n" << CLR_NON;
+}
+
+void	printParserDebug(
+	const std::string& filled_what,
+	const std::string& variable_name,
+	const bool print_debug,
+	const std::optional<std::string>& string_arg,
+	const std::optional<long long int> int_arg,
+	const std::optional<size_t> uint_arg
+) {
+	if (SHOW_CONFIG_PARSER_DEBUG == true) {
+		if (print_debug == true)
+			printYellowDebug();
+		std::cout << CLR_YEL << "Filled " << filled_what << ":\n";
+		std::cout << "  ";
+		std::cout << CLR_CYA << variable_name;
+		std::cout << " = [" << CLR_NON;
+		if (string_arg != std::nullopt)
+			std::cout << *string_arg;
+		if (uint_arg != std::nullopt)
+			std::cout << *uint_arg;
+		if (int_arg != std::nullopt)
+			std::cout << *int_arg;
+		std::cout << CLR_CYA << "]" << CLR_NON << std::endl;
+	}
+}
+
 std::string	TEST_state_to_str(e_state_label	state) {
 	switch (state) {
 		case FINDING_BLOCK:
