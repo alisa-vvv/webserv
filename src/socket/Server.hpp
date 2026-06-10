@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/08 14:41:54 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/11 00:33:23 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,13 @@
 #include <stdint.h>
 #include <map>
 #include <ctime>
+#include <csignal>
 
 #define SUCCESS 0
 #define ERROR -1
 #define BACKLOG 128 // how many pending connections queue can hold
+
+extern volatile sig_atomic_t gStop;
 
 enum eServerError
 {
@@ -42,7 +45,8 @@ enum eServerError
 	SERVER_BIND_ERR,
 	SERVER_LISTEN_ERR,
 	SERVER_ACCEPT_ERR,
-	SERVER_POLL_ERR
+	SERVER_POLL_ERR,
+	SIGACTION_ERR
 };
 
 class Server
@@ -86,7 +90,7 @@ public:
 	
 };
 
-void *ft_memset(void *s, int c, size_t n);
+int setupSignal();
 
 #endif
 
