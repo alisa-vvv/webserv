@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerDebug.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/04 11:57:12 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/06/04 11:59:20 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/10 22:57:19 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,9 @@ void Server::printPollInfo(int i)
 
 void Server::printPortNumber()
 {
-	int length = sizeof(_address);
-	if (getsockname(_fd, (struct sockaddr *)&_address, (socklen_t *)&length))
+	socklen_t length = sizeof(_address);
+
+	if (getsockname(_fd, (struct sockaddr *)&_address, &length))
 	{
 		perror("getting socket name");
 		exit(1);
@@ -48,7 +49,7 @@ int Server::_printSocketName()
 	memset(&addr, 0, sizeof(addr));
 	len = sizeof(addr);
 
-	if (getsockname(_fd, (struct sockaddr *)&addr, &len) == ERROR)
+	if (getsockname(_fd, reinterpret_cast<struct sockaddr *>(&addr), &len) == ERROR)
 	{
 		std::cerr << "getsockname failed" << std::endl;
 		return ERROR;
