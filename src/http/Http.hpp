@@ -13,7 +13,7 @@ enum httpVersion {
 	HTTP_1_0,
 	HTTP_1_1,
 	HTTP_2,
-	UNKNOWN
+	INVALID
 };
 
 std::map<int, std::string> HTTP_STATUS_MESSAGE = {
@@ -74,10 +74,9 @@ class Http {
 		
 	class HttpException : public std::exception {
 		private:
-			int statusCode;
 			std::string message;
 		public:
-			HttpException(int code) : statusCode(code){
+			HttpException(int code) {
 				message = "HTTP Error " + std::to_string(code) + ": " 
 				+ HTTP_STATUS_MESSAGE.at(code);
 			}
@@ -90,5 +89,26 @@ class Http {
 void handleHttpRequest(Http &httpObject);
 std::string handleHttpResponse(Http &httpObject); //must take socket as param
 
+
+enum receiveStatus{
+	SOCKET_CLOSED,
+	RECV_ERROR,
+	COMPLETE,
+	INCOMPLETE,
+	MAXBYTESRECEIVED
+};
+
+class httpBuffer {
+	private:
+	std::string				recvStr;
+	public:
+	httpBuffer();
+	static const int		maxRequest = 8192;
+	ssize_t					totalBytesReceived;
+	receiveStatus			currentBufferStatus;
+	receiveStatus			checkStatus();
+	void					append(char *buffer, ssize_t size);
+	const char*				getRecvStr() const { return this->recvStr.c_str(); }
+};
 
 #endif

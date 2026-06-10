@@ -2,15 +2,15 @@
 
 
 httpType Http::getType() const {
-	
+	return (_type);
 }
 
 httpMethod Http::getMethod() const {
-	
+	return (_method);
 }
 
 int Http::getContentLen() const {
-	
+	return (_contentLen);
 }
 
 std::string Http::getBody() const {
@@ -22,11 +22,11 @@ std::string Http::getHeader(const std::string &key) const {
 }
 
 std::string Http::getUri() const {
-	
+	return (_uri);
 }
 
 httpVersion Http::getVersion() const {
-	
+	return (_version);
 }
 
 int Http::getStatusCode() const {

@@ -3,60 +3,60 @@
 #include <sys/socket.h>
 #include "Http.hpp"
 
-//Add recvHTTP request to main
-//add a
-
-enum receiveStatus{
-	SOCKET_CLOSED,
-	RECV_ERROR,
-	COMPLETE,
-	INCOMPLETE,
-	MAXBYTESRECEIVED
-};
-
-class httpBuffer {
-	public:
-	httpBuffer();
-	static const int		maxRequest = 8192;
-	ssize_t					totalBytesReceived;
-	receiveStatus			curentBufferStatus;
-	bool					isBufferComplete;
-	char					bufferLine[maxRequest];
-	receiveStatus			checkStatus(char *buffer);
-	void					reset();
-	void					append();
-};
-
 httpBuffer::httpBuffer()
-	:totalBytesReceived(0), isBufferComplete(false)
-	{};
+	:totalBytesReceived(0)
+{}
 
-receiveStatus checkStatus(char *buffer)
+void httpBuffer::append(char *buffer, ssize_t size)
 {
-	const char = *separator = "\r\n\r\n";
-	char *endHeader = strstr(buffer, separator);
-	if (!endheader)
-		return = INCOMPLETE;
-	
+	this->recvStr.append(buffer, size);
 }
 
+receiveStatus httpBuffer::checkStatus()
+{
+	const char	*contLenStr = "Content-Length:";
+	const char	*contLenPtr;
+	int			contLenCnt = 0;
+	int			headerEnd = 0;
+	int			bodyReceived = 0;
 
+	size_t pos = this->recvStr.find("\r\n\r\n");
+	if (pos == std::string::npos)
+		return (this->currentBufferStatus = INCOMPLETE);
+	contLenPtr = strstr(this->recvStr.c_str(), contLenStr);
+	if (!contLenPtr)
+	{
+		this->currentBufferStatus = COMPLETE;
+		return COMPLETE;
+	}
+	sscanf(contLenPtr, "Content-Length: %d", &contLenCnt);
+	headerEnd = pos + strlen("\r\n\r\n");
+	bodyReceived = this->recvStr.size() - headerEnd;
+	if (bodyReceived >= contLenCnt)
+	{
+		this->currentBufferStatus = COMPLETE;
+		return COMPLETE;
+	}
+	return (this->currentBufferStatus = INCOMPLETE);
+}
 
 receiveStatus recvHttpRequest(httpBuffer &bufferObj, int sockFd) //must take socket as param
 {
 	ssize_t			bytesRead;
+	char			buffer[4096];
 
-	//add client last activity?
+	//add client last activity
 	while (bufferObj.totalBytesReceived < bufferObj.maxRequest)
 	{
-		bytesRead = recv(sockFd, bufferObj.bufferLine + bufferObj.totalBytesReceived, bufferObj.maxRequest - bufferObj.totalBytesReceived, 0);
+		bytesRead = recv(sockFd, buffer, sizeof(buffer), 0);
 		if (bytesRead == 0)
 			return SOCKET_CLOSED;
 		if (bytesRead < 0)
 			return RECV_ERROR;
 		bufferObj.totalBytesReceived += bytesRead;
-		bufferObj.checkStatus(bufferObj.bufferLine);
-		if (bufferObj.curentBufferStatus == COMPLETE)
+		bufferObj.append(buffer, bytesRead);
+		bufferObj.checkStatus();
+		if (bufferObj.currentBufferStatus == COMPLETE)
 			return COMPLETE;
 	}
 	return MAXBYTESRECEIVED;
@@ -70,7 +70,7 @@ void handleHttpRequest(Http &httpObj, int sockFd)
 	switch (recvHttpRequest(bufferObj, sockFd))
 	{
 		case COMPLETE:
-			httpObj.parseRequest(bufferObj.bufferLine);
+			httpObj.parseRequest(bufferObj.getRecvStr());
 			break;
 		case INCOMPLETE:
 			std::cerr << "Receive buffer error: Incomplete\n";
