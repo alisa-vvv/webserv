@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/05/28 13:16:53 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/03 15:50:18 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/11 12:55:56 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <optional>
 
 # ifndef CLR_NON
 #  define	CLR_NON "\033[0m"
@@ -111,8 +112,6 @@ typedef struct t_location {
 
 	/*	listen	*/
 typedef	struct	listen_t {
-	char*		host_str = nullptr;
-	char*		port_str = nullptr;
 	uint32_t	ip_addr = 0;
 	int			port = 0;
 }	listen_t;
@@ -139,3 +138,28 @@ public:
 int							parseConfig(const ParsingInfo parsing_info);
 std::vector<t_config_token>	tokenize(std::ifstream&	config_file);
 int							evaluateTokens(std::vector<t_config_token>& tokens);
+
+/*
+* Error
+*/
+void	configParserError(
+	Config& config,
+	const std::string& message,
+	const std::optional<std::string>& prefix,
+	const std::optional<int> line_number
+);
+
+/*
+* Helpers
+*/
+bool				tokenIsAlpha(t_config_token& token);
+bool				pathIsValid(std::string path);
+constexpr size_t	lengthOfInt(int val) {
+	int	length = 0;
+
+	do {
+		length++;
+		val /= 10;
+	} while(val != 0);
+	return (length);
+}
