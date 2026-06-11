@@ -18,3 +18,30 @@ Load test with siege
 siege -c 10 -t 30s http://localhost:8080/
 
 -c sets the number of concurrent users, -t sets the duration.
+
+
+LOGIC:
+
+server {
+ip 127.0.0.1
+port 8080
+
+ip 127.0.0.2
+port 8801
+
+ip
+port
+
+ip
+port
+}
+
+server {
+	ip server1
+	port[]
+}
+
+server {
+	ip server2
+	port[]
+}
