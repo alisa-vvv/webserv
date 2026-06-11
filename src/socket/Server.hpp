@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/11 00:33:23 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/11 15:00:16 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ enum eServerError
 class Server
 {
 private:
+	//Config config;
 	int _port;
 	uint32_t _host;
 	struct sockaddr_in _address; // address of the socket
@@ -61,16 +62,16 @@ private:
 	std::vector<struct pollfd> _pollFds;	// the list poll() watches
 	std::map<int, Client> _clients;			// client state, found by client fd
 
-	eServerError _createSocket(void);
-	eServerError _setNonBlocking(int fd);
-	eServerError _setSocketOptions();
-	eServerError _setAddress();
-	eServerError _bindSocket(void);
-	eServerError _listenSocket(void);
-	eServerError _initPollEvent(void);
-	void _addFdToPoll(int fd);
-	eServerError _accept(int serverListenFd);
-	void _closeClientFd(int fd);
+	eServerError	_createSocket(void);
+	eServerError	_setNonBlocking(int fd);
+	eServerError	_setSocketOptions();
+	eServerError	_setAddress();
+	eServerError	_bindSocket(void);
+	eServerError	_listenSocket(void);
+	eServerError	_initPollEvent(void);
+	void			_addFdToPoll(int fd);
+	eServerError	_accept(int serverListenFd);
+	void			_closeClientFd(int fd);
 	Server(const Server &other);
 	Server &operator=(const Server &other);
 
