@@ -16,6 +16,7 @@
 #include <vector>
 #include <map>
 #include <optional>
+#include <netinet/ip.h>
 
 # ifndef CLR_NON
 #  define	CLR_NON "\033[0m"
@@ -110,15 +111,11 @@ typedef struct t_location {
 	t_return				returns; // opt
 }	t_location;
 
-	/*	listen	*/
-typedef	struct	listen_t {
-	uint32_t	ip_addr = 0;
-	int			port = 0;
-}	listen_t;
-
 	/*	server	*/
 typedef struct cfg_server_t {
-	std::vector<listen_t>		listen;
+	std::string					server_name;
+	uint32_t					ip_addr = INADDR_ANY;
+	std::vector<int>			ports;
 	std::string					root;
 	size_t						client_max_body_size;
 	std::map<int, std::string>	error_pages;

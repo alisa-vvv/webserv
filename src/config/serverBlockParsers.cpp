@@ -47,8 +47,18 @@ bool fillListenField(
 
 	del_pos = listen_value.find(del);
 	if (del_pos == std::string::npos) {
-		/// ERROR, brr brr, error
-		return (false);
+		if (config.servers.back().ip_addr != INADDR_ANY) {
+			configParserError(
+				config,
+				"virtual server can listen on only one ip address",
+				"Config Error",
+				tokens.at(token_index).line_number
+			);
+			return (false);
+		}
+		// if there is no colon, only port is specified
+		// if host was previosuly specified for this server, should use that
+		// if not, should use IPADDR_ANY
 	}
 	host_name = listen_value.substr(0, del_pos);
 	port = listen_value.substr(del_pos + 1, listen_value.length() - del_pos - 1);
@@ -56,9 +66,8 @@ bool fillListenField(
 		/// ERROR, brr brr, error
 		return (false);
 	}
-	config.servers.back().listen.push_back(listen_t {});
 	try {
-		config.servers.back().listen.back().port = stoi(port);
+		config.servers.back().ports.push_back(stoi(port));
 	} catch(std::exception out_of_range) {
 		/// ERROR, brr brr, error
 		std::cout << "exception!\n";
@@ -111,20 +120,20 @@ bool fillListenField(
 			return (false);
 		}
 		result += byte_val;
-		config.servers.back().listen.back().ip_addr = htonl(result);
+		config.servers.back().ip_addr = htonl(result);
 	}
 
 	//	test
 	printParserDebug("server listen field",
 				  "config.servers.back().listen.back().ip_addr", true,
-				  std::nullopt, std::nullopt, config.servers.back().listen.back().ip_addr);
+				  std::nullopt, std::nullopt, config.servers.back().ip_addr);
 	printParserDebug("server listen field",
 				  "config.servers.back().listen.back().port", false,
-				  std::nullopt, config.servers.back().listen.back().port, std::nullopt);
+				  std::nullopt, config.servers.back().ports.back(), std::nullopt);
 	if (SHOW_CONFIG_PARSER_DEBUG == true) {
 		char buffer[32] { 0 };
 		std::cout << "checking ip as str: ";
-		std::cout << inet_ntop(AF_INET, &config.servers.back().listen.back().ip_addr, buffer, 32) << '\n';
+		std::cout << inet_ntop(AF_INET, &config.servers.back().ip_addr, buffer, 32) << '\n';
 	}
 	//	testend
 

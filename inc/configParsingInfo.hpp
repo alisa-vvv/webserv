@@ -126,4 +126,5 @@ public:
 		"POST",
 		"DELETE",
 	};
+	bool	host_name_was_specified = false;
 };
