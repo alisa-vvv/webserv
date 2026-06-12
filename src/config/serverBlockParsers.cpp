@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/06/11 12:11:35 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/11 12:52:06 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/12 15:49:46 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,51 @@
 #include <iostream>
 #include <arpa/inet.h>
 
+static bool	fillRootField(
+	e_context context,
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	if (!pathIsValid(tokens.at(token_index + 1).val)) {
+		configParserError(
+			config,
+			"value of field root is not a valid path",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	if (context == LOCATION) {
+		config.servers.back().locations.back().root = tokens.at(token_index + 1).val;
+		printParserDebug(
+			"location root field",
+			"config.servers.back().locations.back().root",
+			true,
+			config.servers.back().locations.back().root,
+			std::nullopt,
+			std::nullopt
+		);
+	}
+	else if (context == SERVER) {
+		config.servers.back().root = tokens.at(token_index + 1).val;
+		printParserDebug(
+			"server root field",
+			"config.servers.back().root",
+			true,
+			config.servers.back().root,
+			std::nullopt,
+			std::nullopt
+		);
+	}
+	tokens.at(token_index).type = EVALUATED;
+	tokens.at(token_index + 1).type = EVALUATED;
+	return (true);
+}
+
 bool fillServerField(
 	Config& config,
-	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& token_index,
-	[[maybe_unused]] std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 ) {
 	cfg_server_t	new_server;
 
@@ -35,9 +75,8 @@ bool fillServerField(
 
 bool fillListenField(
 	Config& config,
-	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& token_index,
-	[[maybe_unused]] std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 ) {
 	std::string	host_name;
 	std::string	port;
@@ -88,7 +127,7 @@ bool fillListenField(
 			if (end == std::string::npos) {
 				return (false);
 			}
-	   		dot_count++;
+			dot_count++;
 			if (end - start > 3) {
 				/// ERROR, brr brr, error
 				std::cout << "ERROR, brr brr, error\n";
@@ -144,31 +183,16 @@ bool fillListenField(
 
 bool fillServerRootField(
 	Config& config,
-	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& token_index,
-	[[maybe_unused]] std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 ) {
-	if (!pathIsValid(tokens.at(token_index + 1).val)) {
-		configParserError(
-			config,
-			"value of field root is not a valid path",
-			"Config Error",
-			tokens.at(token_index).line_number);
-		return (false);
-	}
-	config.servers.back().root = tokens.at(token_index + 1).val;
-	tokens.at(token_index).type = EVALUATED;
-	tokens.at(token_index + 1).type = EVALUATED;
-	printParserDebug("server root field", "config.servers.back().root", true,
-				  config.servers.back().root, std::nullopt, std::nullopt);
-	return (true);
+	return (fillRootField(SERVER, config, token_index, tokens));
 }
 
 bool fillServerLocationField(
 	Config& config,
-	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& token_index,
-	[[maybe_unused]] std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 ) {
 	config.servers.back().locations.push_back(t_location {});
 	if (tokens.at(token_index + 1).type != BLOCK_PREFIX) {
@@ -201,9 +225,8 @@ bool fillServerLocationField(
 
 bool fillServerErrorPageField(
 	Config& config,
-	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& token_index,
-	[[maybe_unused]] std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 ) {
 	int				error_code;
 	t_config_token&	error_code_token = tokens.at(token_index + 1);
@@ -257,26 +280,26 @@ bool fillServerErrorPageField(
 		config.servers.back().error_pages[error_code] = error_page_token.val;
 	}
 	else
-		config.servers.back().error_pages.insert({error_code, error_page_token.val});
+	config.servers.back().error_pages.insert({error_code, error_page_token.val});
 	tokens.at(token_index).type = EVALUATED;
 	error_code_token.type = EVALUATED;
 	error_page_token.type = EVALUATED;
 
 	printParserDebug(
-					"server error page field",
-					"error_code",
-					true,
-					std::nullopt,
-					error_code,
-					std::nullopt
+		"server error page field",
+		"error_code",
+		true,
+		std::nullopt,
+		error_code,
+		std::nullopt
 	);
 	printParserDebug(
-					"server error page field",
-					"config.servers.back().error_pages[error_code]",
-					false,
-					config.servers.back().error_pages[error_code],
-					std::nullopt,
-					std::nullopt
+		"server error page field",
+		"config.servers.back().error_pages[error_code]",
+		false,
+		config.servers.back().error_pages[error_code],
+		std::nullopt,
+		std::nullopt
 	);
 
 	return (true);
@@ -284,9 +307,8 @@ bool fillServerErrorPageField(
 
 bool fillServerMaxBodySize(
 	Config& config,
-	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& token_index,
-	[[maybe_unused]] std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 ) {
 	t_config_token&	size_token = tokens.at(token_index + 1);
 
@@ -323,12 +345,12 @@ bool fillServerMaxBodySize(
 	tokens.at(token_index + 1).type = EVALUATED;
 
 	printParserDebug(
-					"server client_max_body_size field",
-					"config.servers.back().client_max_body_size",
-					true,
-					std::nullopt,
-					std::nullopt,
-					config.servers.back().client_max_body_size
+		"server client_max_body_size field",
+		"config.servers.back().client_max_body_size",
+		true,
+		std::nullopt,
+		std::nullopt,
+		config.servers.back().client_max_body_size
 	);
 
 	return (true);
@@ -336,9 +358,8 @@ bool fillServerMaxBodySize(
 
 bool fillServerCgiPass(
 	Config& config,
-	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& token_index,
-	[[maybe_unused]] std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 ) {
 	t_config_token	ext_token = tokens.at(token_index + 1);
 	t_config_token	path_token = tokens.at(token_index + 2);
@@ -397,9 +418,8 @@ bool fillServerCgiPass(
 
 bool fillServerAutoindex(
 	Config& config,
-	[[maybe_unused]] const ParsingInfo& parsing_info,
-	[[maybe_unused]] const size_t& token_index,
-	[[maybe_unused]] std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 ) {
 
 	if (tokens.at(token_index + 1).val == "on") {
@@ -410,10 +430,11 @@ bool fillServerAutoindex(
 	}
 	else {
 		configParserError(
-			config,
-			"autoindex value can only be on/off",
-			"Config Error",
-			tokens.at(token_index).line_number);
+						config,
+						"autoindex value can only be on/off",
+						"Config Error",
+						tokens.at(token_index).line_number
+		);
 		return (false);
 	}
 	tokens.at(token_index).type = EVALUATED;
@@ -427,6 +448,111 @@ bool fillServerAutoindex(
 					config.servers.back().autoindex,
 					std::nullopt
 	);
+
+	return (true);
+}
+
+bool fillLocationRootField(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	return (fillRootField(LOCATION, config, token_index, tokens));
+}
+
+bool fillLocationIndexField( // TEST THIS
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	std::string	val_str = tokens.at(token_index + 1).val;
+
+	if (val_str.size() < 6) {
+		configParserError(
+						config,
+						"index has to be a named .html file",
+						"Config Error",
+						tokens.at(token_index).line_number
+		);
+		return (false);
+	}
+	if (val_str.substr(val_str.size() - 6, 5) != ".html") {
+		configParserError(
+						config,
+						"index has to be a .html file",
+						"Config Error",
+						tokens.at(token_index).line_number
+		);
+		return (false);
+	}
+	config.servers.back().locations.back().index = tokens.at(token_index + 1).val;
+
+	tokens.at(token_index).type = EVALUATED;
+	tokens.at(token_index + 1).type = EVALUATED;
+
+	printParserDebug(
+					"location index field",
+					"config.servers.back().autoindex",
+					true,
+					config.servers.back().locations.back().index,
+					std::nullopt,
+					std::nullopt
+	);
+
+	return (true);
+}
+
+bool fillLocationAllowedMethodsField(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	int			i = token_index + 1;
+	e_method	method;
+
+	while (tokens.at(i).type == VALUE) {
+		if (tokens.at(i).val == "GET")
+			method = GET;
+		else if (tokens.at(i).val == "POST")
+		 	method = POST;
+		else if (tokens.at(i).val == "DELETE")
+			method = DELETE;
+		else {
+			configParserError(
+							config,
+							"unknown method in allowed_methods field",
+							"Config Error",
+							tokens.at(token_index).line_number
+			);
+			return (false);
+		}
+		if (config.servers.back().locations.back().allowed_methods[method] == true) { // is this even necessary?
+			configParserError(
+							config,
+							"duplicate method in allowed_methods field",
+							"Config Error",
+							tokens.at(token_index).line_number
+			);
+			return (false);
+		}
+		config.servers.back().locations.back().allowed_methods[method] = true;
+
+		printParserDebug(
+						"location allowed methods field",
+						"config.servers.back().allowed_methods[" + tokens.at(i).val + "]",
+						true,
+						std::nullopt,
+						config.servers.back().locations.back().allowed_methods[method],
+						std::nullopt
+		);
+
+		i++;
+	}
+
+	for (int j = token_index; j < i; j++) {
+		tokens.at(j).type = EVALUATED;
+
+	}
 
 	return (true);
 }
