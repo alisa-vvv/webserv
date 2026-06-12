@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/06/02 18:15:08 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/12 15:52:15 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/12 19:02:47 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,11 @@ typedef bool	(*tokenParserFnPtr_t)(
 /*
  * Server block Parsers
  */
+bool	fillServerNameField(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+);
 bool	fillListenField(
 	Config& config,
 	const size_t& token_index,
@@ -69,7 +74,7 @@ bool	fillServerCgiPass(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 );
-bool	fillServerAutoindex(
+bool	fillServerAutoIndex(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -103,6 +108,11 @@ bool	fillLocationCgiPass(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 );
+bool	fillLocationAutoIndex(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+);
 /**/
 
 // Contains vectors with allowed block names.
@@ -110,14 +120,15 @@ bool	fillLocationCgiPass(
 // values inside a Config instance.
 class	ParsingInfo {
 public:
-	const std::vector<std::string>	depth0_valid_block_names {
+	const std::vector<std::string>	global_valid_block_names {
 		"server",
 	};
-	const std::vector<tokenParserFnPtr_t>	depth_0_matching_functions {
+	const std::vector<tokenParserFnPtr_t>	global_matching_functions {
 		(tokenParserFnPtr_t) fillServerField,
 	};
 
 	const std::vector<std::string>	server_valid_block_names {
+		"server_name",
 		"listen",
 		"root",
 		"location",
@@ -127,13 +138,14 @@ public:
 		"autoindex",
 	};
 	const std::vector<tokenParserFnPtr_t>	server_matching_functions {
+		fillServerNameField,
 		fillListenField,
 		fillServerRootField,
 		fillServerLocationField,
 		fillServerErrorPageField,
 		fillServerMaxBodySize,
 		fillServerCgiPass,
-		fillServerAutoindex,
+		fillServerAutoIndex,
 	};
 
 	const std::vector<std::string>	location_valid_block_names {
@@ -142,8 +154,8 @@ public:
 		"allowed_methods",
 		"upload_store",
 		"cgi_pass",
-		"return",
 		"autoindex",
+		"return",
 	};
 	const std::vector<tokenParserFnPtr_t>	location_matching_functions {
 		fillLocationRootField,
@@ -151,6 +163,7 @@ public:
 		fillLocationAllowedMethodsField,
 		fillLocationUploadStoreField,
 		fillLocationCgiPass,
+		fillLocationAutoIndex,
 	};
 
 	const std::vector<std::string>	method_valid_names {

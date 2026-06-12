@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/05/28 13:16:53 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/12 15:22:07 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/12 18:17:00 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,11 +139,20 @@ int							evaluateTokens(std::vector<t_config_token>& tokens);
 /*
 * Error
 */
+void	displayParserError(
+	const std::string& message,
+	const std::optional<std::string>& prefix
+);
 void	configParserError(
 	Config& config,
 	const std::string& message,
 	const std::optional<std::string>& prefix,
 	const std::optional<int> line_number
+);
+void	locationValidationError(
+	const std::string& message,
+	const size_t server_index,
+	const size_t location_index
 );
 
 /*
