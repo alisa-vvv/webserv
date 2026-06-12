@@ -68,6 +68,10 @@ tokenParserFnPtr_t	matchTokenValueToParserAccordingToContext(
 		allowed_strings = parsing_info.server_valid_block_names;
 		parsers = parsing_info.server_matching_functions;
 	}
+	if (context_stack.top() == LOCATION) {
+		allowed_strings = parsing_info.location_valid_block_names;
+		parsers = parsing_info.location_matching_functions;
+	}
 	return (matchTokenValueToParser(allowed_strings, parsers, token));
 }
 
@@ -106,7 +110,7 @@ Config	tokensToConfig(
 				return (config);
 			}
 			else {
-				(*parser)(config, parsing_info, i, tokens);
+				(*parser)(config, i, tokens);
 				matchTokenToContext(cur_token, context_stack);
 	  		}
 		}

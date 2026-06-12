@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/05/28 13:16:53 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/11 12:55:56 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/12 15:22:07 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,14 +101,14 @@ typedef struct t_return {
 
 	/*	location	*/
 typedef struct t_location {
-	std::string				prefix; // needed
-	std::string				root; // needed
-	std::string				index; // opt if cgi_pass is not set
-	bool					autoindex; // needed
-	std::vector<e_method>	allowed_methods; // needed
-	std::string				upload_store; // opt
-	t_cgi_pass				cgi_pass; // opt
-	t_return				returns; // opt
+	std::string					prefix; // needed
+	std::string					root; // needed
+	std::string					index; // opt if cgi_pass is not set
+	bool						autoindex; // needed
+	std::map<e_method, bool>	allowed_methods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
+	std::string					upload_store; // opt
+	t_cgi_pass					cgi_pass; // opt
+	t_return					returns; // opt
 }	t_location;
 
 	/*	server	*/
