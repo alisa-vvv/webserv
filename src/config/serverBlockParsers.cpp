@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/06/11 12:11:35 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/12 15:49:46 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/12 19:02:04 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,19 @@
 #include "configParserTEST.hpp"
 #include <iostream>
 #include <arpa/inet.h>
+
+bool	fillServerField(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	cfg_server_t	new_server;
+
+	config.servers.push_back(new_server);
+	config.is_correct = false;
+	tokens.at(token_index).type = EVALUATED;
+	return (true);
+}
 
 static bool	fillRootField(
 	e_context context,
@@ -57,19 +70,182 @@ static bool	fillRootField(
 	return (true);
 }
 
-bool	fillServerField(
+static bool	fillCgiPass(
+	e_context context,
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
-	cfg_server_t	new_server;
+	t_config_token	ext_token = tokens.at(token_index + 1);
+	t_config_token	path_token = tokens.at(token_index + 2);
 
-	config.servers.push_back(new_server);
-	config.is_correct = false;
+
+	e_cgi_extension*	extension_store;
+	std::string*		path_store;
+
+	if (context == SERVER) {
+		extension_store = &config.servers.back().cgi_pass.extension;
+		path_store = &config.servers.back().cgi_pass.path;
+	}
+	else if (context == LOCATION) {
+		extension_store = &config.servers.back().locations.back().cgi_pass.extension;
+		path_store = &config.servers.back().locations.back().cgi_pass.path;
+	}
+
+	if (path_token.type != VALUE) {
+		configParserError(
+			config,
+			"missing path to CGI script in cgi_pass",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	if (ext_token.val == CGI_EXT_STR_PY) {
+		*extension_store = CGI_EXT_PY;
+	}
+	else {
+		configParserError(
+			config,
+			"CGI extension in cgi_pass doesn't match allowed extensions",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	if (!pathIsValid(path_token.val)) {
+		configParserError(
+			config,
+			"invalid path to CGI in cgi_pass",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	*path_store = path_token.val;
 	tokens.at(token_index).type = EVALUATED;
-	//for (size_t i = token_index; i < tokens.size(); i++) {
-	//	std::cout << "hello\n";
-	//}
+	tokens.at(token_index + 1).type = EVALUATED;
+	tokens.at(token_index + 2).type = EVALUATED;
+
+	if (context == SERVER) {
+		printParserDebug(
+						"server cgi_pass field",
+						"config.servers.back().cgi_pass.path",
+						true,
+						*path_store,
+						std::nullopt,
+						std::nullopt
+		);
+		printParserDebug(
+						"server cgi_pass field",
+						"config.servers.back().cgi_pass.extension",
+						false,
+						std::nullopt,
+						*extension_store,
+						std::nullopt
+		);
+	}
+	else if (context == LOCATION) {
+		printParserDebug(
+						"location cgi_pass field",
+						"config.servers.back().location.back().cgi_pass.path",
+						true,
+						*path_store,
+						std::nullopt,
+						std::nullopt
+		);
+		printParserDebug(
+						"location cgi_pass field",
+						"config.servers.back().location.back().cgi_pass.extension",
+						false,
+						std::nullopt,
+						*extension_store,
+						std::nullopt
+		);
+	}
+	return (true);
+}
+
+static bool	fillAutoIndex(
+	e_context context,
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	bool*	store;
+	if (context == SERVER) {
+		store = &config.servers.back().autoindex;
+	}
+	else if (context == LOCATION) {
+		store = &config.servers.back().locations.back().autoindex;
+	}
+	if (tokens.at(token_index + 1).val == "on") {
+		*store = true;
+	}
+	else if (tokens.at(token_index + 1).val == "off") {
+		*store = false;
+	}
+	else {
+		configParserError(
+						config,
+						"autoindex value can only be on/off",
+						"Config Error",
+						tokens.at(token_index).line_number
+		);
+		return (false);
+	}
+	tokens.at(token_index).type = EVALUATED;
+	tokens.at(token_index + 1).type = EVALUATED;
+
+	if (context == SERVER) {
+		printParserDebug(
+						"server autoindex field",
+						"config.servers.back().autoindex",
+						true,
+						std::nullopt,
+						*store,
+						std::nullopt
+		);
+	}
+	else if (context == LOCATION) {
+		printParserDebug(
+						"location autoindex field",
+						"config.servers.back().locations.back().autoindex",
+						true,
+						std::nullopt,
+						*store,
+						std::nullopt
+		);
+	}
+
+	return (true);
+}
+
+bool	fillServerNameField(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	if (tokens.at(token_index + 2).type == VALUE) {
+			configParserError(
+				config,
+				"server_name can only contain a single string without whitespace",
+				"Config Error",
+				tokens.at(token_index).line_number
+			);
+			return (false);
+	}
+	config.servers.back().server_name = tokens.at(token_index + 1).val;
+
+	tokens.at(token_index).type = EVALUATED;
+	tokens.at(token_index + 1).type = EVALUATED;
+
+	printParserDebug(
+		"server_name field",
+		"config.servers.back().server_name",
+		true,
+		config.servers.back().server_name,
+		std::nullopt,
+		std::nullopt
+	);
+
 	return (true);
 }
 
@@ -356,99 +532,6 @@ bool	fillServerMaxBodySize(
 	return (true);
 }
 
-bool	fillCgiPass(
-	e_context context,
-	Config& config,
-	const size_t& token_index,
-	std::vector<t_config_token>& tokens
-) {
-	t_config_token	ext_token = tokens.at(token_index + 1);
-	t_config_token	path_token = tokens.at(token_index + 2);
-
-
-	e_cgi_extension*	extension_store;
-	std::string*		path_store;
-
-	if (context == SERVER) {
-		extension_store = &config.servers.back().cgi_pass.extension;
-		path_store = &config.servers.back().cgi_pass.path;
-	}
-	else if (context == LOCATION) {
-		extension_store = &config.servers.back().locations.back().cgi_pass.extension;
-		path_store = &config.servers.back().locations.back().cgi_pass.path;
-	}
-
-	if (path_token.type != VALUE) {
-		configParserError(
-			config,
-			"missing path to CGI script in cgi_pass",
-			"Config Error",
-			tokens.at(token_index).line_number);
-		return (false);
-	}
-	if (ext_token.val == CGI_EXT_STR_PY) {
-		*extension_store = CGI_EXT_PY;
-	}
-	else {
-		configParserError(
-			config,
-			"CGI extension in cgi_pass doesn't match allowed extensions",
-			"Config Error",
-			tokens.at(token_index).line_number);
-		return (false);
-	}
-	if (!pathIsValid(path_token.val)) {
-		configParserError(
-			config,
-			"invalid path to CGI in cgi_pass",
-			"Config Error",
-			tokens.at(token_index).line_number);
-		return (false);
-	}
-	*path_store = path_token.val;
-	tokens.at(token_index).type = EVALUATED;
-	tokens.at(token_index + 1).type = EVALUATED;
-	tokens.at(token_index + 2).type = EVALUATED;
-
-	if (context == SERVER) {
-		printParserDebug(
-						"server cgi_pass field",
-						"config.servers.back().cgi_pass.path",
-						true,
-						*path_store,
-						std::nullopt,
-						std::nullopt
-		);
-		printParserDebug(
-						"server cgi_pass field",
-						"config.servers.back().cgi_pass.extension",
-						false,
-						std::nullopt,
-						*extension_store,
-						std::nullopt
-		);
-	}
-	else if (context == LOCATION) {
-		printParserDebug(
-						"location cgi_pass field",
-						"config.servers.back().location.back().cgi_pass.path",
-						true,
-						*path_store,
-						std::nullopt,
-						std::nullopt
-		);
-		printParserDebug(
-						"location cgi_pass field",
-						"config.servers.back().location.back().cgi_pass.extension",
-						false,
-						std::nullopt,
-						*extension_store,
-						std::nullopt
-		);
-	}
-	return (true);
-}
-
 bool	fillServerCgiPass(
 	Config& config,
 	const size_t& token_index,
@@ -457,40 +540,12 @@ bool	fillServerCgiPass(
 	return (fillCgiPass(SERVER, config, token_index, tokens));
 }
 
-bool	fillServerAutoindex(
+bool	fillServerAutoIndex(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
-
-	if (tokens.at(token_index + 1).val == "on") {
-		config.servers.back().autoindex = true;
-	}
-	else if (tokens.at(token_index + 1).val == "off") {
-		config.servers.back().autoindex = false;
-	}
-	else {
-		configParserError(
-						config,
-						"autoindex value can only be on/off",
-						"Config Error",
-						tokens.at(token_index).line_number
-		);
-		return (false);
-	}
-	tokens.at(token_index).type = EVALUATED;
-	tokens.at(token_index + 1).type = EVALUATED;
-
-	printParserDebug(
-					"server autoindex field",
-					"config.servers.back().autoindex",
-					true,
-					std::nullopt,
-					config.servers.back().autoindex,
-					std::nullopt
-	);
-
-	return (true);
+	return (fillAutoIndex(SERVER, config, token_index, tokens));
 }
 
 bool	fillLocationRootField(
@@ -517,7 +572,7 @@ bool	fillLocationIndexField( // TEST THIS
 		);
 		return (false);
 	}
-	if (val_str.substr(val_str.size() - 6, 5) != ".html") {
+	if (val_str.substr(val_str.size() - 5, 5) != ".html") {
 		configParserError(
 						config,
 						"index has to be a .html file",
@@ -644,4 +699,12 @@ bool	fillLocationCgiPass(
 	std::vector<t_config_token>& tokens
 ) {
 	return (fillCgiPass(LOCATION, config, token_index, tokens));
+}
+
+bool	fillLocationAutoIndex(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	return (fillAutoIndex(LOCATION, config, token_index, tokens));
 }
