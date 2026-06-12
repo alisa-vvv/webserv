@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/06/02 18:15:08 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/12 19:02:47 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/12 19:10:30 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,6 +126,8 @@ public:
 	const std::vector<tokenParserFnPtr_t>	global_matching_functions {
 		(tokenParserFnPtr_t) fillServerField,
 	};
+
+	// CHANGE THESE THINGS TO MAPS
 
 	const std::vector<std::string>	server_valid_block_names {
 		"server_name",
