@@ -16,8 +16,8 @@
 #include <string>
 #include <vector>
 
-
 #define CLIENT_MAX_BODY_SIZE 1000
+
 typedef enum	e_context {
 	GLOBAL,
 	SERVER,
@@ -25,70 +25,80 @@ typedef enum	e_context {
 }	e_context;
 
 // Function pointer type for token parsers
-typedef	bool (*tokenParserFnPtr_t)(
+typedef bool	(*tokenParserFnPtr_t)(
 	Config& config,
-	 const size_t& token_index,
-	 std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 );
 
 /*
  * Server block Parsers
  */
-bool fillListenField(
+bool	fillListenField(
 	Config& config,
-	 const size_t& token_index,
-	 std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 );
-bool fillServerRootField(
+bool	fillServerRootField(
 	Config& config,
-	 const size_t& token_index,
-	 std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 );
-bool fillServerField(
+bool	fillServerField(
 	Config& config,
-	 const size_t& token_index,
-	 std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 );
-bool fillServerLocationField(
+bool	fillServerLocationField(
 	Config& config,
-	 const size_t& token_index,
-	 std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 );
-bool fillServerErrorPageField(
+bool	fillServerErrorPageField(
 	Config& config,
-	 const size_t& token_index,
-	 std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 );
-bool fillServerMaxBodySize(
+bool	fillServerMaxBodySize(
 	Config& config,
-	 const size_t& token_index,
-	 std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 );
-bool fillServerCgiPass(
+bool	fillServerCgiPass(
 	Config& config,
-	 const size_t& token_index,
-	 std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 );
-bool fillServerAutoindex(
+bool	fillServerAutoindex(
 	Config& config,
-	 const size_t& token_index,
-	 std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 );
 
 /*
 * Location block parsers
 */
-bool fillLocationRootField(
+bool	fillLocationRootField(
 	Config& config,
 	 const size_t& token_index,
 	 std::vector<t_config_token>& tokens
 );
-bool fillLocationIndexField(
+bool	fillLocationIndexField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 );
-bool fillLocationAllowedMethodsField(
+bool	fillLocationAllowedMethodsField(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+);
+bool	fillLocationUploadStoreField(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+);
+bool	fillLocationCgiPass(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -139,6 +149,8 @@ public:
 		fillLocationRootField,
 		fillLocationIndexField,
 		fillLocationAllowedMethodsField,
+		fillLocationUploadStoreField,
+		fillLocationCgiPass,
 	};
 
 	const std::vector<std::string>	method_valid_names {

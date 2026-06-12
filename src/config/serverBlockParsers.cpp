@@ -57,7 +57,7 @@ static bool	fillRootField(
 	return (true);
 }
 
-bool fillServerField(
+bool	fillServerField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -73,7 +73,7 @@ bool fillServerField(
 	return (true);
 }
 
-bool fillListenField(
+bool	fillListenField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -181,7 +181,7 @@ bool fillListenField(
 	return (true);
 }
 
-bool fillServerRootField(
+bool	fillServerRootField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -189,7 +189,7 @@ bool fillServerRootField(
 	return (fillRootField(SERVER, config, token_index, tokens));
 }
 
-bool fillServerLocationField(
+bool	fillServerLocationField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -223,7 +223,7 @@ bool fillServerLocationField(
 	return (true);
 }
 
-bool fillServerErrorPageField(
+bool	fillServerErrorPageField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -305,7 +305,7 @@ bool fillServerErrorPageField(
 	return (true);
 }
 
-bool fillServerMaxBodySize(
+bool	fillServerMaxBodySize(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -356,13 +356,27 @@ bool fillServerMaxBodySize(
 	return (true);
 }
 
-bool fillServerCgiPass(
+bool	fillCgiPass(
+	e_context context,
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
 	t_config_token	ext_token = tokens.at(token_index + 1);
 	t_config_token	path_token = tokens.at(token_index + 2);
+
+
+	e_cgi_extension*	extension_store;
+	std::string*		path_store;
+
+	if (context == SERVER) {
+		extension_store = &config.servers.back().cgi_pass.extension;
+		path_store = &config.servers.back().cgi_pass.path;
+	}
+	else if (context == LOCATION) {
+		extension_store = &config.servers.back().locations.back().cgi_pass.extension;
+		path_store = &config.servers.back().locations.back().cgi_pass.path;
+	}
 
 	if (path_token.type != VALUE) {
 		configParserError(
@@ -373,7 +387,7 @@ bool fillServerCgiPass(
 		return (false);
 	}
 	if (ext_token.val == CGI_EXT_STR_PY) {
-		config.servers.back().cgi_pass.extension = CGI_EXT_PY;
+		*extension_store = CGI_EXT_PY;
 	}
 	else {
 		configParserError(
@@ -391,32 +405,59 @@ bool fillServerCgiPass(
 			tokens.at(token_index).line_number);
 		return (false);
 	}
-	config.servers.back().cgi_pass.path = path_token.val;
+	*path_store = path_token.val;
 	tokens.at(token_index).type = EVALUATED;
 	tokens.at(token_index + 1).type = EVALUATED;
 	tokens.at(token_index + 2).type = EVALUATED;
 
-	printParserDebug(
-					"server cgi_pass field",
-					"config.servers.back().cgi_pass.path",
-					true,
-					config.servers.back().cgi_pass.path,
-					std::nullopt,
-					std::nullopt
-	);
-	printParserDebug(
-					"server cgi_pass field",
-					"config.servers.back().cgi_pass.extension",
-					false,
-					std::nullopt,
-					config.servers.back().cgi_pass.extension,
-					std::nullopt
-	);
-
+	if (context == SERVER) {
+		printParserDebug(
+						"server cgi_pass field",
+						"config.servers.back().cgi_pass.path",
+						true,
+						*path_store,
+						std::nullopt,
+						std::nullopt
+		);
+		printParserDebug(
+						"server cgi_pass field",
+						"config.servers.back().cgi_pass.extension",
+						false,
+						std::nullopt,
+						*extension_store,
+						std::nullopt
+		);
+	}
+	else if (context == LOCATION) {
+		printParserDebug(
+						"location cgi_pass field",
+						"config.servers.back().location.back().cgi_pass.path",
+						true,
+						*path_store,
+						std::nullopt,
+						std::nullopt
+		);
+		printParserDebug(
+						"location cgi_pass field",
+						"config.servers.back().location.back().cgi_pass.extension",
+						false,
+						std::nullopt,
+						*extension_store,
+						std::nullopt
+		);
+	}
 	return (true);
 }
 
-bool fillServerAutoindex(
+bool	fillServerCgiPass(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	return (fillCgiPass(SERVER, config, token_index, tokens));
+}
+
+bool	fillServerAutoindex(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -452,7 +493,7 @@ bool fillServerAutoindex(
 	return (true);
 }
 
-bool fillLocationRootField(
+bool	fillLocationRootField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -460,7 +501,7 @@ bool fillLocationRootField(
 	return (fillRootField(LOCATION, config, token_index, tokens));
 }
 
-bool fillLocationIndexField( // TEST THIS
+bool	fillLocationIndexField( // TEST THIS
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -502,7 +543,7 @@ bool fillLocationIndexField( // TEST THIS
 	return (true);
 }
 
-bool fillLocationAllowedMethodsField(
+bool	fillLocationAllowedMethodsField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -555,4 +596,52 @@ bool fillLocationAllowedMethodsField(
 	}
 
 	return (true);
+}
+
+bool	fillLocationUploadStoreField(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	if (tokens.at(token_index + 2).type == VALUE) {
+		configParserError(
+						config,
+						"upload_store can only have one directory",
+						"Config Error",
+						tokens.at(token_index).line_number
+		);
+		return (false);
+	}
+	if (!pathIsValid(tokens.at(token_index +1).val)) {
+		configParserError(
+						config,
+						"upload_store value is not a valid path",
+						"Config Error",
+						tokens.at(token_index).line_number
+		);
+		return (false);
+	}
+	config.servers.back().locations.back().upload_store = tokens.at(token_index + 1).val;
+
+	tokens.at(token_index).type = EVALUATED;
+	tokens.at(token_index + 1).type = EVALUATED;
+
+	printParserDebug(
+					"location upload store field",
+					"config.servers.back().locations.back().upload_store",
+					true,
+					config.servers.back().locations.back().upload_store,
+					std::nullopt,
+					std::nullopt
+	);
+
+	return (true);
+}
+
+bool	fillLocationCgiPass(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	return (fillCgiPass(LOCATION, config, token_index, tokens));
 }
