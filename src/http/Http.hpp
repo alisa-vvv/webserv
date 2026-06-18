@@ -4,6 +4,22 @@
 #include <string>
 #include <map>
 
+static const int SUCCESS = 0;
+static const int FAILURE = -1;
+static const int HTTP_OK = 200;
+static const int HTTP_CREATED = 201;
+static const int HTTP_BAD_REQUEST = 400;
+static const int HTTP_UNAUTHORIZED = 401;
+static const int HTTP_FORBIDDEN = 403;
+static const int HTTP_NOT_FOUND = 404;
+static const int HTTP_METHOD_NOT_ALLOWED = 405;
+static const int HTTP_REQUEST_TIMEOUT = 408;
+static const int HTTP_LENGTH_REQUIRED = 411; // Length Required
+static const int HTTP_PAYLOAD_TOO_LARGE = 413;
+static const int URI_TOO_LONG = 414;
+static const int HTTP_INTERNAL_SERVER_ERROR = 500;
+static const int HTTP_VERSION_NOT_SUPPORTED = 505;
+
 enum httpType {
 	REQUEST,
 	RESPONSE
@@ -12,20 +28,27 @@ enum httpType {
 enum httpVersion {
 	HTTP_1_0,
 	HTTP_1_1,
-	HTTP_2,
 	INVALID
 };
 
 static std::map<int, std::string> HTTP_STATUS_MESSAGE = {
-	{200, "OK"},
-	{201, "Created"},
-	{400, "Bad request"},
-	{401, "Unauthorized"},
-	{403, "Forbidden"}, //no permission
-	{404, "Not Found"},
-	{408, "Request Timeout"},
-	{500, "Internal Server Error"}
-}; //405 408 409 413 415 500 502 504
+	{200, "OK"},//ok!
+	{201, "Created"},//1xx 2xx 3xx
+	{400, "Bad request"},//client error
+	{401, "Unauthorized"}, //no valid auth
+	{403, "Forbidden"}, //no permission to access resource
+	{405, "Method Not Allowed"}, //method not supported by resource
+	{404, "Not Found"}, //resource not found
+	{408, "Request Timeout"}, //client takes too long to send request
+	{409, "Conflict"}, //client error--request conflicts with current state of resource
+	{413, "Payload Too Large"}, //request body too large
+	{414, "URI Too Long"}, //URI too long
+	{415, "Unsupported Media Type"}, //unsupported media type in request body
+	{500, "Internal Server Error"}, //cgi process fails
+	{502, "Bad Gateway"}, //cgi process terminates unexpectedly
+	{504, "Gateway Timeout"}, //cgi process takes too long
+	{505, "HTTP Version not supported"}
+}; //405 408 409 413 415
 
 enum httpMethod {
 	GET,
@@ -52,6 +75,8 @@ class Http {
 		void			parseRequest(const std::string &rawString);
 		void			parseRequestLine(const std::string line);
 		void			parseHeaders(const std::string &headers);
+		
+		int				validateURI(std::string uri);
 		void			validateLayer();
 		void			buildResponse(); //give statuscode, set header, set body
 	

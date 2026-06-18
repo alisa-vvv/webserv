@@ -2,6 +2,42 @@
 #include "httpBuffer.hpp"
 #include <sys/socket.h>
 
+
+/// @brief This is where we initially call the recvHttpRequest. I wanted this to be the 
+///function called inside the poll loop but this is not allowed. We need to change it.\n\n
+///This function prints the error message based on the result of recvHttpRequest
+/// @param httpObj 
+/// @param sockFd 
+/// @return Void function, prints to std::cerr
+void handleHttpRequest(Http &httpObj, int sockFd)
+{
+	(void)httpObj;
+	(void)sockFd;
+	// httpBuffer		bufferObj;
+
+	// switch (recvHttpRequest(bufferObj, sockFd))
+	// {
+	// 	case COMPLETE:
+	// 		httpObj.parseRequest(bufferObj.getRecvStr());
+	// 		break;
+	// 	case INCOMPLETE:
+	// 		std::cerr << "Receive buffer error: Incomplete\n";
+	// 		break;
+	// 	case RECV_ERROR:
+	// 		std::cerr << "Receive buffer error\n";
+	// 		break;
+	// 	case SOCKET_CLOSED:
+	// 		std::cerr << "Socket closed\n";
+	// 		break;
+	// 	case MAXBYTESRECEIVED:
+	// 		std::cerr << "Receive error: maxbytes received\n";
+	// 		break;
+	// 	case TIMEOUT:
+	// 		std::cerr << "Timeout error\n";
+	// 		break;
+	// }
+}
+
 //We gotta add the recv to the socket loop, we can just take the while loop?
 //the httpBuffer class is in httpBuffer.hpp, the main adding to the 
 
@@ -33,9 +69,8 @@ receiveStatus recvHttpRequest(httpBuffer &bufferObj, int sockFd) //must take soc
 			return COMPLETE;
 		if (time(NULL) - lastActivity > TIMEOUTCONST) //timeout check
 			return TIMEOUT;
-		//if incomplete, keep recving
+		//if incomplete, keep recving. but this is probably what we need to chnge -> recv must be outside the loop
 	}
 	return MAXBYTESRECEIVED;
 }
 
-//this goes into Http.cpp/handleHttpRequest but we can change it 

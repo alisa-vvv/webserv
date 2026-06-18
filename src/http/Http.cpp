@@ -3,48 +3,83 @@
 #include "Http.hpp"
 #include "httpBuffer.hpp"
 
-/// @brief This is where we initially call the recvHttpRequest. I wanted this to be the 
-///function called inside the poll loop but this is not allowed. We can change it around later.\n\n
-///This function prints the error message based on the result of recvHttpRequest
-/// @param httpObj 
-/// @param sockFd 
-/// @return Void function, prints to std::cerr
-void handleHttpRequest(Http &httpObj, int sockFd)
+int Http::validateURI(std::string uri)
 {
-	(void)httpObj;
-	(void)sockFd;
-	// httpBuffer		bufferObj;
-
-	// switch (recvHttpRequest(bufferObj, sockFd))
-	// {
-	// 	case COMPLETE:
-	// 		httpObj.parseRequest(bufferObj.getRecvStr());
-	// 		break;
-	// 	case INCOMPLETE:
-	// 		std::cerr << "Receive buffer error: Incomplete\n";
-	// 		break;
-	// 	case RECV_ERROR:
-	// 		std::cerr << "Receive buffer error\n";
-	// 		break;
-	// 	case SOCKET_CLOSED:
-	// 		std::cerr << "Socket closed\n";
-	// 		break;
-	// 	case MAXBYTESRECEIVED:
-	// 		std::cerr << "Receive error: maxbytes received\n";
-	// 		break;
-	// 	case TIMEOUT:
-	// 		std::cerr << "Timeout error\n";
-	// 		break;
-	// }
+	if (uri.empty() || uri.front() != '/')
+	{
+		setResponse(HTTP_BAD_REQUEST);
+		return FAILURE;
+	}
+	if (uri.find("..") != std::string::npos || uri.find(" ") != std::string::npos || uri.find("//") != std::string::npos)
+	{
+		setResponse(HTTP_BAD_REQUEST);
+		return FAILURE;
+	}
+	if (uri.length() > 2048)
+	{
+		setResponse(URI_TOO_LONG);
+		return FAILURE;
+	}
+	return SUCCESS;
+}
+/// @brief validates the format/syntax of the request and sets the status code ONLY!
+//It does not check for resource existence or permissions. That will be done in the controller layer.
+void	Http::validateLayer()
+{
+	this->_type = RESPONSE;
+	
+	if (this->_version == INVALID)
+	{
+		setResponse(HTTP_VERSION_NOT_SUPPORTED);
+		return;
+	}
+	if (this->_version == HTTP_1_0 && this->_method == POST)
+	{
+		setResponse(HTTP_VERSION_NOT_SUPPORTED);
+		return;
+	}
+	if (this->_method == UNKNOWN)
+	{
+		setResponse(HTTP_METHOD_NOT_ALLOWED);
+		return;
+	}
+	if (validateURI(this->_uri) == FAILURE)
+		return;
+	if (this->_headers.find("host") == this->_headers.end())
+	{
+		setResponse(HTTP_BAD_REQUEST);
+		return;
+	}
+	if (this->_contentLen < 0 && this->_headers.find("content-length") != this->_headers.end())
+	{
+		setResponse(HTTP_BAD_REQUEST);
+		return;
+	}
+	if (this->_contentLen > 1048576)
+	{
+		setResponse(PAYLOAD_TOO_LARGE); 
+		return;
+	}
+	// GET/DELETE doesnt have body
+	if ((this->_method == GET || this->_method == DELETE) && this->_hasBody)
+	{
+		setResponse(HTTP_BAD_REQUEST);
+		return;
+	}
+	// POST needs content lenheader
+	if (this->_method == POST && this->_headers.find("content-length") == this->_headers.end())
+	{
+		setResponse(HTTP_LENGTH_REQUIRED);
+		return;
+	}
+	// POST with conlen should not have body
+	if (this->_method == POST && this->_contentLen == 0 && this->_hasBody)
+	{
+		setResponse(HTTP_BAD_REQUEST);
+		return;
+	}	
+	setResponse(HTTP_OK);
 }
 
-std::string handleHttpResponse(Http &httpObject) //must take socket as param
-{
-	(void)httpObject;
-	// httpObject.setResponse();
-	// return(httpObject.getResponseString());
-	// send();//send to socket
-	return("");
-}
 
 
