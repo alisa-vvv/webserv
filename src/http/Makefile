@@ -12,8 +12,8 @@ FLAGS = -Wall -Wextra -Werror -std=c++20
 SRC_DIR = ./
 OBJ_DIR = obj/
 
-HEADER_FILES = Http.hpp
-SRC_FILES = testmain.cpp Http.cpp httpParsers.cpp httpGetters.cpp httpSetters.cpp httpUtils.cpp
+HEADER_FILES = Http.hpp httpBuffer.hpp
+SRC_FILES = test.cpp Http.cpp httpParsers.cpp httpGetters.cpp httpSetters.cpp httpUtils.cpp recv.cpp httpBuffer.cpp
 OBJ = $(addprefix $(OBJ_DIR), $(SRC_FILES:.cpp=.o))
 
 all: $(NAME)

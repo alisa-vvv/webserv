@@ -16,7 +16,7 @@ enum httpVersion {
 	INVALID
 };
 
-std::map<int, std::string> HTTP_STATUS_MESSAGE = {
+static std::map<int, std::string> HTTP_STATUS_MESSAGE = {
 	{200, "OK"},
 	{201, "Created"},
 	{400, "Bad request"},
@@ -40,7 +40,7 @@ class Http {
 		httpMethod							_method;
 		httpVersion							_version;
 		int									_statusCode;
-		int									_contentLen;
+		int									_contentLen = -1;
 		bool								_hasBody;
 		bool								_hasExtension;
 		std::string							_uri;
@@ -49,7 +49,7 @@ class Http {
 
 	public:
 		Http();
-		void			parseRequest(std::string rawString);
+		void			parseRequest(const std::string &rawString);
 		void			parseRequestLine(const std::string line);
 		void			parseHeaders(const std::string &headers);
 		void			validateLayer();
@@ -63,7 +63,7 @@ class Http {
 		std::string		getUri() const;
 		httpVersion		getVersion() const;
 		int				getStatusCode() const;
-		std::string		getResponseString(); //back to raw string for response
+		// std::string		getResponseString(); //back to raw string for response
 
 	
 		void			setResponse(int code); 
@@ -89,26 +89,5 @@ class Http {
 void handleHttpRequest(Http &httpObject);
 std::string handleHttpResponse(Http &httpObject); //must take socket as param
 
-
-enum receiveStatus{
-	SOCKET_CLOSED,
-	RECV_ERROR,
-	COMPLETE,
-	INCOMPLETE,
-	MAXBYTESRECEIVED
-};
-
-class httpBuffer {
-	private:
-	std::string				recvStr;
-	public:
-	httpBuffer();
-	static const int		maxRequest = 8192;
-	ssize_t					totalBytesReceived;
-	receiveStatus			currentBufferStatus;
-	receiveStatus			checkStatus();
-	void					append(char *buffer, ssize_t size);
-	const char*				getRecvStr() const { return this->recvStr.c_str(); }
-};
 
 #endif
