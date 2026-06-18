@@ -90,8 +90,10 @@ class Http {
 		int				getStatusCode() const;
 		// std::string		getResponseString(); //back to raw string for response
 
-	
-		void			setResponse(int code); 
+		void 			handleGet();
+		void 			handlePost();
+		void 			handleDelete();
+		void 			handleResponse();
 		void			setHeader(const std::string &key, const std::string &value);
 		void			setBody(const std::string &body);
 
@@ -112,7 +114,6 @@ class Http {
 };
 
 void handleHttpRequest(Http &httpObject);
-std::string handleHttpResponse(Http &httpObject); //must take socket as param
 
 
 #endif

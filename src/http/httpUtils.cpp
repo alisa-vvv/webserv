@@ -9,14 +9,7 @@ Http::Http()
 /// @brief moved to hpputils because it's kinda useless right now
 /// @param httpObject 
 /// @return 
-std::string handleHttpResponse(Http &httpObject) //must take socket as param
-{
-	(void)httpObject;
-	// httpObject.setResponse();
-	// return(httpObject.getResponseString());
-	// send();//send to socket
-	return("");
-}
+
 
 void Http::debugPrint()
 {
