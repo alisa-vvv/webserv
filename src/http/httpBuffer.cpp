@@ -1,6 +1,5 @@
 #include "httpBuffer.hpp"
 
-
 httpBuffer::httpBuffer()
 	:totalBytesReceived(0)
 {}

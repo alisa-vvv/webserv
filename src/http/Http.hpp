@@ -94,6 +94,7 @@ class Http {
 		void 			handlePost();
 		void 			handleDelete();
 		void 			handleResponse();
+		void			setResponse(int code);
 		void			setHeader(const std::string &key, const std::string &value);
 		void			setBody(const std::string &body);
 

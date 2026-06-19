@@ -1,85 +1,84 @@
 #include <string>
 #include <iostream>
 #include "Http.hpp"
-#include "httpBuffer.hpp"
 
-int Http::validateURI(std::string uri)
-{
-	if (uri.empty() || uri.front() != '/')
-	{
-		setResponse(HTTP_BAD_REQUEST);
-		return FAILURE;
-	}
-	if (uri.find("..") != std::string::npos || uri.find(" ") != std::string::npos || uri.find("//") != std::string::npos)
-	{
-		setResponse(HTTP_BAD_REQUEST);
-		return FAILURE;
-	}
-	if (uri.length() > 2048)
-	{
-		setResponse(URI_TOO_LONG);
-		return FAILURE;
-	}
-	return SUCCESS;
+/*======GETTERS======*/
+
+httpType Http::getType() const {
+	return (_type);
 }
-/// @brief validates the format/syntax of the request and sets the status code ONLY!
-//It does not check for resource existence or permissions. That will be done in the controller layer.
-void	Http::validateLayer()
+
+httpMethod Http::getMethod() const {
+	return (_method);
+}
+
+int Http::getContentLen() const {
+	return (_contentLen);
+}
+
+std::string Http::getBody() const {
+	return (_body);
+}
+
+std::string Http::getHeader(const std::string &key) const {
+	auto it = this->_headers.find(key);
+	if (it != this->_headers.end())
+		return (it->second);
+	return "";
+}
+
+std::string Http::getUri() const {
+	return (_uri);
+}
+
+httpVersion Http::getVersion() const {
+	return (_version);
+}
+
+int Http::getStatusCode() const {
+	return (_statusCode);
+}
+
+// std::string Http::getResponseString() { //back to raw string for response
+// 	return (_res)
+// }
+
+/*======SETTERS======*/
+
+void Http::setResponse(int code) //give statuscode, set header, set body
 {
-	this->_type = RESPONSE;
+	this->_statusCode = code;
+}
+
+void Http::setHeader(const std::string &key, const std::string &value)
+{
+	this->_headers[key] = value;
+}
+
+void Http::setBody(const std::string &body) 
+{
+	this->_body = body;
+}
+
+
+/*======UTILS======*/
+
+
+Http::Http()
+{
 	
-	if (this->_version == INVALID)
-	{
-		setResponse(HTTP_VERSION_NOT_SUPPORTED);
-		return;
-	}
-	if (this->_version == HTTP_1_0 && this->_method == POST)
-	{
-		setResponse(HTTP_VERSION_NOT_SUPPORTED);
-		return;
-	}
-	if (this->_method == UNKNOWN)
-	{
-		setResponse(HTTP_METHOD_NOT_ALLOWED);
-		return;
-	}
-	if (validateURI(this->_uri) == FAILURE)
-		return;
-	if (this->_headers.find("host") == this->_headers.end())
-	{
-		setResponse(HTTP_BAD_REQUEST);
-		return;
-	}
-	if (this->_contentLen < 0 && this->_headers.find("content-length") != this->_headers.end())
-	{
-		setResponse(HTTP_BAD_REQUEST);
-		return;
-	}
-	if (this->_contentLen > 1048576)
-	{
-		setResponse(PAYLOAD_TOO_LARGE); 
-		return;
-	}
-	// GET/DELETE doesnt have body
-	if ((this->_method == GET || this->_method == DELETE) && this->_hasBody)
-	{
-		setResponse(HTTP_BAD_REQUEST);
-		return;
-	}
-	// POST needs content lenheader
-	if (this->_method == POST && this->_headers.find("content-length") == this->_headers.end())
-	{
-		setResponse(HTTP_LENGTH_REQUIRED);
-		return;
-	}
-	// POST with conlen should not have body
-	if (this->_method == POST && this->_contentLen == 0 && this->_hasBody)
-	{
-		setResponse(HTTP_BAD_REQUEST);
-		return;
-	}	
-	setResponse(HTTP_OK);
 }
 
-
+void Http::debugPrint()
+{
+	std::cout << "=== HTTP Debug Print ===" << std::endl;
+	std::cout << "Type: " << this->getType() << std::endl;
+	std::cout << "Method: " << this->getMethod() << std::endl;
+	std::cout << "Version: " << this->getVersion() << std::endl;
+	std::cout << "Status Code: " << this->getStatusCode() << std::endl;
+	std::cout << "URI: " << this->getUri() << std::endl;
+	std::cout << "Content Length: " << this->getContentLen() << std::endl;
+	std::cout << "Body: " << this->getBody() << std::endl;
+	std::cout << "========================" << std::endl;
+}
 
