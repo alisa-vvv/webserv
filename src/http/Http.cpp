@@ -2,6 +2,17 @@
 #include <iostream>
 #include "Http.hpp"
 
+/*======CONSTRUCTOR======*/
+
+Http::Http()
+	: _type(REQUEST)
+	, _method(UNKNOWN)
+	, _version(INVALID)
+	, _statusCode(0)
+	, _contentLen(0)
+	, _hasBody(false)
+{}
+
 /*======GETTERS======*/
 
 httpType Http::getType() const {
@@ -45,15 +56,15 @@ int Http::getStatusCode() const {
 
 /*======SETTERS======*/
 
-void Http::setResponse(int code) //give statuscode, set header, set body
+void Http::setResponseCode(int code) //give statuscode, set header, set body
 {
 	this->_statusCode = code;
 }
 
-void Http::setHeader(const std::string &key, const std::string &value)
-{
-	this->_headers[key] = value;
-}
+// void Http::setHeader(const std::string &key, const std::string &value)
+// {
+// 	this->_headers[key] = value;
+// }
 
 void Http::setBody(const std::string &body) 
 {
@@ -63,11 +74,6 @@ void Http::setBody(const std::string &body)
 
 /*======UTILS======*/
 
-
-Http::Http()
-{
-	
-}
 
 void Http::debugPrint()
 {

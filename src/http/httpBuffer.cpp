@@ -1,5 +1,6 @@
 #include "httpBuffer.hpp"
 
+//*======CONSTRUCTOR======*/
 httpBuffer::httpBuffer()
 	:totalBytesReceived(0)
 {}

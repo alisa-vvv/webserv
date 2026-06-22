@@ -32,7 +32,7 @@ valid input?
 
 
 handlehttpResponse.cpp
--setresponse
+-setResponseCode
 -getresponsestring
 -sendresponsestring
 
