@@ -55,6 +55,7 @@ void Http::buildResponseString()
 //and body based on status code and request method
 void Http::buildResponse()
 {
+	//ticket04
 	if (this->_statusCode == 200)
 	{
 		switch (this->_method)

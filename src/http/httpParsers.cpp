@@ -60,10 +60,10 @@ void Http::parseHeaders(const std::string &headers)
 	{
 		newLine = headers.find("\r\n", start);
 		if (newLine == std::string::npos)
-			throw HttpException(400); //bad request //DEBUG->we probably dont need to throw exception here and we just need to set response?
+			throw HttpException(HTTP_BAD_REQUEST); //bad request //ticket02 
 		colon = headers.find(":", start);
 		if (colon == std::string::npos || colon > newLine)
-			throw HttpException(400); //bad request
+			throw HttpException(HTTP_BAD_REQUEST); //bad request
 		currLine = headers.substr(start, newLine - start);
 		// Recalculate colon and newLine positions relative to currLine
 		size_t colonInLine = colon - start;

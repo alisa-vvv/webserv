@@ -6,7 +6,7 @@
 
 static const int SUCCESS = 0;
 static const int FAILURE = -1;
-static const int CLIENT_MAX_BODY_SIZE = 100; //we probably need to change this DEBUG
+static const int CLIENT_MAX_BODY_SIZE = 100; //we probably need to change this ticket01
 static const int HTTP_OK = 200; //ok!
 static const int HTTP_CREATED = 201; //1xx 2xx 3xx
 static const int HTTP_BAD_REQUEST = 400; //client error
@@ -28,7 +28,7 @@ enum httpType {
 
 enum httpVersion {
 	HTTP_1_0,
-	HTTP_1_1,
+	HTTP_1_1, //we will not handle this ticket08
 	INVALID //we will not handle http versions other than 1.0 and 1.1, so we set INVALID for unsupported versions
 };
 
@@ -55,8 +55,9 @@ enum httpMethod {
 	GET,
 	POST,
 	DELETE,
-	EXTENSION,
-	UNKNOWN
+	EXTENSION, //not gonnna show up in config file
+	UNKNOWN,
+	UNALLOWED //use this for checking methods  config methods allowed
 };
 
 class Http {

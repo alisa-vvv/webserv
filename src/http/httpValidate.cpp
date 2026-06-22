@@ -35,6 +35,7 @@ void Http::validateFile()
 
 int Http::validateURI(std::string uri)
 {
+	//ticket03
 	if (uri.empty() || uri.front() != '/')
 	{
 		setResponseCode(HTTP_BAD_REQUEST);
@@ -55,7 +56,7 @@ int Http::validateURI(std::string uri)
 	return SUCCESS;
 }
 
-/// @brief validates the format, syntax, and permissions
+/// @brief validates the format, syntax, and permissions, ticket00
 void	Http::validateLayer()
 {
 	this->_type = RESPONSE;
