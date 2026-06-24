@@ -59,13 +59,10 @@ int Http::validateURI(std::string uri)
 /// @brief validates the format, syntax, and permissions, ticket00
 void	Http::validateLayer()
 {
-	this->_type = RESPONSE;
-	if (this->_version == INVALID)
-	{
-		setResponseCode(HTTP_VERSION_NOT_SUPPORTED);
+	if (getState() == ERROR)
 		return;
-	}
-	if (this->_version == HTTP_1_0 && this->_method == POST)
+	setState(VALIDATING);
+	if (this->_version == INVALID)
 	{
 		setResponseCode(HTTP_VERSION_NOT_SUPPORTED);
 		return;

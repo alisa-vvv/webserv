@@ -54,13 +54,13 @@ receiveStatus recvHttpRequest(httpBuffer &bufferObj, int sockFd) //must take soc
 
 	while (1)
 	{
+		//set http.setState(RECEIVING);
 		bytesRead = recv(sockFd, buffer, sizeof(buffer), 0); //recv the string, add to buffer.
 		//the buffer gets overwritten every call
 		if (bytesRead == 0) // if 0, closed
 			return SOCKET_CLOSED;
 		if (bytesRead < 0) // if -1 recv errir
 			return RECV_ERROR;
-
 		lastActivity = time(NULL); //change last activity to now
 
 		bufferObj.totalBytesReceived += bytesRead; //add recv bytes read to total bytes read

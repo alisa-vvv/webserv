@@ -5,7 +5,7 @@
 /*======CONSTRUCTOR======*/
 
 Http::Http()
-	: _type(REQUEST)
+	: _state(PARSING)
 	, _method(UNKNOWN)
 	, _version(INVALID)
 	, _statusCode(0)
@@ -15,8 +15,8 @@ Http::Http()
 
 /*======GETTERS======*/
 
-httpType Http::getType() const {
-	return (_type);
+clientState Http::getState() const {
+	return (_state);
 }
 
 httpMethod Http::getMethod() const {
@@ -56,9 +56,14 @@ int Http::getStatusCode() const {
 
 /*======SETTERS======*/
 
-void Http::setResponseCode(int code) //give statuscode, set header, set body
+/// @brief Set the status code to given status. Also sets client state to error
+//if status code!= OK
+/// @param code 
+void Http::setResponseCode(int code)
 {
 	this->_statusCode = code;
+	if (_statusCode != HTTP_OK && _statusCode != HTTP_CREATED)
+		this->_state = ERROR;
 }
 
 // void Http::setHeader(const std::string &key, const std::string &value)
@@ -71,6 +76,10 @@ void Http::setBody(const std::string &body)
 	this->_body = body;
 }
 
+void Http::setState(clientState state)
+{
+	this->_state = state;
+}
 
 /*======UTILS======*/
 
@@ -78,7 +87,7 @@ void Http::setBody(const std::string &body)
 void Http::debugPrint()
 {
 	std::cout << "=== HTTP Debug Print ===" << std::endl;
-	std::cout << "Type: " << this->getType() << std::endl;
+	std::cout << "Type: " << this->getState() << std::endl;
 	std::cout << "Method: " << this->getMethod() << std::endl;
 	std::cout << "Version: " << this->getVersion() << std::endl;
 	std::cout << "Status Code: " << this->getStatusCode() << std::endl;

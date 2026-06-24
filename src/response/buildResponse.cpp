@@ -1,34 +1,6 @@
 #include "Http.hpp"
 #include <fstream>
 
-
-void Http::handleGet()
-{
-	//if file exists and is readable, set body to file content, set content length, set status code to 200
-	//else if file exists but is not readable, set status code to 403
-	//else set status code to 404 not foiund
-	std::string file = this->_uri;
-	try {
-		long size = std::filesystem::file_size(file);
-		if (size > CLIENT_MAX_BODY_SIZE)
-			return setResponseCode(HTTP_PAYLOAD_TOO_LARGE);
-		
-	}
-	
-}
-
-void Http::handlePost()
-{
-	//parse request body, validate data, if valid set status code to 200, else set status code to 400 bad request
-}
-
-void Http::handleDelete()
-{
-	//if file exists and is deletable, delete file, set status code to 200
-	//else if file exists but is not deletable, set status code to 403
-	//else set status code to 404 not foiund
-}
-
 /// @brief get the response string ready for client use
 /// @return 
 std::string Http::getResponseString() const
@@ -56,20 +28,24 @@ void Http::buildResponseString()
 void Http::buildResponse()
 {
 	//ticket04
-	if (this->_statusCode == 200)
+	if (getState() != ERROR)
 	{
 		switch (this->_method)
 		{
 			case EXTENSION:
-				return; //extension handler
+				setState(HANDLING_CGI_EXTENSION);
+				return; //RETURN TO POLL LOOP, extension handler - should i set the headers?
+				//in poll loop
+				//if getmethod() == "EXTENSION"
+				//fork exec blablabla
 			case GET:
-				return handleGet();
+				return handleGetResponse();
 			case POST:
-				return handlePost();
+				return handlePostResponse();
 			case DELETE:
-				return handleDelete();
+				return handleDeleteResponse();
 		}
 	}
 	else
-		return loadErrorPage();
+		return handleErrorResponse();
 }

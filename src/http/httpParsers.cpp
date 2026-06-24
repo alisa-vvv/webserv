@@ -13,12 +13,12 @@ void Http::parseRequestLine(const std::string line)
 	size_t	secSep = line.rfind(' ');
 
 	if (firstSep == std::string::npos || secSep == std::string::npos)
-		throw HttpException(400);
+		setResponseCode(HTTP_BAD_REQUEST);
 	std::string method = line.substr(0, firstSep);
 	std::string uri = line.substr(firstSep + 1, secSep - firstSep - 1);
 	std::string version = line.substr(secSep + 1);
 	
-	this->_type = REQUEST; //DEBUG TEST
+	this->_state = PARSING; //DEBUG TEST
 	if (method == "GET")
 		this->_method = GET;
 	else if (method == "POST")
@@ -32,8 +32,6 @@ void Http::parseRequestLine(const std::string line)
 
 	if (version == "HTTP/1.0")
 		this->_version = HTTP_1_0;
-	else if (version == "HTTP/1.1")
-		this->_version = HTTP_1_1;
 	else
 		this->_version = INVALID;
 }
@@ -60,10 +58,10 @@ void Http::parseHeaders(const std::string &headers)
 	{
 		newLine = headers.find("\r\n", start);
 		if (newLine == std::string::npos)
-			throw HttpException(HTTP_BAD_REQUEST); //bad request //ticket02 
+			setResponseCode(HTTP_BAD_REQUEST); //bad request //ticket02 
 		colon = headers.find(":", start);
 		if (colon == std::string::npos || colon > newLine)
-			throw HttpException(HTTP_BAD_REQUEST); //bad request
+			setResponseCode(HTTP_BAD_REQUEST); //bad request
 		currLine = headers.substr(start, newLine - start);
 		// Recalculate colon and newLine positions relative to currLine
 		size_t colonInLine = colon - start;
@@ -83,34 +81,49 @@ void Http::parseHeaders(const std::string &headers)
 				this->_contentLen = stoi(val);
 			}
 			catch (std::exception &e){
-				throw HttpException(400);
+				setResponseCode(HTTP_BAD_REQUEST);
+				return;
 			}
 		}
 		this->_headers[key] = val;
 		start = newLine + 2;
 	}
 }
-/// @brief After receiving the rawstring, it gets parsed here.
+/// @brief After receiving the rawstring, it gets parsed here. ticket10
 /// @param rawString 
 void Http::parseRequest(const std::string &rawString) 
 {
+	setState(PARSING);
 	size_t	bodyStart = 0;
 	size_t	separator = rawString.find("\r\n\r\n");
 	if (separator == std::string::npos)
-		throw HttpException(400);
+	{
+		setResponseCode(HTTP_BAD_REQUEST);
+		return;
+	}
 	size_t requestLineEnd = rawString.find("\r\n");
 	std::string requestLine = rawString.substr(0, rawString.find("\r\n"));
 	std::string headers = rawString.substr(requestLineEnd + 2, separator - requestLineEnd);
 	parseRequestLine(requestLine);
+	if (getState() == ERROR)
+		return;
 	parseHeaders(headers);
+	if (getState() == ERROR)
+		return;
 	bodyStart = separator + 4;
 	if (bodyStart < rawString.size())
 	{
 		std::string body = rawString.substr(bodyStart);
 		if ((unsigned long)this->_contentLen > 0 && body.size() != (unsigned long)this->_contentLen)
-			throw HttpException(400);
+		{
+			setResponseCode(HTTP_BAD_REQUEST);
+			return;
+		}
 		else if (this->_contentLen == 0 && body.size() > 0)
-			throw HttpException(400); //conlen 0 but body exists
+		{
+			setResponseCode(HTTP_BAD_REQUEST);
+			return;
+		}
 		this->_hasBody = true;
 		this->setBody(body);
 	}

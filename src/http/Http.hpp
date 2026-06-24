@@ -6,7 +6,9 @@
 
 static const int SUCCESS = 0;
 static const int FAILURE = -1;
-static const int CLIENT_MAX_BODY_SIZE = 100; //we probably need to change this ticket01
+static const int CLIENT_MAX_BODY_SIZE = 100; //ticket01
+
+/*HTTP ERROR CODES*/
 static const int HTTP_OK = 200; //ok!
 static const int HTTP_CREATED = 201; //1xx 2xx 3xx
 static const int HTTP_BAD_REQUEST = 400; //client error
@@ -20,17 +22,6 @@ static const int HTTP_PAYLOAD_TOO_LARGE = 413; //request body too large
 static const int URI_TOO_LONG = 414; //URI too long
 static const int HTTP_INTERNAL_SERVER_ERROR = 500; //cgi process fails
 static const int HTTP_VERSION_NOT_SUPPORTED = 505; //HTTP Version not supported
-
-enum httpType {
-	REQUEST,
-	RESPONSE
-};
-
-enum httpVersion {
-	HTTP_1_0,
-	HTTP_1_1, //we will not handle this ticket08
-	INVALID //we will not handle http versions other than 1.0 and 1.1, so we set INVALID for unsupported versions
-};
 
 static std::map<int, std::string> HTTP_STATUS_MESSAGE = {
 	{200, "OK"},
@@ -51,6 +42,22 @@ static std::map<int, std::string> HTTP_STATUS_MESSAGE = {
 	{505, "HTTP Version not supported"}
 };
 
+enum clientState {
+	RECEIVING,
+	PARSING,
+	VALIDATING,
+	HANDLING_CGI_EXTENSION,
+	HANDLING_CGI_STATIC,
+	READY_TO_SEND,
+	ERROR,
+};
+
+enum httpVersion {
+	HTTP_1_0,
+	INVALID //we will not handle http versions other than 1.0 and 1.1, so we set INVALID for unsupported versions
+};
+
+
 enum httpMethod {
 	GET,
 	POST,
@@ -62,7 +69,7 @@ enum httpMethod {
 
 class Http {
 	private:
-		httpType							_type;
+		clientState							_state;
 		httpMethod							_method;
 		httpVersion							_version;
 		int									_statusCode;
@@ -75,6 +82,8 @@ class Http {
 
 	public:
 		Http();
+		int	state;
+
 		/*==========PARSING===========*/
 		void			parseRequest(const std::string &rawString);
 		void			parseRequestLine(const std::string line);
@@ -86,7 +95,7 @@ class Http {
 		void			validateFile();
 	
 		/*==========GETTERS============*/
-		httpType		getType() const;
+		clientState		getState() const;
 		httpMethod		getMethod() const;
 		int				getContentLen() const;
 		std::string		getBody() const;
@@ -97,12 +106,12 @@ class Http {
 		std::string		getResponseString() const;
 
 		/*==========METHOD HANDLERS==========*/
-		void 			handleGet();
-		void 			handlePost();
-		void 			handleDelete();
+		void 			handleGetResponse();
+		void 			handlePostResponse();
+		void 			handleDeleteResponse();
 
 		/*==========ERROR LOADER================*/
-		void			loadErrorPage(); //load error page content into body based on status
+		void			handleErrorResponse(); //load error page content into body based on status
 
 		/*===========RESPONSE BUILDER===========*/
 		void			buildResponse(); //check statuscode, set header, set body
@@ -112,22 +121,10 @@ class Http {
 		void			setHeader(const std::string &key, const std::string &value);
 		void 			setResponseCode(int code);
 		void			setBody(const std::string &body);
+		void			setState(clientState state);
 
 		/*===========DEBUGGER===================*/
 		void			debugPrint();
-		
-	class HttpException : public std::exception {
-		private:
-			std::string message;
-		public:
-			HttpException(int code) {
-				message = "HTTP Error " + std::to_string(code) + ": " 
-				+ HTTP_STATUS_MESSAGE.at(code);
-			}
-			const char *what() const noexcept override {
-				return message.c_str();
-			}
-	};
 };
 
 void handleHttpRequest(Http &httpObject);

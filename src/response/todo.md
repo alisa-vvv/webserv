@@ -11,7 +11,7 @@ ticket01
 Item: Fix client max body size
 Description: We need to give a max body size and we need to set the macro. This will be given in config file
 
-ticket02:
+ticket02: done
 Item: Throwing exception on invalid headers
 Description: we probably dont need to throw exception here and we just need to set response?
 
@@ -29,14 +29,24 @@ Item: route / to index
 Description: So we always have an index
 
 ticket06:
-Item: autoindex
-Descrption: generate html directory
+Item: autoindex on/pff
+Descrption: generate html directory, return with content-type: text/html
 
 
 ticket07
 Item: http redirections
 Description: When a client requests a URL, the web server responds with a specific 3xx status code and a Location header containing the new URL. The browser reads this and instantly fetches the new destination.
 //We just return 301 and the browser will make another get request based on the response route
+Read return redirects  from config
 
-ticket08:
-do not handle 1.1
+ticket08: done
+Item: do not handle 1.1 http
+Description: not needed
+
+ticket09: done
+Item: Add state to http
+Description: Since each client needs its own state, like parsing, CGI pending, etc
+
+ticket10: done
+Item: straight to error
+Description: if the parser is in error state, we need checks so that it will not parse or validate further
