@@ -20,24 +20,6 @@
 		if EWOULDBLOCK-> continue processing other sockets, then come back to this socket and try again
 	resource: http://dwise1.net/pgm/sockets/blocking.html
 
-TODO: handle received host and port values
-	add constructor to receive port and IP values from config side
-	change port and INADDR_ANY values when the config part is ready
-	now they are hardcoded
-	config will pass something like this:
-		server {
-			listen 8080;
-			host 127.0.0.1;
-		}
-
-		or
-		server {listen 127.0.0.1:8080;}
-	receive them like this: ServerSocket server(config.host, config.port);
-	logic:
-	if (host == "0.0.0.0")
-		_address.sin_addr.s_addr = INADDR_ANY;
-	else
-		_address.sin_addr.s_addr = inet_addr(host.c_str());
 
 EWOULDBLOCK
 	This fd is non-blocking, and there is nothing more to read/accept right now.
@@ -46,7 +28,16 @@ EWOULDBLOCK
 		-> then call accept()/recv()
 		-> inside accept()/recv() loop, check EWOULDBLOCK
 
-
+logic:
+Parse and validate configuration
+            ↓
+Create Listener objects from host + port combinations
+            ↓
+Call setup() for every Listener
+            ↓
+Add every listener fd to poll()
+            ↓
+Start the poll loop
 _______________________________________________________________________________
 
 FINISHED:

@@ -1,0 +1,19 @@
+typedef struct cfg_server_t {
+	std::string					server_name;
+	uint32_t					ip_addr = INADDR_ANY;
+	std::vector<int>			ports;
+	std::string					root;
+	size_t						client_max_body_size;
+	std::map<int, std::string>	error_pages;
+	std::vector<t_location>		locations;
+	t_cgi_pass					cgi_pass; // opt
+	bool						autoindex;
+}	cfg_server_t;
+
+
+
+class	Config {
+public:
+	bool	is_correct = false;
+	std::vector<cfg_server_t>	servers;
+};

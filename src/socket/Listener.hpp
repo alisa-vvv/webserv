@@ -1,42 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Client.hpp                                         :+:      :+:    :+:   */
+/*   Listener.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/28 15:41:25 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/06/25 13:31:12 by tcakir-y         ###   ########.fr       */
+/*   Created: 2026/06/25 12:35:04 by tcakir-y          #+#    #+#             */
+/*   Updated: 2026/06/25 12:43:06 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#ifndef LISTENER_HPP
+#define LISTENER_HPP
 
 #include <iostream>
-#include <map>
 
-/*
-client obj answers:
-
-	What data does this client have?
-	What state is this client in?
-	Should I read from it?
-	Should I write to it?
-	Should I close it?
-*/
-class Client
+class Listener
 {
 	private:
-
-	public:
-		int		listenerFd; //check and make it private
-		int		clientFd;
-		time_t	lastActivity;
-		Client();
-		Client(int listenerFd, int clientFd);
-		~Client();
+		int _listenerFd;
+		uint32_t port;
+		uint32_t host;
 		
+	public:
+
 };
 
 #endif

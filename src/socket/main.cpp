@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 19:57:27 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/11 00:33:46 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/25 13:15:03 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 int main (int argc, char *argv[])
 {
-	(void) argv;
 	if (argc < 2)
 	{
 		std::cerr << "Error! No config file provided" << std::endl;
@@ -25,11 +24,9 @@ int main (int argc, char *argv[])
 	{
 		return 1;
 	}
-	// TODO: change after receiving them from config side
-	int port = 8080;
-	uint32_t host = INADDR_ANY;
 	
-	Server server(host, port); //later this should be argv[1] for config part(?)
+	Server server;
+	//config comes here
 	eServerError err = server.setup();
 	if (err != SERVER_OK)
 	{
@@ -44,12 +41,6 @@ int main (int argc, char *argv[])
 	std::cout << "Socket created, started listening" << std::endl;
 	return (0);
 }
-
-/*
-Examples:
-0.0.0.0   -> INADDR_ANY / 0
-127.0.0.1 -> 0x7F000001
-*/
 
 /*
 flow:
