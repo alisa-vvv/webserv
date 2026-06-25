@@ -223,28 +223,26 @@ bool	fillServerNameField(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
-	if (tokens.at(token_index + 2).type == VALUE) {
-			configParserError(
-				config,
-				"server_name can only contain a single string without whitespace",
-				"Config Error",
-				tokens.at(token_index).line_number
-			);
-			return (false);
+
+	int	i = token_index + 1;
+	while (tokens.at(i).type == VALUE) {
+		config.servers.back().server_names.push_back(tokens.at(i).val);
+		tokens.at(i).type = EVALUATED;
+		i++;
 	}
-	config.servers.back().server_name = tokens.at(token_index + 1).val;
 
 	tokens.at(token_index).type = EVALUATED;
-	tokens.at(token_index + 1).type = EVALUATED;
 
-	printParserDebug(
-		"server_name field",
-		"config.servers.back().server_name",
-		true,
-		config.servers.back().server_name,
-		std::nullopt,
-		std::nullopt
-	);
+	for (size_t j = 0; j < config.servers.back().server_names.size(); j++) {
+		printParserDebug(
+			"server_name field",
+			"config.servers.back().server_names.at(i)",
+			true,
+			config.servers.back().server_names.at(j),
+			std::nullopt,
+			std::nullopt
+		);
+	}
 
 	return (true);
 }

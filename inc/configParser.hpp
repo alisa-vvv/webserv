@@ -114,7 +114,7 @@ typedef struct t_location {
 
 	/*	server	*/
 typedef struct cfg_server_t {
-	std::string					server_name;
+	std::vector<std::string>	server_names;
 	uint32_t					ip_addr = INADDR_ANY;
 	std::vector<int>			ports;
 	std::string					root;

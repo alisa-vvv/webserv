@@ -9,6 +9,7 @@
 /*   Updated: 2026/06/12 18:50:02 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
+
 #include "configParser.hpp"
 #include "configParserTEST.hpp"
 #include "configParsingInfo.hpp"
@@ -196,7 +197,9 @@ std::optional<Config>	parseConfig(
 
 	Config config = tokensToConfig(parsing_info, tokens);
 	if (SHOW_CONFIG_PARSER_DEBUG == true) {
-		std::cout << CLR_YEL << "DEBUG:\nFinished parsing config\n";
+		std::cout << CLR_YEL << "DEBUG:\nFinished parsing config. ";
+		std::cout << "Change SHOW_CONFIG_PARSER_DEBUG define to false to turn off parser debug messages\n";
+		std::cout << CLR_NON << std::endl;
 	}
 	return (config);
 }
