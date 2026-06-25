@@ -6,64 +6,31 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/25 13:20:01 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/25 17:21:49 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-/*
-steps
-socket →
-setsockopt →
-non-blocking →
-bind →
-listen →
-poll →
-accept(inside poll)
-*/
+//std::vector<Listener>	_listener;
+void Server::_buildListener()
+{
+	Listener listenerTemp;
+
+	for (size_t i = 0; i < _config.servers.size(); i++)
+	{
+		listenerTemp.setIpAddr(_config.servers.at(i).ip_addr);
+		for (size_t j = 0; j < _config.servers[i].ports.size(); j++)
+		{
+			listenerTemp.setPort(_config.servers.at(i).ports[j]);
+			_listener.push_back(listenerTemp);
+		}
+	}
+}
+
 eServerError Server::setup(void)
 {
-	eServerError err;
-
-	err = this->_createSocket();
-	if (err != SERVER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	err = this->_setSocketOptions();
-	if (err != SERVER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	err = this->_setNonBlocking(_fd);
-	if (err != SERVER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	err = this->_setAddress();
-	if (err != SERVER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	err = this->_bindSocket();
-	if (err != SERVER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	this->_printSocketName(); //test
-	err = this->_listenSocket();
-	if (err != SERVER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	return SERVER_OK;
+	_buildListener();
 }
 
 eServerError Server::run(void)
@@ -73,7 +40,7 @@ eServerError Server::run(void)
 	err = this->_initPollEvent();
 	if (err != SERVER_OK)
 	{
-		closeSocket();
+		closeListeners();
 		return SERVER_POLL_ERR;
 	}
 	return SERVER_OK;
@@ -199,21 +166,16 @@ void Server::_closeClientFd(int fd)
 	close(fd);
 }
 
-Server::Server() : _fd(-1)
+Server::Server() : _config(config),_fd(-1)
 {
 	_port = 8080; //TODO: remove when config is ready
 	_host = INADDR_ANY; //TODO: remove when config is ready
-	memset(&_address, 0, sizeof(_address));
+	memset(&_address, 0, sizeof(_address)); //TODO: move when config is ready
 }
 
 Server::~Server()
 {
-	closeSocket();
-}
-
-int Server::get_fd() const
-{
-	return (this->_fd);
+	closeListeners();
 }
 
 // Server &Server::operator= (const Server &other)

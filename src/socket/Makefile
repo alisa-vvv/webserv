@@ -6,7 +6,7 @@
 #    By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/05/12 13:35:28 by tcakir-y          #+#    #+#              #
-#    Updated: 2026/06/25 13:30:35 by tcakir-y         ###   ########.fr        #
+#    Updated: 2026/06/25 14:47:26 by tcakir-y         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ SRC = 	main.cpp\
 		Server.cpp\
 		ServerSocket.cpp\
 		Client.cpp\
-		ServerDebug.cpp\
+		ListenerDebug.cpp\
 		Signal.cpp\
 		Listener.cpp
 
