@@ -3,5 +3,5 @@
 
 void Http::handleErrorResponse()
 {
-	
+	//if error pages are configured 
 }

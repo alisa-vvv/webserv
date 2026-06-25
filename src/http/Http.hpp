@@ -127,7 +127,7 @@ class Http {
 		void			debugPrint();
 };
 
-void handleHttpRequest(Http &httpObject);
-
+void	handleHttpRequest(Http &httpObject);
+bool	isMethodAllowed(const std::string method);
 
 #endif

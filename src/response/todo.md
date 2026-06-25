@@ -50,3 +50,6 @@ Description: Since each client needs its own state, like parsing, CGI pending, e
 ticket10: done
 Item: straight to error
 Description: if the parser is in error state, we need checks so that it will not parse or validate further
+
+ticket11:
+Item: Validate that the uri is acce

@@ -66,10 +66,10 @@ void Http::setResponseCode(int code)
 		this->_state = ERROR;
 }
 
-// void Http::setHeader(const std::string &key, const std::string &value)
-// {
-// 	this->_headers[key] = value;
-// }
+void Http::setHeader(const std::string &key, const std::string &value)
+{
+	this->_headers[key] = value;
+}
 
 void Http::setBody(const std::string &body) 
 {

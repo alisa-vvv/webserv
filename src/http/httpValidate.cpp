@@ -78,7 +78,7 @@ void	Http::validateLayer()
 		setResponseCode(HTTP_BAD_REQUEST);
 	else
 		validateFile();
-}
+} //ticket 11
 
 
 
