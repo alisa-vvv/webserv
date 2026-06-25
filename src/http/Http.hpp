@@ -6,7 +6,6 @@
 
 static const int SUCCESS = 0;
 static const int FAILURE = -1;
-static const int CLIENT_MAX_BODY_SIZE = 100; //ticket01
 
 /*HTTP ERROR CODES*/
 static const int HTTP_OK = 200; //ok!
@@ -62,9 +61,25 @@ enum httpMethod {
 	GET,
 	POST,
 	DELETE,
-	EXTENSION, //not gonnna show up in config file
 	UNKNOWN,
-	UNALLOWED //use this for checking methods  config methods allowed
+};
+
+/// @brief This is a struct with references to the correct config file to use
+struct requestConfig
+{
+	const size_t							&clientMaxBodySize;
+	const std::map<int, std::string>		&errorPages;
+	const std::string						&prefix; 
+	const std::string						&root;
+	const std::string						&index; 
+	const std::string						&uploadStore;
+	bool									autoindex = false;
+	bool									GET = false;
+	bool									POST = false;
+	bool									DEL = false;
+	// std::map<e_method, bool>	&allowedMethods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
+	// t_cgi_pass					cgi_pass;
+	// t_return						returns;
 };
 
 class Http {
@@ -75,14 +90,16 @@ class Http {
 		int									_statusCode;
 		int									_contentLen;
 		bool								_hasBody;
+		bool								_hasExtension;
 		std::string							_uri;
 		std::string							_body;
 		std::string							_responseString;
-		std::map<std::string, std::string>	_headers;
+		std::map<std::string, std::string>	_requestHeaders;
+		std::map<std::string, std::string>	_responseHeaders;
 
 	public:
 		Http();
-		int	state;
+		requestConfig	*requestConfig;
 
 		/*==========PARSING===========*/
 		void			parseRequest(const std::string &rawString);
@@ -93,17 +110,6 @@ class Http {
 		int				validateURI(std::string uri);
 		void			validateLayer();
 		void			validateFile();
-	
-		/*==========GETTERS============*/
-		clientState		getState() const;
-		httpMethod		getMethod() const;
-		int				getContentLen() const;
-		std::string		getBody() const;
-		std::string		getHeader(const std::string &key) const;
-		std::string		getUri() const;
-		httpVersion		getVersion() const;
-		int				getStatusCode() const;
-		std::string		getResponseString() const;
 
 		/*==========METHOD HANDLERS==========*/
 		void 			handleGetResponse();
@@ -118,16 +124,30 @@ class Http {
 		void			buildResponseString(); //build to raw string ready to send to client
 		
 		/*============SETTERS==================*/
-		void			setHeader(const std::string &key, const std::string &value);
+		void			setRequestHeader(const std::string &key, const std::string &value);
+		void			setResponseHeader(const std::string &key, const std::string &value);
 		void 			setResponseCode(int code);
+		void			setExtension(bool status);
 		void			setBody(const std::string &body);
 		void			setState(clientState state);
+		void 			setRequestConfig();
+
+		/*==========GETTERS============*/
+		clientState		getState() const;
+		httpMethod		getMethod() const;
+		int				getContentLen() const;
+		std::string		getBody() const;
+		std::string		getHeader(const std::string &key) const;
+		std::string		getUri() const;
+		httpVersion		getVersion() const;
+		int				getStatusCode() const;
+		std::string		getResponseString() const;
+		bool			getExtension() const;
 
 		/*===========DEBUGGER===================*/
 		void			debugPrint();
 };
 
 void	handleHttpRequest(Http &httpObject);
-bool	isMethodAllowed(const std::string method);
 
 #endif

@@ -11,6 +11,7 @@ Http::Http()
 	, _statusCode(0)
 	, _contentLen(0)
 	, _hasBody(false)
+	, _hasExtension(false)
 {}
 
 /*======GETTERS======*/
@@ -32,8 +33,8 @@ std::string Http::getBody() const {
 }
 
 std::string Http::getHeader(const std::string &key) const {
-	auto it = this->_headers.find(key);
-	if (it != this->_headers.end())
+	auto it = this->_requestHeaders.find(key);
+	if (it != this->_requestHeaders.end())
 		return (it->second);
 	return "";
 }
@@ -50,9 +51,16 @@ int Http::getStatusCode() const {
 	return (_statusCode);
 }
 
-// std::string Http::getResponseString() { //back to raw string for response
-// 	return (_res)
-// }
+/// @brief get the response string ready for client use
+/// @return 
+std::string Http::getResponseString() const
+{
+	return _responseString;
+}
+
+bool Http::getExtension() const {
+	return (_hasExtension);
+}
 
 /*======SETTERS======*/
 
@@ -66,9 +74,14 @@ void Http::setResponseCode(int code)
 		this->_state = ERROR;
 }
 
-void Http::setHeader(const std::string &key, const std::string &value)
+void Http::setRequestHeader(const std::string &key, const std::string &value)
 {
-	this->_headers[key] = value;
+	this->_requestHeaders[key] = value;
+}
+
+void Http::setResponseHeader(const std::string &key, const std::string &value)
+{
+	this->_responseHeaders[key] = value;
 }
 
 void Http::setBody(const std::string &body) 
@@ -79,6 +92,11 @@ void Http::setBody(const std::string &body)
 void Http::setState(clientState state)
 {
 	this->_state = state;
+}
+
+void Http::setExtension(bool status)
+{
+	this->_hasExtension = status;
 }
 
 /*======UTILS======*/

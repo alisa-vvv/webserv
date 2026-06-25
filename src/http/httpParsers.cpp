@@ -45,7 +45,7 @@ std::string trim(const std::string &str)
 	return (str.substr(pre, (post - pre + 1)));
 }
 
-/// @brief Parses the headers and stores them in the Http obj _headers.
+/// @brief Parses the headers and stores them in the Http obj _requestHeaders.
 /// @param headers 
 void Http::parseHeaders(const std::string &headers)
 {
@@ -85,7 +85,7 @@ void Http::parseHeaders(const std::string &headers)
 				return;
 			}
 		}
-		this->_headers[key] = val;
+		this->_requestHeaders[key] = val;
 		start = newLine + 2;
 	}
 }

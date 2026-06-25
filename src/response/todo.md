@@ -7,13 +7,6 @@ ticket00
 Item: Fix validate layer with allowed methods from config file
 Description: we need from the config file the allowed methods and we need to check to set the methods not allowed message 
 
-ticket01
-Item: Fix client max body size
-Description: We need to give a max body size and we need to set the macro. This will be given in config file
-
-ticket02: done
-Item: Throwing exception on invalid headers
-Description: we probably dont need to throw exception here and we just need to set response?
 
 ticket03:
 Item: URI should check root
@@ -39,6 +32,20 @@ Description: When a client requests a URL, the web server responds with a specif
 //We just return 301 and the browser will make another get request based on the response route
 Read return redirects  from config
 
+
+ticket11:
+Item: Validate that the uri + root
+
+ticket12:
+item: create a setRequestconfig
+
+
+=========================
+
+ticket02: done
+Item: Throwing exception on invalid headers
+Description: we probably dont need to throw exception here and we just need to set response?
+
 ticket08: done
 Item: do not handle 1.1 http
 Description: not needed
@@ -51,5 +58,6 @@ ticket10: done
 Item: straight to error
 Description: if the parser is in error state, we need checks so that it will not parse or validate further
 
-ticket11:
-Item: Validate that the uri is acce
+ticket01: done
+Item: Fix client max body size
+Description: We need to give a max body size and we need to set the macro. This will be given in config file

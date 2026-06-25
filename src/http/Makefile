@@ -13,7 +13,7 @@ SRC_DIR = ./
 OBJ_DIR = obj/
 
 HEADER_FILES = Http.hpp httpBuffer.hpp
-SRC_FILES = test.cpp Http.cpp httpParsers.cpp recv.cpp httpBuffer.cpp
+SRC_FILES = Http.cpp httpParsers.cpp recv.cpp httpBuffer.cpp httpRequestConfig.cpp httpValidate.cpp
 OBJ = $(addprefix $(OBJ_DIR), $(SRC_FILES:.cpp=.o))
 
 all: $(NAME)
