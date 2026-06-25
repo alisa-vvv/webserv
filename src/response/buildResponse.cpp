@@ -1,5 +1,4 @@
 #include "Http.hpp"
-#include <fstream>
 
 
 
@@ -7,12 +6,12 @@
 /// @return response string 
 void Http::buildResponseString()
 {
-	"HTTP/1.0 " + std::to_string(this->_statusCode) + " " 
+	this->_responseString.clear();
+	this->_responseString += "HTTP/1.0 " + std::to_string(this->_statusCode) + " "
 		+ HTTP_STATUS_MESSAGE.at(this->_statusCode) + "\r\n";
 
 	for (std::map<std::string, std::string>::iterator it = this->_responseHeaders.begin(); it != this->_responseHeaders.end(); ++it)
-	
-	this->_responseString += it->first + ": " + it->second + "\r\n";	
+		this->_responseString += it->first + ": " + it->second + "\r\n";
 	this->_responseString += "\r\n";
 	this->_responseString += this->_body;
 }
@@ -34,13 +33,17 @@ void Http::buildResponse()
 		switch (this->_method)
 		{
 			case GET:
-				return handleGetResponse();
+				handleGetResponse();
+				break;
 			case POST:
-				return handlePostResponse();
+				handlePostResponse();
+				break;
 			case DELETE:
-				return handleDeleteResponse();
+				handleDeleteResponse();
+				break;
 		}
 	}
 	else
-		return handleErrorResponse();
+		handleErrorResponse();
+	buildResponseString();
 }

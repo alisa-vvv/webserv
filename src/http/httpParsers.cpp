@@ -69,12 +69,11 @@ void Http::parseHeaders(const std::string &headers)
 		valStr = currLine.substr(colonInLine + 1);
 		keyStr = trim(keyStr);
 		valStr = trim(valStr);
-		key = "";
-		val = "";
+		key.clear();
+		val.clear();
 		for (unsigned long i = 0; i < keyStr.length(); i++)
 			key += tolower(keyStr[i]);
-		for (unsigned long i = 0; i < valStr.length(); i++)
-			val += tolower(valStr[i]);
+		val = valStr;
 		if (key == "content-length")
 		{
 			try {

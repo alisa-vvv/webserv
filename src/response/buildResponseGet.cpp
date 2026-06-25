@@ -1,5 +1,4 @@
 #include "Http.hpp"
-#include <fstream>
 
 void Http::handleGetResponse()
 {
@@ -8,13 +7,13 @@ void Http::handleGetResponse()
 		long size = std::filesystem::file_size(file);
 		if (size > requestConfig->clientMaxBodySize)
 			return setResponseCode(HTTP_PAYLOAD_TOO_LARGE);
-		setRequestHeader("Content-Length", std::to_string(size));
-		// setRequestHeader("Content-Type", std::to_string(size));
+		setResponseHeader("Content-Length", std::to_string(size));
+		// setResponseHeader("Content-Type", std::to_string(size));
 		std::ifstream fileStream(file, std::ios::binary);
 		std::string body((std::istreambuf_iterator<char>(fileStream)), 
 				std::istreambuf_iterator<char>());
 		setBody(body);
-		setResponseCode(200);
+		setResponseCode(HTTP_OK);
 		setState(READY_TO_SEND);
 	}
 	catch (std::exception &e)
