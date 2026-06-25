@@ -102,6 +102,8 @@ void	TEST_print_one_token(t_config_token& token, size_t token_idx) {
 }
 
 void	TEST_print_tokens(std::vector<t_config_token> tokens) {
+	if (SHOW_CONFIG_PARSER_DEBUG == false)
+		return ;
 	std::cout << "checking tokens, size: \n" << tokens.size() << '\n';
 	for (size_t i = 0; i < tokens.size(); i++) {
 		TEST_print_one_token(tokens.at(i), i);
