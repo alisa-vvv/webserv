@@ -76,16 +76,6 @@ tokenParserFnPtr_t	matchTokenValueToParserAccordingToContext(
 	return (matchTokenValueToParser(allowed_strings, parsers, token));
 }
 
-// step 0: set context to GLOBAL.
-// step 1: set cur_token to be token.at(i)
-// step 2:
-// 	if (type == BLOCK_NAME)
-		// step 1: match block type to context, change context stack if needed
-		// step 2: using context, match block name with parser func
-		// step 3: perform the appropriate function
-// 		// step 4: pop a context from stack
-// else if (type == 
-// 
 Config	tokensToConfig(
 	const ParsingInfo parsing_info,
 	std::vector<t_config_token>& tokens
@@ -131,7 +121,7 @@ Config	tokensToConfig(
 	  		}
 		}
 		else {
-			std::cout << CLR_RED << "ERROR: TOKEN TYPE NOT COVERED BY IFELSE\n" << CLR_NON;
+			std::cout << CLR_RED << "ERROR: TOKEN TYPE NOT COVERED BY IF-ELSE\n" << CLR_NON;
 			return (config);
 		}
 	}
