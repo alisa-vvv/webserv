@@ -90,9 +90,6 @@ std::vector<t_config_token>	tokenize(
 				tokens.push_back(new_token);
 			}
 		}
-		//new_token.val = '\n';
-		//new_token.type = NEWLINE;
-		//tokens.push_back(new_token);
 	}
 
 	return (tokens);

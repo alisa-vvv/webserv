@@ -147,17 +147,6 @@ Config	tokensToConfig(
 	return (config);
 }
 
-//typedef struct t_location {
-//	std::string					prefix; // needed
-//	std::string					root; // needed
-//	std::string					index; // opt if cgi_pass is not set
-//	bool						autoindex; // needed
-//	std::map<e_method, bool>	allowed_methods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
-//	std::string					upload_store; // opt
-//	t_cgi_pass					cgi_pass; // opt
-//	t_return					returns; // opt
-//}	t_location;
-
 bool	locationIsValid( // move this for when we pop context stack?
 	const t_location& location,
 	const size_t server_index,
@@ -179,16 +168,35 @@ bool	locationIsValid( // move this for when we pop context stack?
 	return (true);
 }
 
-int	parseConfig(const ParsingInfo parsing_info) {
-	std::ifstream				config_file(CONFIG_PATH_TEST);
+std::optional<Config>	parseConfig(
+	const char *const arg,
+	const ParsingInfo parsing_info
+) {
+	std::string					config_path;
 	std::vector<t_config_token>	tokens;
+
+	if (TEST_CONFIG == true) {
+		config_path = CONFIG_PATH_TEST;
+	}
+	else {
+		if (arg == NULL)
+			config_path = CONFIG_PATH_DEFAULT; // do we need this?
+		config_path = arg;
+	}
+	std::ifstream	config_file(config_path);
+	if (!config_file.is_open()) {
+		displayParserError("Missing or inaccessible config file", std::nullopt);
+	}
 
 	tokens = tokenize(config_file);
 	if (evaluateTokens(tokens) == 1)
-		return (1);
+		return (std::nullopt);
 	else
 		TEST_print_tokens(tokens);
 
 	Config config = tokensToConfig(parsing_info, tokens);
-	return (0);
+	if (SHOW_CONFIG_PARSER_DEBUG == true) {
+		std::cout << CLR_YEL << "DEBUG:\nFinished parsing config\n";
+	}
+	return (config);
 }

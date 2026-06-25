@@ -27,6 +27,7 @@
 #  define	CLR_MAG "\033[95m"
 # endif // CLR_NON and other CLR defines
 
+#define TEST_CONFIG true
 #define CONFIG_PATH_DEFAULT "config/default.conf"
 #define CONFIG_PATH_TEST "config/test.conf"
 #define SHOW_CONFIG_PARSER_DEBUG true
@@ -132,7 +133,7 @@ public:
 	std::vector<cfg_server_t>	servers;
 };
 
-int							parseConfig(const ParsingInfo parsing_info);
+std::optional<Config>		parseConfig(const char *const arg, const ParsingInfo parsing_info);
 std::vector<t_config_token>	tokenize(std::ifstream&	config_file);
 int							evaluateTokens(std::vector<t_config_token>& tokens);
 
