@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/11 00:35:40 by tutku            ###   ########.fr       */
+/*   Updated: 2026/06/25 13:20:01 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,20 +199,10 @@ void Server::_closeClientFd(int fd)
 	close(fd);
 }
 
-/*
-default values for host and port
-in case main is like, 
-	Server server;
-	server.setup();
-*/
-Server::Server() : _port(8080), _host(INADDR_ANY), _fd(-1)
+Server::Server() : _fd(-1)
 {
-	memset(&_address, 0, sizeof(_address));
-}
-
-Server::Server(uint32_t host, int port)
-	: _port(port), _host(host), _fd(-1)
-{
+	_port = 8080; //TODO: remove when config is ready
+	_host = INADDR_ANY; //TODO: remove when config is ready
 	memset(&_address, 0, sizeof(_address));
 }
 

@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/11 15:00:16 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/25 13:20:35 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define SERVER_HPP
 
 #include "Client.hpp"
+#include "Listener.hpp"
 
 #include <iostream>
 #include <vector>
@@ -26,14 +27,13 @@
 #include <poll.h>
 #include <stdint.h>
 #include <map>
-#include <ctime>
 #include <csignal>
 
 #define SUCCESS 0
 #define ERROR -1
 #define BACKLOG 128 // how many pending connections queue can hold
 
-extern volatile sig_atomic_t gStop;
+extern volatile sig_atomic_t	gStop;
 
 enum eServerError
 {
@@ -53,14 +53,14 @@ class Server
 {
 private:
 	//Config config;
-	int _port;
-	uint32_t _host;
-	struct sockaddr_in _address; // address of the socket
+	int							_port;
+	uint32_t					_host;
+	struct sockaddr_in			_address;	// address of the socket
 
-	int _fd;								// the server/listening socket
-	// std::vector<int> _listenFds;
-	std::vector<struct pollfd> _pollFds;	// the list poll() watches
-	std::map<int, Client> _clients;			// client state, found by client fd
+	int							_fd;		// the server/listening socket
+	std::vector<struct pollfd>	_pollFds;	// the list poll() watches
+	std::map<int, Client>		_clients;	// client state, found by client fd
+	std::vector<Listener>		_listener;
 
 	eServerError	_createSocket(void);
 	eServerError	_setNonBlocking(int fd);
@@ -72,26 +72,25 @@ private:
 	void			_addFdToPoll(int fd);
 	eServerError	_accept(int serverListenFd);
 	void			_closeClientFd(int fd);
+	Server			&operator=(const Server &other); //TODO: decide what to do, prevent leaks too
 	Server(const Server &other);
-	Server &operator=(const Server &other);
 
 public:
 	Server();
-	Server(uint32_t host, int port);
 	~Server();
-	eServerError setup(void);
-	eServerError run(void);
-	int get_fd() const;
-	void closeSocket();
+	eServerError	setup(void);
+	eServerError	run(void);
+	int				get_fd() const;
+	void			closeSocket();
 	
 	//test
-	void printPortNumber();
-	void printPollInfo(int i);
-	int _printSocketName();
+	void			printPortNumber();
+	void			printPollInfo(int i);
+	int				_printSocketName();
 	
 };
 
-int setupSignal();
+int					setupSignal();
 
 #endif
 
