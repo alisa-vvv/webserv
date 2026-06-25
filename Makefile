@@ -20,7 +20,8 @@ CXXFILES	=	config_parser_main.cpp\
 				configParserTokenize.cpp\
 				serverBlockParsers.cpp\
 				configParserHelpers.cpp\
-				configParserError.cpp
+				configParserError.cpp\
+				cgi_exec.cpp
 
 OFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.o))
 DEPFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.d))
@@ -30,7 +31,7 @@ BUILDDIR = build/
 SRCDIR = src/
 INCDIR = inc/
 SRCDIRS = $(SRCDIR) \
-			$(addprefix $(SRCDIR), config)
+			$(addprefix $(SRCDIR), config cgi_exec)
 $(SRCDIR):
 	mkdir -p $@
 $(INCDIR):
