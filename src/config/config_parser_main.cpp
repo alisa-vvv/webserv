@@ -18,5 +18,5 @@
 
 int	main(void) {
 	const	ParsingInfo	parsing_info;
-	parseConfig(parsing_info);
+	parseConfig(NULL, parsing_info);
 }
