@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 19:57:27 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/25 13:15:03 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/25 15:03:08 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ int main (int argc, char *argv[])
 		return 1;
 	}
 	
-	Server server;
-	//config comes here
-	eServerError err = server.setup();
+	//TODO: config comes here
+	Server server(config);
+	eListenerError err = server.setup();
 	if (err != SERVER_OK)
 	{
 		std::cerr << "Server setup failed" << std::endl;
