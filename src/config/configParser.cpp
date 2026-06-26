@@ -160,11 +160,11 @@ bool	locationIsValid( // move this for when we pop context stack?
 }
 
 std::optional<Config>	parseConfig(
-	const char *const arg,
-	const ParsingInfo parsing_info
+	const char *const arg
 ) {
 	std::string					config_path;
 	std::vector<t_config_token>	tokens;
+	const ParsingInfo			parsing_info;
 
 	if (TEST_CONFIG == true) {
 		config_path = CONFIG_PATH_TEST;
