@@ -17,11 +17,78 @@
 #include <iostream>
 #include <string>
 #include <string.h>
+#include <limits.h>
+#include <vector>
+#include <sstream>
 
 #define PYTHON_EXEC "python"
 #define PATH_TO_SCRIPT "/home/avaliull/Projects/lvl5/webserv/server/cgi-bin/hello_world.py"
 
-/// WE NEED STRDUP
+static void	cgi_bzero(
+	char* path,
+	size_t size
+) {
+	for (size_t i = 0; i < size; i++) {
+		path[i] = 0;
+	}
+}
+
+static int	findAndExecuteScript(
+	const std::string binary_name,
+	char *const argv[],
+	std::vector<std::string> paths
+)
+{
+	std::string 	slash_arg;
+	char			path[PATH_MAX];	
+	extern char**	environ;
+
+	cgi_bzero(path, PATH_MAX);
+	for (size_t i = 0; i < paths.size(); i++) {
+		slash_arg = paths.at(i) + "/" + binary_name;
+		for (size_t j = 0; j < slash_arg.size(); j++) {
+			path[j] = slash_arg.at(j);
+		}
+		execve(path, argv, environ);
+		slash_arg.clear();
+		cgi_bzero(path, PATH_MAX);
+	}
+	return (1);
+}
+
+static std::vector<std::string>	splitPathVar(
+	void
+) {
+	std::vector<std::string>	paths;
+	std::string					path_var = getenv("PATH");
+
+	if (path_var.size() == 0) {
+		return (paths);
+	}
+	std::istringstream	path_stream(path_var);
+	std::string			path_part;
+	while (std::getline(path_stream, path_part, ':')) {
+		paths.push_back(path_part);
+		path_part.clear();
+	}
+	return (paths);
+}
+
+static int	tryExecveScript(
+	const std::string binary_name,
+	char *const argv[]
+)
+{
+	int							err_check;
+	std::vector<std::string>	path;
+
+	path = splitPathVar();
+	if (path.size() == 0) // add error message about missing path
+		return (1);
+	err_check = findAndExecuteScript(binary_name, argv, path);
+	return (err_check);
+}
+
 int	executeCGI() {
 	extern char		**environ;
 	char*	argv[] { NULL, NULL, NULL };
@@ -37,11 +104,11 @@ int	executeCGI() {
 	}
 	else if (fork_ret == 0) {
 		std::cout << "executing cgi in child...\n";
-		execve_ret = execve("python", argv, environ);
-		std::cout << execve_ret;
+		tryExecveScript(PYTHON_EXEC, argv); // add checks for fail to exit out of child
 	}
 	else if (fork_ret > 0) {
-		wait(NULL);
+		wait(NULL); // lol
 	}
 	return (execve_ret);
 }
+
