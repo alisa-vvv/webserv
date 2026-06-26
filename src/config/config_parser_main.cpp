@@ -11,12 +11,10 @@
 /* ************************************************************************** */
 
 #include "configParser.hpp"
-#include "configParsingInfo.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 
 int	main(void) {
-	const	ParsingInfo	parsing_info;
-	parseConfig(NULL, parsing_info);
+	parseConfig(NULL);
 }

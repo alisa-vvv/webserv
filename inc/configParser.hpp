@@ -133,7 +133,7 @@ public:
 	std::vector<cfg_server_t>	servers;
 };
 
-std::optional<Config>		parseConfig(const char *const arg, const ParsingInfo parsing_info);
+std::optional<Config>		parseConfig(const char *const arg);
 std::vector<t_config_token>	tokenize(std::ifstream&	config_file);
 int							evaluateTokens(std::vector<t_config_token>& tokens);
 
