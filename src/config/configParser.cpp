@@ -159,6 +159,49 @@ bool	locationIsValid( // move this for when we pop context stack?
 	return (true);
 }
 
+static bool checkConfigCorrectness(Config& config) {
+	if (config.servers.size() == 0) {
+		displayParserError("No server block found in config file", "Bad config");
+		return (false);
+	}
+	for (size_t serv_i = 0; serv_i < config.servers.size(); serv_i++) {
+		cfg_server_t&	cur_serv = config.servers.at(serv_i);
+		if (cur_serv.ports.size() == 0) {
+			cur_serv.ports.push_back(DEFAULT_PORT);
+		}
+		if (cur_serv.root.size() == 0) {
+			displayParserError("Root directory not specified for server block", "Bad config");
+			return (false);
+		}
+		if (cur_serv.client_max_body_size == -1) {
+			displayParserError("Max body size not specified for server block", "Bad config");
+			return (false);
+		}
+		// add default error pages here!
+		if (cur_serv.locations.size() == 0) {
+			displayParserError("No locations were specified for the server", "Bad config");
+			return (false);
+		}
+		for (size_t loc_i = 0; loc_i < cur_serv.locations.size(); loc_i++) {
+			t_location&	cur_loc = cur_serv.locations.at(loc_i);
+			if (cur_loc.prefix.size() == 0) {
+				displayParserError("Prefix not specified for location block", "Bad config");
+				return (false);
+			}
+			// might not be necesary, check
+			//if (cur_loc.root.size() == 0) {
+			//	displayParserError("Root not specified for location block", "Bad config");
+			//	return (false);
+			//}
+			if (cur_loc.index.size() == 0 && cur_loc.cgi_pass.path.size() == 0) {
+				displayParserError("Index not specified for location block", "Bad config");
+				return (false);
+			}
+		}
+	}
+	return (true);
+}
+
 std::optional<Config>	parseConfig(
 	const char *const arg
 ) {
@@ -191,8 +234,10 @@ std::optional<Config>	parseConfig(
 		std::cout << "Change SHOW_CONFIG_PARSER_DEBUG define to false to turn off parser debug messages\n";
 		std::cout << CLR_NON << std::endl;
 	}
-	config.is_correct = true; // NOTE: CONFIG IS NOT FULLY CHECKED FOR CORRECTNESS YET.
-	if (!config.is_correct)
+	config.is_correct = checkConfigCorrectness(config);
+	if (!config.is_correct) {
+		displayParserError("Incorrect config. Can't start server", std::nullopt);
 		return (std::nullopt);
+	}
 	return (config);
 }
