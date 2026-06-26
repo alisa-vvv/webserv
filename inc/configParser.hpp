@@ -32,6 +32,8 @@
 #define CONFIG_PATH_TEST "config/test.conf"
 #define SHOW_CONFIG_PARSER_DEBUG true
 
+#define DEFAULT_PORT 8080
+
 // dummy class, defined in configParsingInfo.hpp
 class ParsingInfo;
 
@@ -105,7 +107,7 @@ typedef struct t_location {
 	std::string					prefix; // needed
 	std::string					root; // needed
 	std::string					index; // opt if cgi_pass is not set
-	bool						autoindex; // needed
+	bool						autoindex = false; // needed
 	std::map<e_method, bool>	allowed_methods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
 	std::string					upload_store; // opt
 	t_cgi_pass					cgi_pass; // opt
@@ -118,11 +120,11 @@ typedef struct cfg_server_t {
 	uint32_t					ip_addr = INADDR_ANY;
 	std::vector<int>			ports;
 	std::string					root;
-	size_t						client_max_body_size;
+	int							client_max_body_size = -1;
 	std::map<int, std::string>	error_pages;
 	std::vector<t_location>		locations;
 	t_cgi_pass					cgi_pass; // opt
-	bool						autoindex;
+	bool						autoindex = false;
 }	cfg_server_t;
 /*
 */
