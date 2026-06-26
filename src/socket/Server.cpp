@@ -3,41 +3,59 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/25 17:21:49 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/26 18:31:59 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-//std::vector<Listener>	_listener;
+//std::vector<Listener>	_listeners;
 void Server::_buildListener()
-{
-	Listener listenerTemp;
-
+{	
 	for (size_t i = 0; i < _config.servers.size(); i++)
 	{
-		listenerTemp.setIpAddr(_config.servers.at(i).ip_addr);
 		for (size_t j = 0; j < _config.servers[i].ports.size(); j++)
 		{
+			Listener listenerTemp;
+
+			listenerTemp.setIpAddr(_config.servers.at(i).ip_addr);
 			listenerTemp.setPort(_config.servers.at(i).ports[j]);
-			_listener.push_back(listenerTemp);
+			_listeners.push_back(listenerTemp);
 		}
 	}
 }
 
 eServerError Server::setup(void)
 {
+	eListenerError errListenerSetup;
+	eServerError errServerRun;
 	_buildListener();
+
+	for (size_t i = 0; i < _listeners.size(); i++)
+	{
+		errListenerSetup = _listeners[i].setup();
+		if (errListenerSetup != LISTENER_OK)
+		{
+			closeListeners();
+			return SERVER_LISTENER_SETUP_ERR;
+		}
+		errServerRun = run(i);
+		if (errServerRun != SERVER_OK) //TODO: handle
+		{
+			return errServerRun;
+		}
+	}
+	return SERVER_OK;
 }
 
-eServerError Server::run(void)
+eServerError Server::run(int i)
 {
 	eServerError err;
 
-	err = this->_initPollEvent();
+	err = this->_initPollEvent(i);
 	if (err != SERVER_OK)
 	{
 		closeListeners();
@@ -80,11 +98,11 @@ POLLIN There is data to read -> a new client is trying to connect
 // poll(fds, count, 0);     // Do not wait
 // poll(fds, count, 1000);  // Wait up to one second
 */
-eServerError Server::_initPollEvent()
+eServerError Server::_initPollEvent(int i)
 {
 	int pollFdCount;
 
-	_addFdToPoll(_fd);
+	_addFdToPoll(_listeners[i].getListenerFd());
 	while (gStop == 0)
 	{
 		pollFdCount = poll(_pollFds.data(), _pollFds.size(), 1000);
@@ -98,25 +116,28 @@ eServerError Server::_initPollEvent()
 					break;
 				continue; // try again
 			}
+			std::cerr << "poll() failed: " << std::strerror(errno) << std::endl;
 			return SERVER_POLL_ERR;
 		}
 		if (pollFdCount == 0)
 		{
 			continue;
 		}
+		// call function _handlePollEvents();
+
 		if (pollFdCount > 0)
 		{
 			//TODO: create a pollEvent function and move the for loop there
 
 		}
-		for (int i = 0; i < (int)(_pollFds.size()); i++)
+		for (size_t i = 0; i < _pollFds.size(); i++)
 		{
 			if (_pollFds[i].revents == 0)
 				continue;
 			if (_pollFds[i].revents != 0)
 			{
 				printPollInfo(i); //test
-				
+				//TODO: add a function to loop inside listeners fd list and change the if here
 				if (_pollFds[i].fd == _fd) //new client waiting to connect //TODO: change later, now it only works for one listening socket
 				{
 					if ((_pollFds[i].revents & POLLIN))
@@ -166,16 +187,30 @@ void Server::_closeClientFd(int fd)
 	close(fd);
 }
 
-Server::Server() : _config(config),_fd(-1)
+Server::Server(const Config &config) : _config(config)
 {
-	_port = 8080; //TODO: remove when config is ready
-	_host = INADDR_ANY; //TODO: remove when config is ready
-	memset(&_address, 0, sizeof(_address)); //TODO: move when config is ready
 }
 
 Server::~Server()
 {
-	closeListeners();
+}
+
+// test
+// https://man7.org/linux/man-pages/man2/poll.2.html
+void Server::printPollInfo(int i)
+{
+	std::cout << "fd " << _pollFds[i].fd << " revents: ";
+	if (_pollFds[i].revents & POLLIN) // There is data to read.
+		std::cout << "POLLIN ";
+	if (_pollFds[i].revents & POLLOUT) // Writing is now possible
+		std::cout << "POLLOUT ";
+	if (_pollFds[i].revents & POLLHUP) // Hang up
+		std::cout << "POLLHUP ";
+	if (_pollFds[i].revents & POLLERR) // Error condition
+		std::cout << "POLLERR ";
+	if (_pollFds[i].revents & POLLNVAL) // Invalid request, fd not open
+		std::cout << "POLLNVAL ";
+	std::cout << std::endl;
 }
 
 // Server &Server::operator= (const Server &other)

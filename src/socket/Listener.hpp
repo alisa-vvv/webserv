@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:35:04 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/06/25 17:22:34 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/26 15:23:30 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,16 +49,13 @@ class Listener
 	private:
 		int							_port;
 		uint32_t					_ip_addr;
-		int							_listenerFd;
-		struct sockaddr_in			_address;	// address of the socket
-		int							_fd;		// the server/listening socket
-		std::vector<struct pollfd>	_pollFds;	// the list poll() watches
+		int							_listenerFd;	// the server/listening socket
+		struct sockaddr_in			_address;		// address of the socket
 
 	public:
 		Listener();
 		~Listener();
 
-		void			_buildListener();
 		eListenerError	setup(void);
 		eListenerError	_createSocket(void);
 		eListenerError	_setSocketOptions();
@@ -66,17 +63,19 @@ class Listener
 		eListenerError	_setAddress();
 		eListenerError	_bindSocket(void);
 		eListenerError	_listenSocket(void);
-
+		
 		void			setPort(int port);
 		int				getPort() const;
+		
 		void			setIpAddr(uint32_t ip_addr);
 		uint32_t		getIpAddr() const;
+		
 		int				getListenerFd();
-		void			setListenerFd(int fd);
+
+		void			closeSocket();
 
 		//test
 		void			printPortNumber();
-		void			printPollInfo(int i);
 		int				_printSocketName();
 };
 

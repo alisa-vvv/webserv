@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 19:57:27 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/25 15:03:08 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/26 15:30:44 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,9 @@ int main (int argc, char *argv[])
 	}
 	
 	//TODO: config comes here
+	Config config;
 	Server server(config);
-	eListenerError err = server.setup();
+	eServerError err = server.setup();
 	if (err != SERVER_OK)
 	{
 		std::cerr << "Server setup failed" << std::endl;

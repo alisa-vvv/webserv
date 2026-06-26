@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:34:57 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/06/25 17:04:42 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/26 15:08:59 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ eListenerError Listener::setup(void)
 		closeSocket();
 		return err;
 	}
-	err = this->_setNonBlocking(_fd);
+	err = this->_setNonBlocking(_listenerFd);
 	if (err != LISTENER_OK)
 	{
 		closeSocket();
@@ -63,8 +63,8 @@ eListenerError Listener::setup(void)
 */
 eListenerError Listener::_createSocket()
 {
-	_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_fd == ERROR)
+	_listenerFd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_listenerFd == ERROR)
 	{
 		std::cerr << "Error opening socket: " << std::strerror(errno) << std::endl;
 		return LISTENER_CREATESOCK_ERR;
@@ -81,7 +81,7 @@ eListenerError Listener::_setSocketOptions()
 {
 	int opt = 1;
 
-	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == ERROR)
+	if (setsockopt(_listenerFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == ERROR)
 	{
 		std::cerr << "Error setsockopt: " << std::strerror(errno) << std::endl;
 		return LISTENER_SETSOCKOPT_ERR;
@@ -136,7 +136,7 @@ eListenerError Listener::_setAddress()
 //    but treat the pointer as a different pointer type.
 eListenerError Listener::_bindSocket()
 {
-	if (bind(_fd, reinterpret_cast<const struct sockaddr *>(&_address), sizeof(_address)) == ERROR)
+	if (bind(_listenerFd, reinterpret_cast<const struct sockaddr *>(&_address), sizeof(_address)) == ERROR)
 	{
 		std::cerr << "Couldn't bind the port!: " << std::strerror(errno) << std::endl;
 		return LISTENER_BIND_ERR;
@@ -153,7 +153,7 @@ backlog is the max num of connections
 */
 eListenerError Listener::_listenSocket()
 {
-	if (listen(this->_fd, BACKLOG) == ERROR) //TODO: change fd variable
+	if (listen(this->_listenerFd, BACKLOG) == ERROR) //TODO: change fd variable
 	{
 		std::cerr << "Couldn't listen socket!: " << std::strerror(errno) << std::endl;
 		return LISTENER_LISTEN_ERR;
@@ -164,7 +164,7 @@ eListenerError Listener::_listenSocket()
 
 void Listener::setPort(int port)
 {
-	
+	this->_port = port;
 }
 
 int Listener::getPort() const
@@ -182,9 +182,23 @@ uint32_t Listener::getIpAddr() const
 	return this->_ip_addr;
 }
 
-Listener::Listener()
+int Listener::getListenerFd()
 {
+	return _listenerFd;
+}
 
+void Listener::closeSocket()
+{
+	if (_listenerFd >= 0)
+	{
+		close(_listenerFd);
+		_listenerFd = -1;
+	}
+}
+
+Listener::Listener() : _listenerFd(-1), _port(0), _ip_addr(0)
+{
+	std::memset(&_address, 0, sizeof(_address));
 }
 
 Listener::~Listener()

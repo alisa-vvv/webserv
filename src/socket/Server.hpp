@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/25 17:22:32 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/06/26 15:42:34 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,9 @@ class Server
 {
 private:
 	const Config				&_config;
-	std::vector<Listener>		_listener;
+	std::vector<Listener>		_listeners;
 	std::map<int, Client>		_clients;	// client state, found by client fd
+	std::vector<struct pollfd> _pollFds;	// the list poll() watches
 
 	void			_buildListener(void);
 	void			_closeClientFd(int fd); //TODO: move inside Listener
@@ -43,20 +44,26 @@ private:
 	Server(const Server &other);
 
 public:
-	Server();
+	Server(const Server &other);
+	Server &operator=(const Server &other);
+	Server(const Config &config);
 	~Server();
+
 	eServerError	setup(void);
-	eServerError	run(void);
-	int				get_fd() const;
-	eServerError	_initPollEvent(void);
+	eServerError	run(int i);
+	eServerError	_initPollEvent(int i);
 	void			_addFdToPoll(int fd);
 	eServerError	_accept(int serverListenFd);
+	int				get_fd() const;
 	void			closeListeners();
-
+	
+	//test
+	void			printPollInfo(int i);
 	
 };
 
 int					setupSignal();
+
 
 #endif
 
