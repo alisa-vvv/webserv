@@ -103,8 +103,10 @@ int	executeCGI() {
 		return (1);
 	}
 	else if (fork_ret == 0) {
-		std::cout << "executing cgi in child...\n";
+		std::cout << "executing cgi in child...\n\n";
 		tryExecveScript(PYTHON_EXEC, argv); // add checks for fail to exit out of child
+		std::cout << "if you see this, there's an error\n";
+		exit(1);
 	}
 	else if (fork_ret > 0) {
 		wait(NULL); // lol
