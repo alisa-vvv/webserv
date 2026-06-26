@@ -1,0 +1,76 @@
+* CURRENT STEP:
+	* Test current accept path with nc
+	* create a function to close certain client fds - (current step)
+		_closeClient(clientFd)
+
+* TODO:
+	* use timestamp and initialize Client::lastActivity
+	* process signals like SIGINT for clean shutdown
+
+
+* after calling socket() -> after recv()
+		if there's no data to be processed, then the function returns with an error. 
+		It's an error because conditions prevented the function for performing its task. 
+		What condition? No data. 
+		What's the error? A special one created specifically for this situation: 
+		EWOULDBLOCK, 
+			that basically says that this socket would have blocked if it had been a blocking socket.
+
+	TODO: if socket try to read data and returns an error -> test whether that error is EWOULDBLOCK
+		if EWOULDBLOCK-> continue processing other sockets, then come back to this socket and try again
+	resource: http://dwise1.net/pgm/sockets/blocking.html
+
+
+EWOULDBLOCK
+	This fd is non-blocking, and there is nothing more to read/accept right now.
+	poll()
+		-> tells you fd is ready
+		-> then call accept()/recv()
+		-> inside accept()/recv() loop, check EWOULDBLOCK
+
+logic:
+Parse and validate configuration
+            ↓
+Create Listener objects from host + port combinations
+            ↓
+Call setup() for every Listener
+            ↓
+Add every listener fd to poll()
+            ↓
+Start the poll loop
+_______________________________________________________________________________
+
+FINISHED:
+	* created the socket
+	* made the socket non-blocking
+		* moved it to another function to use it for client side as well
+	* finished bind socket
+	* finished the function for socket's address
+	* finished listen
+	* on error cases, handled closing socket's _fd
+	* finished poll
+	* finished accept
+
+
+	TODO: add listen 
+		
+		After that, run your program and in another terminal:
+
+		lsof -iTCP:8080 -sTCP:LISTEN -P -n
+
+		You should see your program using port 8080.
+		nc -vz 127.0.0.1 8080
+
+		If it works, you may see something like:
+
+		Connection to 127.0.0.1 8080 port [tcp/*] succeeded!
+
+	Possible next steps
+	1. Keep server fd non-blocking 
+	2. Add poll() - currently working on
+	3. Add server fd to poll list
+	4. When server fd has POLLIN, call accept()
+	5. Make returned client fd non-blocking
+	6. Add client fd to poll list
+	7. When client fd has POLLIN, call recv() (?)
+	8. Print received request— already done

@@ -1,0 +1,68 @@
+how to create socket?
+	https://www.geeksforgeeks.org/cpp/socket-programming-in-cpp/
+
+
+socket address
+	https://man7.org/linux/man-pages/man3/sockaddr.3type.html
+
+
+htons & htonl
+	https://linux.die.net/man/3/htonl
+
+	getaddrinfo() for config side
+		https://www.ibm.com/docs/en/zos/2.5.0?topic=functions-getaddrinfo-get-address-information
+		https://man7.org/linux/man-pages/man3/getaddrinfo.3.html (!)
+		https://beej.us/guide/bgnet/html/split/system-calls-or-bust.html#connect (for converting host into IP, chapter -> 5.6)
+
+
+sockets
+	http://dwise1.net/pgm/sockets/blocking.html (Getting Around Blocking Sockets)
+	https://pubs.opengroup.org/onlinepubs/009696599/functions/socket.html
+	https://www.tutorialspoint.com/cplusplus/cpp_socket_programming.htm#:~:text=C%2B%2B%20socket%20programming%20is%20the,the%20network%20using%20C%2B%2B.
+	https://www.youtube.com/watch?v=D26sUZ6DHNQ
+
+
+bind
+	https://www.ibm.com/docs/en/zvm/7.4.0?topic=descriptions-bind-bind-name-socket
+
+
+poll
+	https://pubs.opengroup.org/onlinepubs/009695399/functions/poll.html
+	https://www.youtube.com/watch?v=O-yMs3T0APU
+	https://man7.org/linux/man-pages/man2/poll.2.html
+	https://www.ibm.com/docs/en/i/7.4.0?topic=designs-using-poll-instead-select
+	return values for poll: EINTR:
+	https://man7.org/linux/man-pages/man7/signal.7.html
+
+
+
+receiving data
+	https://www.ibm.com/docs/en/aix/7.1.0?topic=se-receiving-data-atm-socket-pvc-server-example-program
+
+
+http messages
+	https://www.geeksforgeeks.org/html/http-messages/
+	https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods
+	https://developer.mozilla.org/en-US/docs/Glossary/HTTP_Content
+
+
+socket examples
+	https://www.ibm.com/docs/en/aix/7.1.0?topic=sockets-socket-examples
+
+map
+	https://www.w3schools.com/cpp/cpp_maps.asp
+
+enums for error handling
+https://www.w3schools.com/cpp/cpp_enum.asp
+https://mropert.github.io/2025/11/11/enum_class_error_codes/
+
+how to erase from a vector
+https://www.geeksforgeeks.org/cpp/vector-erase-in-cpp-stl/
+
+signals
+https://pubs.opengroup.org/onlinepubs/009695399/functions/sigaction.html
+
+
+https://beej.us/guide/bgnet/html/split/system-calls-or-bust.html#connect
+https://medium.com/@ahmadesekak/setting-up-a-server-using-c-sockets-124e404593c9
+https://oneuptime.com/blog/post/2026-03-20-non-blocking-tcp-socket-c/view#:~:text=Switch%20a%20socket%20to%20non,a%20signal%20to%20retry%20later.
