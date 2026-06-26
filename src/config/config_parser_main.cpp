@@ -16,9 +16,11 @@
 #include <netdb.h>
 
 int	main(void) {
-	std::optional<Config>	parse_config_ret = parseConfig(NULL);
-	if (parse_config_ret == std::nullopt) {
+	char* config_file_path = NULL; // path to config file
+	std::optional<Config>	parse_config_ret = parseConfig(config_file_path);
+	if (parse_config_ret == std::nullopt) { // error during parsing.
 		return (1);
 	}
-	Config config = *parse_config_ret;
+	const Config& config = *parse_config_ret;
+	(void) config; // tmp
 }
