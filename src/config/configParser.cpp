@@ -191,5 +191,8 @@ std::optional<Config>	parseConfig(
 		std::cout << "Change SHOW_CONFIG_PARSER_DEBUG define to false to turn off parser debug messages\n";
 		std::cout << CLR_NON << std::endl;
 	}
+	config.is_correct = true; // NOTE: CONFIG IS NOT FULLY CHECKED FOR CORRECTNESS YET.
+	if (!config.is_correct)
+		return (std::nullopt);
 	return (config);
 }
