@@ -7,5 +7,4 @@ void Http::handleDeleteResponse()
 	//else if file exists but is not deletable, set status code to 403
 	//else set status code to 404 not foiund
 	setState(READY_TO_SEND);
-	
 }

@@ -1,7 +1,5 @@
 #include "Http.hpp"
 
-
-
 /// @brief After building the response, build the response string ready for send()
 /// @return response string 
 void Http::buildResponseString()
@@ -30,20 +28,14 @@ void Http::buildResponse()
 			return;
 		}
 		setState(HANDLING_CGI_STATIC);
-		switch (this->_method)
-		{
-			case GET:
-				handleGetResponse();
-				break;
-			case POST:
-				handlePostResponse();
-				break;
-			case DELETE:
-				handleDeleteResponse();
-				break;
-		}
+		if (this->_method == GET)
+			handleGetResponse();
+		else if (this->_method == POST)
+			handlePostResponse();
+		else if (this->_method == DELETE)
+			handleDeleteResponse();
+		buildResponseString();
 	}
 	else
 		handleErrorResponse();
-	buildResponseString();
 }

@@ -51,7 +51,21 @@ int Http::validateURI(std::string uri)
 	}
 	if (uri.find(".py") != std::string::npos || uri.find(".php") != std::string::npos || uri.find(".cgi") != std::string::npos)
 		setExtension(true);
-
+	if (this->_uri == "/")
+	{
+		if (!requestConfig->index.empty())
+		{
+			if (!requestConfig->root.empty())
+				this->_uri = requestConfig->root + requestConfig->index;
+			else
+				this->_uri = requestConfig->index;
+		}
+		else
+		{
+			if (!requestConfig->root.empty())
+				this->_uri = requestConfig->root;
+		}
+	}
 	return SUCCESS;
 }
 
@@ -66,23 +80,43 @@ void	Http::validateLayer()
 	if (this->_version == INVALID)
 		return setResponseCode(HTTP_VERSION_NOT_SUPPORTED);
 
-	/*METHODS*/
+	/*====HEADERS=====*/
+	//content type if missing, if empty, 
+	//if incorrectly set to URL-encoded form data when the content is in the request body instead 
+	if (this->_requestHeaders.find("host") == this->_requestHeaders.end()) //missing host error
+		return setResponseCode(HTTP_BAD_REQUEST);
+
+	/*====METHODS=====*/
+	
 	if (this->_method == UNKNOWN)
 		return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
-	if (this->_method == GET && requestConfig->GET == false)
-		return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
-	if (this->_method == POST && requestConfig->POST == false)
-		return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
-	if (this->_method == DELETE && requestConfig->DEL == false)
-		return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 
-	/*URI*/
+	else if (this->_method == GET)
+	{
+		if (requestConfig->GET == false)
+			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
+	}
+
+	else if (this->_method == POST)
+	{
+		if (requestConfig->POST == false)
+			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
+		std::map<std::string, std::string>::iterator it = this->_requestHeaders.find("content-type");
+		if (it == _requestHeaders.end())
+			return setResponseCode(HTTP_UNSUPPORTED_MEDIA);
+		else if (it->second.empty())
+			return setResponseCode(HTTP_BAD_REQUEST);
+	}
+
+	else if (this->_method == DELETE)
+	{ 
+		if (requestConfig->DEL == false)
+			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
+	}
+
+	/*=====URI=====*/
 	if (validateURI(this->_uri) == FAILURE)
 		return;
-
-	/*HEADERS*/
-	if (this->_requestHeaders.find("host") == this->_requestHeaders.end())
-		setResponseCode(HTTP_BAD_REQUEST);
 	else
 		validateFile();
 } //ticket 11

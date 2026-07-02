@@ -21,6 +21,7 @@ static const int HTTP_REQUEST_TIMEOUT = 408; //client takes too long to send req
 static const int HTTP_LENGTH_REQUIRED = 411; //length required
 static const int HTTP_PAYLOAD_TOO_LARGE = 413; //request body too large
 static const int URI_TOO_LONG = 414; //URI too long
+static const int HTTP_UNSUPPORTED_MEDIA = 415; //unsupported media type
 static const int HTTP_INTERNAL_SERVER_ERROR = 500; //cgi process fails
 static const int HTTP_VERSION_NOT_SUPPORTED = 505; //HTTP Version not supported
 
@@ -133,6 +134,7 @@ class Http {
 		void			setBody(const std::string &body);
 		void			setState(clientState state);
 		void 			setRequestConfig();
+		void			setContentType();
 
 		/*==========GETTERS============*/
 		clientState		getState() const;
