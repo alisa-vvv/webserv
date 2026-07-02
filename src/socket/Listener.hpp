@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:35:04 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/06/26 15:23:30 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/02 23:09:58 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,9 +70,10 @@ class Listener
 		void			setIpAddr(uint32_t ip_addr);
 		uint32_t		getIpAddr() const;
 		
-		int				getListenerFd();
+		int				getListenerFd() const;
+		void			setListenerFd(int fd);
 
-		void			closeSocket();
+		void closeSocket();
 
 		//test
 		void			printPortNumber();

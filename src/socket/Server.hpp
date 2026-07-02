@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/26 15:42:34 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/02 22:56:44 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,11 @@ extern volatile sig_atomic_t	gStop;
 
 enum eServerError
 {
-	SERVER_OK  = 0,
+	SERVER_OK = 0,
 	SERVER_CONFIG_ERR,
 	SERVER_LISTENER_SETUP_ERR,
-	SERVER_POLL_ERR
+	SERVER_POLL_ERR,
+	SERVER_ACCEPT_ERR
 };
 
 class Server
@@ -39,24 +40,34 @@ private:
 	std::vector<struct pollfd> _pollFds;	// the list poll() watches
 
 	void			_buildListener(void);
-	void			_closeClientFd(int fd); //TODO: move inside Listener
-	Server			&operator=(const Server &other); //TODO: decide what to do, prevent leaks too
+	void			_addFdToPoll(int fd);
+	void			_addListenerFdsToPoll();
+
+	int				_isListenerFd(int fd) const;
+
 	Server(const Server &other);
+	Server			&operator=(const Server &other);
+	eServerError	_initPollEvent();
+
+	eServerError	_pollEvents();
+	eServerError	_handleListenerEvent(int i);
+	int				_handleClientEvent(int i);
+
+	eServerError	_acceptClients(int serverListenFd);
+	eServerError	_setNonBlocking(int fd);
+	void			_closeClientFd(int fd);
+	void			_closeAllClientFds(); //TODO:finish
+	void			_checkTimeouts(); //TODO:finish
 
 public:
-	Server(const Server &other);
-	Server &operator=(const Server &other);
 	Server(const Config &config);
 	~Server();
 
 	eServerError	setup(void);
-	eServerError	run(int i);
-	eServerError	_initPollEvent(int i);
-	void			_addFdToPoll(int fd);
-	eServerError	_accept(int serverListenFd);
-	int				get_fd() const;
-	void			closeListeners();
+	eServerError	run();
 	
+	void			closeListeners();
+
 	//test
 	void			printPollInfo(int i);
 	

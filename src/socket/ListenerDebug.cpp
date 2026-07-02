@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/04 11:57:12 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/06/26 15:10:36 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/02 20:54:40 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ void Listener::printPortNumber()
 {
 	socklen_t length = sizeof(_address);
 
-	if (getsockname(_fd, (struct sockaddr *)&_address, &length))
+	if (getsockname(_listenerFd, (struct sockaddr *)&_address, &length))
 	{
 		perror("getting socket name");
 		exit(1);
@@ -32,7 +32,7 @@ int Listener::_printSocketName()
 	memset(&addr, 0, sizeof(addr));
 	len = sizeof(addr);
 
-	if (getsockname(_fd, reinterpret_cast<struct sockaddr *>(&addr), &len) == ERROR)
+	if (getsockname(_listenerFd, reinterpret_cast<struct sockaddr *>(&addr), &len) == ERROR)
 	{
 		std::cerr << "getsockname failed" << std::endl;
 		return ERROR;

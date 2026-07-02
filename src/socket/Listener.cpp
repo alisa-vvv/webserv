@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:34:57 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/06/26 15:08:59 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/02 23:09:46 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,9 +182,14 @@ uint32_t Listener::getIpAddr() const
 	return this->_ip_addr;
 }
 
-int Listener::getListenerFd()
+int Listener::getListenerFd() const
 {
 	return _listenerFd;
+}
+
+void Listener::setListenerFd(int fd)
+{
+	_listenerFd = fd;
 }
 
 void Listener::closeSocket()

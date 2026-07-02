@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+         #
+#    By: tutku <tutku@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/05/12 13:35:28 by tcakir-y          #+#    #+#              #
-#    Updated: 2026/06/25 14:47:26 by tcakir-y         ###   ########.fr        #
+#    Updated: 2026/07/02 21:46:57 by tutku            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ OBJ_DIR = obj
 # Source files
 SRC = 	main.cpp\
 		Server.cpp\
-		ServerSocket.cpp\
+		ServerUtils.cpp\
 		Client.cpp\
 		ListenerDebug.cpp\
 		Signal.cpp\

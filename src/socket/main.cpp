@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 19:57:27 by tutku             #+#    #+#             */
-/*   Updated: 2026/06/26 15:30:44 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/02 20:51:26 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,17 @@ int main (int argc, char *argv[])
 	if (err != SERVER_OK)
 	{
 		std::cerr << "Server setup failed" << std::endl;
+		server.closeListeners();
 		return (1);
 	}
 	err = server.run();
 	if (err != SERVER_OK)
 	{
+		std::cerr << "Server run failed" << std::endl;
+		server.closeListeners();
 		return (1);
 	}
+	server.closeListeners();
 	std::cout << "Socket created, started listening" << std::endl;
 	return (0);
 }
