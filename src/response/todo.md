@@ -3,12 +3,12 @@
 
 Todo
 
-ticket00
+ticket00: done
 Item: Fix validate layer with allowed methods from config file
 Description: we need from the config file the allowed methods and we need to check to set the methods not allowed message 
 
 
-ticket03:
+ticket03: done
 Item: URI should check root
 Description: Directory where the requested file should be located (e.g., if URL /kapouet is rooted to /tmp/www, URL /kapouet/pouic/toto/pouet will search for /tmp/www/pouic/toto/pouet). We probably need to change the URL in URIvalidation
 
@@ -33,7 +33,7 @@ Description: When a client requests a URL, the web server responds with a specif
 Read return redirects  from config
 
 
-ticket11:
+ticket11: done
 Item: Validate that the uri + root
 
 ticket12:

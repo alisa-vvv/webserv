@@ -10,7 +10,7 @@ void Http::setRequestConfig()
 	//first compare the host -> if there is no server name, then use the first one as default	
 	//check first for the listener.port
 	//compare to config file
-	//ticket11, check for auto index
+	//check for auto index
 
 	/*============ALLOWED METHODS===============*/
 	//check the map, iterator ;

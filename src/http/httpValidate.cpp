@@ -33,7 +33,6 @@ void Http::validateFile()
 
 int Http::validateURI(std::string uri)
 {
-	//ticket03
 	if (uri.empty() || uri.front() != '/')
 	{
 		setResponseCode(HTTP_BAD_REQUEST);
@@ -69,7 +68,7 @@ int Http::validateURI(std::string uri)
 	return SUCCESS;
 }
 
-/// @brief calls the setrequest config, validates the format, syntax, and permissions, ticket00
+/// @brief calls the setrequest config, validates the format, syntax, and permissions
 void	Http::validateLayer()
 {
 	if (getState() == ERROR)
