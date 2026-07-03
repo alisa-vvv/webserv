@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 20:52:11 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/02 23:10:23 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/03 16:45:07 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,16 +17,39 @@ void Server::_buildListener()
 {
 	for (size_t i = 0; i < _config.servers.size(); i++)
 	{
-		for (size_t j = 0; j < _config.servers[i].ports.size(); j++)
-		{
-			Listener listenerTemp;
+		cfg_server_t serverConfig = _config.servers[i];
 
-			listenerTemp.setIpAddr(_config.servers.at(i).ip_addr);
-			listenerTemp.setPort(_config.servers.at(i).ports[j]);
-			_listeners.push_back(listenerTemp);
+		for (size_t j = 0; j < serverConfig.ports.size(); j++)
+		{
+			uint32_t ip = serverConfig.ip_addr;
+			int port = serverConfig.ports[j];
+
+			if (matchConfig(ip, port, serverConfig) != 1)
+			{
+				Listener listenerTemp;
+
+				listenerTemp.setIpAddr(_config.servers.at(i).ip_addr);
+				listenerTemp.setPort(_config.servers.at(i).ports[j]);
+				listenerTemp.setServerConfig(&(serverConfig));
+				_listeners.push_back(listenerTemp);
+			}
 		}
 	}
 }
+
+int Server::matchConfig(uint32_t ip, int port, cfg_server_t serverConfig)
+{
+	for (size_t i = 0; i < _listeners.size(); i++)
+	{
+		if ((_listeners[i].getIpAddr() == ip) &&(_listeners[i].getPort() == port))
+		{
+			_listeners[i].setServerConfig(&(serverConfig));
+			return 1;
+		}
+	}
+	return 0;
+}
+
 
 void Server::_addFdToPoll(int fd)
 {
@@ -98,6 +121,38 @@ void Server::closeListeners()
 			_listeners[i].setListenerFd(-1);
 		}
 	}
+}
+
+/*
+remove clientFd from _pollFds
+erase clientFd from _clients
+*/
+void Server::_closeClientFd(int fd)
+{
+
+	for (int i = 0; i < (int)(_pollFds.size()); i++)
+	{
+		if (fd == _pollFds[i].fd)
+		{
+			_pollFds.erase(_pollFds.begin() + i);
+			break;
+		}
+	}
+	_clients.erase(fd);
+	close(fd);
+}
+
+
+void Server::_closeClients()
+{
+
+}
+
+void Server::_closeAll()
+{
+	_closeClients();
+	closeListeners();
+	
 }
 
 // test

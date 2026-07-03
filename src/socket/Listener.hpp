@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:35:04 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/02 23:09:58 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/03 16:46:40 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@
 #include <stdint.h>
 #include <map>
 #include <csignal>
+
+#include "ConfigParser.hpp"
 
 #define SUCCESS 0
 #define ERROR -1
@@ -47,33 +49,37 @@ enum eListenerError
 class Listener
 {
 	private:
-		int							_port;
-		uint32_t					_ip_addr;
-		int							_listenerFd;	// the server/listening socket
-		struct sockaddr_in			_address;		// address of the socket
-
-	public:
+		int								_port;
+		uint32_t						_ip_addr;
+		int								_listenerFd;	// the server/listening socket
+		struct sockaddr_in				_address;		// address of the socket
+		std::vector<const cfg_server_t *>	_serverConfigs;
+		
+		public:
 		Listener();
 		~Listener();
 
-		eListenerError	setup(void);
-		eListenerError	_createSocket(void);
-		eListenerError	_setSocketOptions();
-		eListenerError	_setNonBlocking(int fd);
-		eListenerError	_setAddress();
-		eListenerError	_bindSocket(void);
-		eListenerError	_listenSocket(void);
+		eListenerError		setup(void);
+		eListenerError		_createSocket(void);
+		eListenerError		_setSocketOptions();
+		eListenerError		_setNonBlocking(int fd);
+		eListenerError		_setAddress();
+		eListenerError		_bindSocket(void);
+		eListenerError		_listenSocket(void);
 		
-		void			setPort(int port);
-		int				getPort() const;
+		void				setPort(int port);
+		int					getPort() const;
 		
-		void			setIpAddr(uint32_t ip_addr);
-		uint32_t		getIpAddr() const;
+		void				setIpAddr(uint32_t ip_addr);
+		uint32_t			getIpAddr() const;
 		
-		int				getListenerFd() const;
-		void			setListenerFd(int fd);
+		int					getListenerFd() const;
+		void				setListenerFd(int fd);
 
-		void closeSocket();
+		const cfg_server_t	*getServerConfig(int i);
+		void				setServerConfig(const cfg_server_t *config);
+
+		void				closeSocket();
 
 		//test
 		void			printPortNumber();

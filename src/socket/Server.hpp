@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/02 22:56:44 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/03 16:39:49 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ private:
 	const Config				&_config;
 	std::vector<Listener>		_listeners;
 	std::map<int, Client>		_clients;	// client state, found by client fd
-	std::vector<struct pollfd> _pollFds;	// the list poll() watches
+	std::vector<struct pollfd>	_pollFds;	// the list poll() watches
 
 	void			_buildListener(void);
 	void			_addFdToPoll(int fd);
@@ -55,16 +55,19 @@ private:
 
 	eServerError	_acceptClients(int serverListenFd);
 	eServerError	_setNonBlocking(int fd);
-	void			_closeClientFd(int fd);
-	void			_closeAllClientFds(); //TODO:finish
 	void			_checkTimeouts(); //TODO:finish
 
-public:
+	void			_closeClientFd(int fd);
+	void			_closeClients();
+	void			_closeAll();
+	
+	public:
 	Server(const Config &config);
 	~Server();
-
+	
 	eServerError	setup(void);
 	eServerError	run();
+	int				matchConfig(uint32_t ip, int port, cfg_server_t serverConfig);
 	
 	void			closeListeners();
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:34:57 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/02 23:09:46 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/03 16:17:37 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,6 +190,17 @@ int Listener::getListenerFd() const
 void Listener::setListenerFd(int fd)
 {
 	_listenerFd = fd;
+}
+
+
+const cfg_server_t *Listener::getServerConfig(int i)
+{
+	return _serverConfigs.at(i);
+}
+
+void Listener::setServerConfig(const cfg_server_t *config)
+{
+	_serverConfigs.push_back(config);
 }
 
 void Listener::closeSocket()
