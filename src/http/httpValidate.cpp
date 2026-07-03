@@ -52,17 +52,17 @@ int Http::validateURI(std::string uri)
 		setExtension(true);
 	if (this->_uri == "/")
 	{
-		if (!requestConfig->index.empty())
+		if (!requestContext->index.empty())
 		{
-			if (!requestConfig->root.empty())
-				this->_uri = requestConfig->root + requestConfig->index;
+			if (!requestContext->root.empty())
+				this->_uri = requestContext->root + requestContext->index;
 			else
-				this->_uri = requestConfig->index;
+				this->_uri = requestContext->index;
 		}
 		else
 		{
-			if (!requestConfig->root.empty())
-				this->_uri = requestConfig->root;
+			if (!requestContext->root.empty())
+				this->_uri = requestContext->root;
 		}
 	}
 	return SUCCESS;
@@ -74,7 +74,7 @@ void	Http::validateLayer()
 	if (getState() == ERROR)
 		return;
 	setState(VALIDATING);
-	setRequestConfig(); //ticket12
+	setRequestContext(); //ticket04
 
 	if (this->_version == INVALID)
 		return setResponseCode(HTTP_VERSION_NOT_SUPPORTED);
@@ -92,13 +92,13 @@ void	Http::validateLayer()
 
 	else if (this->_method == GET)
 	{
-		if (requestConfig->GET == false)
+		if (requestContext->GET == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 	}
 
 	else if (this->_method == POST)
 	{
-		if (requestConfig->POST == false)
+		if (requestContext->POST == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 		std::map<std::string, std::string>::iterator it = this->_requestHeaders.find("content-type");
 		if (it == _requestHeaders.end())
@@ -109,7 +109,7 @@ void	Http::validateLayer()
 
 	else if (this->_method == DELETE)
 	{ 
-		if (requestConfig->DEL == false)
+		if (requestContext->DEL == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 	}
 

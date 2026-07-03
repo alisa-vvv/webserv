@@ -1,25 +1,12 @@
-
-
-
 Todo
 
-ticket00: done
-Item: Fix validate layer with allowed methods from config file
-Description: we need from the config file the allowed methods and we need to check to set the methods not allowed message 
-
-
-ticket03: done
-Item: URI should check root
-Description: Directory where the requested file should be located (e.g., if URL /kapouet is rooted to /tmp/www, URL /kapouet/pouic/toto/pouet will search for /tmp/www/pouic/toto/pouet). We probably need to change the URL in URIvalidation
 
 ticket04:
-Item: Response handler must match the server and location block and serve specific paths etc
+item: create a setrequestContext
+description: Response handler must match the server and location block and serve specific paths etc
 Description: If there are multiple ports, with 8080 inly allowing get and 8034 allowing all -> we need
 to validate server/port
 
-ticket05:
-Item: route / to index
-Description: So we always have an index
 
 ticket06:
 Item: autoindex on/pff
@@ -32,15 +19,27 @@ Description: When a client requests a URL, the web server responds with a specif
 //We just return 301 and the browser will make another get request based on the response route
 Read return redirects  from config
 
+ticket12:
+item: what if there are mutiple response header keys
+
+=========================
+
 
 ticket11: done
 Item: Validate that the uri + root
 
-ticket12:
-item: create a setRequestconfig
+ticket00: done
+Item: Fix validate layer with allowed methods from config file
+Description: we need from the config file the allowed methods and we need to check to set the methods not allowed message 
 
 
-=========================
+ticket03: done
+Item: URI should check root
+Description: Directory where the requested file should be located (e.g., if URL /kapouet is rooted to /tmp/www, URL /kapouet/pouic/toto/pouet will search for /tmp/www/pouic/toto/pouet). We probably need to change the URL in URIvalidation
+
+ticket05: done
+Item: route / to index
+Description: So we always have an index
 
 ticket02: done
 Item: Throwing exception on invalid headers

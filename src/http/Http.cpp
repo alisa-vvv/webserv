@@ -81,7 +81,7 @@ void Http::setRequestHeader(const std::string &key, const std::string &value)
 
 void Http::setResponseHeader(const std::string &key, const std::string &value)
 {
-	this->_responseHeaders[key] = value;
+	this->_responseHeaders[key] = value; //ticket12
 }
 
 void Http::setBody(const std::string &body) 

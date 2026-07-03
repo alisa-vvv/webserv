@@ -5,3 +5,6 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/409
 
 	https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/415
+
+
+https://nginx101.com/directives/autoindex/

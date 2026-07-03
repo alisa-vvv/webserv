@@ -67,9 +67,11 @@ enum httpMethod {
 	UNKNOWN,
 };
 
-/// @brief This is a struct with references to the correct config file to use
-struct requestConfig
+/// @brief This is a struct with references to the correct config file to use. context struct
+struct requestContext
 {
+	// servers						*
+	// locations					*locations
 	const size_t							&clientMaxBodySize;
 	const std::map<int, std::string>		&errorPages;
 	const std::string						&prefix; 
@@ -102,7 +104,7 @@ class Http {
 
 	public:
 		Http();
-		requestConfig	*requestConfig;
+		requestContext	*requestContext;
 
 		/*==========PARSING===========*/
 		void			parseRequest(const std::string &rawString);
@@ -133,7 +135,7 @@ class Http {
 		void			setExtension(bool status);
 		void			setBody(const std::string &body);
 		void			setState(clientState state);
-		void 			setRequestConfig();
+		void 			setRequestContext();
 		void			setContentType();
 
 		/*==========GETTERS============*/
