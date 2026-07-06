@@ -157,7 +157,7 @@ class Listener
 		uint32_t						_ip_addr;
 		int								_listenerFd;	// the server/listening socket
 		// struct sockaddr_in				_address;		// address of the socket
-		// std::vector<const cfg_server_t *>	_serverConfigs;
+		std::vector<const cfg_server_t *>	_serverConfigs;
 		
 		public:
 		Listener();
@@ -193,7 +193,7 @@ class Listener
 		int					getListenerFd() const;
 		void				setListenerFd(int fd);
 
-		std::vector<const cfg_server_t *> getAllConfig() { return _serverConfigs;};
+		int getConfigCount() { return _serverConfigs.size();}; //ALERT!
 		const cfg_server_t	*getServerConfig(int i);
 		// void				setServerConfig(const cfg_server_t *config);
 
