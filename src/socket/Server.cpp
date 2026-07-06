@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/02 22:54:49 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/06 19:33:43 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ eServerError Server::run()
 		closeListeners();
 		return err;
 	}
+	_closeAll();
 	return SERVER_OK;
 }
 
@@ -150,6 +151,7 @@ eServerError Server::_pollEvents()
 		}
 		//_checkTimeouts(); //TODO
 	}
+	return SERVER_OK;
 }
 
 // this listenerfd can accept new connections

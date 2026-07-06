@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:25 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/06/25 13:31:12 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/06 20:09:59 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,10 @@ client obj answers:
 class Client
 {
 	private:
+		int	_listenerFd;
+		int	_clientFd;
 
 	public:
-		int		listenerFd; //check and make it private
-		int		clientFd;
 		time_t	lastActivity;
 		Client();
 		Client(int listenerFd, int clientFd);

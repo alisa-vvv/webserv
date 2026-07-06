@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 19:57:27 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/02 20:51:26 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/06 19:20:26 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 int main (int argc, char *argv[])
 {
+	(void)argv;
 	if (argc < 2)
 	{
 		std::cerr << "Error! No config file provided" << std::endl;

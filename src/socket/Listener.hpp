@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:35:04 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/03 16:46:40 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/06 19:01:23 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ class Listener
 		void				setListenerFd(int fd);
 
 		const cfg_server_t	*getServerConfig(int i);
-		void				setServerConfig(const cfg_server_t *config);
+		void				addServerConfig(const cfg_server_t *config);
 
 		void				closeSocket();
 

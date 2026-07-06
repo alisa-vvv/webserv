@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/03 16:39:49 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/06 18:59:52 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ private:
 	
 	eServerError	setup(void);
 	eServerError	run();
-	int				matchConfig(uint32_t ip, int port, cfg_server_t serverConfig);
+	int				matchConfig(uint32_t ip, int port, const cfg_server_t &serverConfig);
 	
 	void			closeListeners();
 

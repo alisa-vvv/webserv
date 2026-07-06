@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 20:52:11 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/03 16:45:07 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/06 20:05:51 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void Server::_buildListener()
 {
 	for (size_t i = 0; i < _config.servers.size(); i++)
 	{
-		cfg_server_t serverConfig = _config.servers[i];
+		const cfg_server_t &serverConfig = _config.servers[i];
 
 		for (size_t j = 0; j < serverConfig.ports.size(); j++)
 		{
@@ -28,28 +28,27 @@ void Server::_buildListener()
 			{
 				Listener listenerTemp;
 
-				listenerTemp.setIpAddr(_config.servers.at(i).ip_addr);
-				listenerTemp.setPort(_config.servers.at(i).ports[j]);
-				listenerTemp.setServerConfig(&(serverConfig));
+				listenerTemp.setIpAddr(ip);
+				listenerTemp.setPort(port);
+				listenerTemp.addServerConfig(&serverConfig);
 				_listeners.push_back(listenerTemp);
 			}
 		}
 	}
 }
 
-int Server::matchConfig(uint32_t ip, int port, cfg_server_t serverConfig)
+int Server::matchConfig(uint32_t ip, int port, const cfg_server_t &serverConfig)
 {
 	for (size_t i = 0; i < _listeners.size(); i++)
 	{
 		if ((_listeners[i].getIpAddr() == ip) &&(_listeners[i].getPort() == port))
 		{
-			_listeners[i].setServerConfig(&(serverConfig));
+			_listeners[i].addServerConfig(&serverConfig);
 			return 1;
 		}
 	}
 	return 0;
 }
-
 
 void Server::_addFdToPoll(int fd)
 {
@@ -97,7 +96,7 @@ eServerError Server::_acceptClients(int serverListenFd)
 			}
 			_addFdToPoll(clientFd);
 
-			Client newClient(clientFd);
+			Client newClient(serverListenFd, clientFd);
 			_clients[clientFd] = newClient;
 			continue;
 		}
@@ -111,6 +110,23 @@ eServerError Server::_acceptClients(int serverListenFd)
 	return SERVER_OK;
 }
 
+/**
+ * @brief Closes all active listener sockets.
+ *
+ * @details
+ * Iterates through the `_listeners` vector and closes each listener file
+ * descriptor if it is valid. After closing a listener fd, its value is set
+ * to `-1` to mark it as closed and avoid accidentally closing the same fd
+ * again later.
+ *
+ * Listener fds are the sockets used to accept new client connections.
+ * This function does not close client connections; clients should be closed
+ * separately with `_closeClients()`.
+ *
+ * @note
+ * This function is usually called during server shutdown or when listener
+ * setup fails and the server needs to clean up already-opened sockets.
+ */
 void Server::closeListeners()
 {
 	for (size_t i = 0; i < _listeners.size(); i++)
@@ -123,14 +139,19 @@ void Server::closeListeners()
 	}
 }
 
-/*
-remove clientFd from _pollFds
-erase clientFd from _clients
-*/
+/**
+ * @brief Closes and removes a single client connection.
+ *
+ * @details
+ * Removes the given client file descriptor from `_pollFds` so `poll()` no longer
+ * watches it. Then removes the matching client from the `_clients` map and
+ * closes the actual file descriptor.
+ *
+ * @param fd The client file descriptor that should be removed and closed.
+ */
 void Server::_closeClientFd(int fd)
 {
-
-	for (int i = 0; i < (int)(_pollFds.size()); i++)
+	for (size_t i = 0; i < _pollFds.size(); i++)
 	{
 		if (fd == _pollFds[i].fd)
 		{
@@ -142,10 +163,27 @@ void Server::_closeClientFd(int fd)
 	close(fd);
 }
 
-
+/**
+ * @brief Closes all active client connections.
+ *
+ * @details
+ * Iterates through the `_clients` map and closes every client file descriptor.
+ * Each client is closed by calling `_closeClientFd()`, which removes the fd
+ * from `_pollFds`, erases the client from `_clients`, and closes the actual fd.
+ *
+ * The loop continues until `_clients` is empty. We always take the first client
+ * fd from the map because `_closeClientFd()` modifies `_clients` by erasing
+ * the current client.
+ */
 void Server::_closeClients()
 {
+	int fd;
 
+	while (_clients.empty() == 0)
+	{
+		fd = _clients.begin()->first;
+		_closeClientFd(fd);
+	}
 }
 
 void Server::_closeAll()

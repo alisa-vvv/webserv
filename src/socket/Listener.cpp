@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:34:57 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/03 16:17:37 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/06 19:01:06 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,7 +198,7 @@ const cfg_server_t *Listener::getServerConfig(int i)
 	return _serverConfigs.at(i);
 }
 
-void Listener::setServerConfig(const cfg_server_t *config)
+void Listener::addServerConfig(const cfg_server_t *config)
 {
 	_serverConfigs.push_back(config);
 }
