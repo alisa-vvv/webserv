@@ -12,19 +12,25 @@ int Http::findRequestConfig(Listener *listener)
 		host = host.substr(0, colonPos);
 	for (int i = 0; i < listener->getConfigCount() ; i++ )
 	{
-		if (host == listener->getServerConfig(i)->server_name)
+		for (const auto &serverName : listener->getServerConfig(i)->server_names)
 		{
-			for (int p : listener->getServerConfig(i)->ports)
+			if (host == serverName)
 			{
-				if (p == listener->getPort())
-					return i;
+				for (int p : listener->getServerConfig(i)->ports)
+				{
+					if (p == listener->getPort())
+						return i;
+				}
 			}
 		}
 	}
 	for (int i = 0; i < listener->getConfigCount(); i++)
 	{
-		if (host == listener->getServerConfig(i)->server_name)
-			return i;
+		for (const auto &name : listener->getServerConfig(i)->server_names)
+		{
+			if (host == name)
+				return i;
+		}
 	}
 	return -1;
 }
@@ -42,6 +48,7 @@ void Http::setRequestConfig(Listener *listener)
 	const cfg_server_t *server = listener->getServerConfig(ind);
 	if (!server)
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
+
 	bool portMatch = false;
 	if (server->ports.empty())
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
@@ -66,15 +73,18 @@ void Http::setRequestConfig(Listener *listener)
 		if (currentLoc.prefix.empty())
 		{
 			bestMatch = &currentLoc;
-			longest = currentLoc.prefix.length();
+			continue;
 		}
 		if (this->_uri.find(currentLoc.prefix) == 0)
 		{
-			this->requestConfig->location = &currentLoc;
-			break;
+			if (currentLoc.prefix.length() > longest)
+			{
+				bestMatch = &currentLoc;
+				longest = currentLoc.prefix.length();
+			}
 		}
 	}
-	if (!this->requestConfig->location && 
-		!this->requestConfig->server->locations.empty())
-		this->requestConfig->location = &this->requestConfig->server->locations[0];
+	if (!bestMatch)
+		bestMatch = &server->locations[0];
+	this->requestConfig->location = bestMatch;
 }

@@ -104,10 +104,10 @@ void Http::parseRequest(const std::string &rawString)
 	std::string requestLine = rawString.substr(0, rawString.find("\r\n"));
 	std::string headers = rawString.substr(requestLineEnd + 2, separator - requestLineEnd);
 	parseRequestLine(requestLine);
-	if (getState() == ERROR)
+	if (getState() == CLIENT_ERROR)
 		return;
 	parseHeaders(headers);
-	if (getState() == ERROR)
+	if (getState() == CLIENT_ERROR)
 		return;
 	bodyStart = separator + 4;
 	if (bodyStart < rawString.size())

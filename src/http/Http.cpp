@@ -69,7 +69,7 @@ bool Http::getExtension() const {
 void Http::setResponseCode(int code) {
 	this->_statusCode = code;
 	if (_statusCode != HTTP_OK && _statusCode != HTTP_CREATED)
-		this->_state = ERROR;
+		this->_state = CLIENT_ERROR;
 }
 
 void Http::setRequestHeader(const std::string &key, const std::string &value) {

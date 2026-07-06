@@ -17,7 +17,7 @@ std::string clientHandler(Listener *listener, std::string recvStr)
 	client.parseRequest(recvStr);
 	CHECK_STATE(client);
 
-	client.setRequestConfig(Listener *listener); //ticket04
+	client.setRequestConfig(listener); //ticket04
 	CHECK_STATE(client);
 
 	client.validateLayer();
