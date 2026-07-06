@@ -2,7 +2,7 @@ Todo
 
 
 ticket04:
-item: create a setrequestContext
+item: create a setRequestConfig
 description: Response handler must match the server and location block and serve specific paths etc
 Description: If there are multiple ports, with 8080 inly allowing get and 8034 allowing all -> we need
 to validate server/port
@@ -20,7 +20,11 @@ Description: When a client requests a URL, the web server responds with a specif
 Read return redirects  from config
 
 ticket12:
-item: what if there are mutiple response header keys
+item: what if there are mutiple response header keys - stop using map for response header as some headers are multi valued
+
+ticket13: 
+item: what if there is no matching server config
+desc: do we just use the first server as default?
 
 =========================
 

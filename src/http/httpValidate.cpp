@@ -52,37 +52,35 @@ int Http::validateURI(std::string uri)
 		setExtension(true);
 	if (this->_uri == "/")
 	{
-		if (!requestContext->index.empty())
+		if (!requestConfig->location->index.empty())
 		{
-			if (!requestContext->root.empty())
-				this->_uri = requestContext->root + requestContext->index;
+			if (!requestConfig->location->root.empty())
+				this->_uri = requestConfig->location->root + requestConfig->location->index;
 			else
-				this->_uri = requestContext->index;
+				this->_uri = requestConfig->location->index;
 		}
 		else
 		{
-			if (!requestContext->root.empty())
-				this->_uri = requestContext->root;
+			if (!requestConfig->location->root.empty())
+				this->_uri = requestConfig->location->root;
 		}
 	}
 	return SUCCESS;
 }
 
-/// @brief calls the setrequest config, validates the format, syntax, and permissions
+/// @brief validates the format, syntax, and permissions
 void	Http::validateLayer()
 {
-	if (getState() == ERROR)
-		return;
 	setState(VALIDATING);
-	setRequestContext(); //ticket04
-
 	if (this->_version == INVALID)
 		return setResponseCode(HTTP_VERSION_NOT_SUPPORTED);
 
 	/*====HEADERS=====*/
 	//content type if missing, if empty, 
 	//if incorrectly set to URL-encoded form data when the content is in the request body instead 
-	if (this->_requestHeaders.find("host") == this->_requestHeaders.end()) //missing host error
+	if (this->_requestHeaders.find("host") == this->_requestHeaders.end()) //missing host request error
+		return setResponseCode(HTTP_BAD_REQUEST);
+	if (getHeader("host").empty()) //empty host string
 		return setResponseCode(HTTP_BAD_REQUEST);
 
 	/*====METHODS=====*/
@@ -92,13 +90,13 @@ void	Http::validateLayer()
 
 	else if (this->_method == GET)
 	{
-		if (requestContext->GET == false)
+		if (requestConfig->location->allowed_methods[GET] == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 	}
 
 	else if (this->_method == POST)
 	{
-		if (requestContext->POST == false)
+		if (requestConfig->location->allowed_methods[POST] == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 		std::map<std::string, std::string>::iterator it = this->_requestHeaders.find("content-type");
 		if (it == _requestHeaders.end())
@@ -109,7 +107,7 @@ void	Http::validateLayer()
 
 	else if (this->_method == DELETE)
 	{ 
-		if (requestContext->DEL == false)
+		if (requestConfig->location->allowed_methods[DELETE] == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 	}
 

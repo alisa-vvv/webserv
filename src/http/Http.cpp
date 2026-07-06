@@ -53,8 +53,7 @@ int Http::getStatusCode() const {
 
 /// @brief get the response string ready for client use
 /// @return 
-std::string Http::getResponseString() const
-{
+std::string Http::getResponseString() const {
 	return _responseString;
 }
 
@@ -67,35 +66,29 @@ bool Http::getExtension() const {
 /// @brief Set the status code to given status. Also sets client state to error
 //if status code!= OK
 /// @param code 
-void Http::setResponseCode(int code)
-{
+void Http::setResponseCode(int code) {
 	this->_statusCode = code;
 	if (_statusCode != HTTP_OK && _statusCode != HTTP_CREATED)
 		this->_state = ERROR;
 }
 
-void Http::setRequestHeader(const std::string &key, const std::string &value)
-{
+void Http::setRequestHeader(const std::string &key, const std::string &value) {
 	this->_requestHeaders[key] = value;
 }
 
-void Http::setResponseHeader(const std::string &key, const std::string &value)
-{
+void Http::setResponseHeader(const std::string &key, const std::string &value) {
 	this->_responseHeaders[key] = value; //ticket12
 }
 
-void Http::setBody(const std::string &body) 
-{
+void Http::setBody(const std::string &body) {
 	this->_body = body;
 }
 
-void Http::setState(clientState state)
-{
+void Http::setState(clientState state) {
 	this->_state = state;
 }
 
-void Http::setExtension(bool status)
-{
+void Http::setExtension(bool status) {
 	this->_hasExtension = status;
 }
 

@@ -5,7 +5,7 @@ void Http::handleGetResponse()
 	std::string file = this->_uri;
 	try {
 		long size = std::filesystem::file_size(file);
-		if (size > requestContext->clientMaxBodySize)
+		if (size > requestConfig->server->client_max_body_size)
 			return setResponseCode(HTTP_PAYLOAD_TOO_LARGE);
 		std::ifstream fileStream(file, std::ios::binary);
 		std::string body((std::istreambuf_iterator<char>(fileStream)),

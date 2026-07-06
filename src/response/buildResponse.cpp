@@ -34,8 +34,11 @@ void Http::buildResponse()
 			handlePostResponse();
 		else if (this->_method == DELETE)
 			handleDeleteResponse();
-		buildResponseString();
+
 	}
 	else
 		handleErrorResponse();
+	setContentType();
+	setResponseHeader("Content-Length", std::to_string(this->_body.size()));
+	buildResponseString();
 }

@@ -68,23 +68,10 @@ enum httpMethod {
 };
 
 /// @brief This is a struct with references to the correct config file to use. context struct
-struct requestContext
+struct requestConfig
 {
-	// servers						*
-	// locations					*locations
-	const size_t							&clientMaxBodySize;
-	const std::map<int, std::string>		&errorPages;
-	const std::string						&prefix; 
-	const std::string						&root;
-	const std::string						&index; 
-	const std::string						&uploadStore;
-	bool									autoindex = false;
-	bool									GET = false;
-	bool									POST = false;
-	bool									DEL = false;
-	// std::map<e_method, bool>	&allowedMethods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
-	// t_cgi_pass					cgi_pass;
-	// t_return						returns;
+	const cfg_server_t	*server;
+	const t_location	*location;
 };
 
 class Http {
@@ -104,7 +91,7 @@ class Http {
 
 	public:
 		Http();
-		requestContext	*requestContext;
+		requestConfig	*requestConfig;
 
 		/*==========PARSING===========*/
 		void			parseRequest(const std::string &rawString);
@@ -135,9 +122,11 @@ class Http {
 		void			setExtension(bool status);
 		void			setBody(const std::string &body);
 		void			setState(clientState state);
-		void 			setRequestContext();
 		void			setContentType();
-
+		
+		/*=======REQUEST Config===================*/
+		int				findRequestConfig(Listener *listener);
+		void 			setRequestConfig(Listener *listener);
 		/*==========GETTERS============*/
 		clientState		getState() const;
 		httpMethod		getMethod() const;
@@ -153,6 +142,68 @@ class Http {
 		/*===========DEBUGGER===================*/
 		void			debugPrint();
 };
+
+
+class Listener
+{
+	private:
+		int							_port;
+		uint32_t					_ip_addr;
+		int							_listenerFd;	// the server/listening socket
+		// struct sockaddr_in			_address;		// address of the socket
+
+	public:
+		int								_port;
+		uint32_t						_ip_addr;
+		int								_listenerFd;	// the server/listening socket
+		// struct sockaddr_in				_address;		// address of the socket
+		// std::vector<const cfg_server_t *>	_serverConfigs;
+		
+		public:
+		Listener();
+		~Listener();
+
+		// eListenerError	setup(void);
+		// eListenerError	_createSocket(void);
+		// eListenerError	_setSocketOptions();
+		// eListenerError	_setNonBlocking(int fd);
+		// eListenerError	_setAddress();
+		// eListenerError	_bindSocket(void);
+		// eListenerError	_listenSocket(void);
+		// eListenerError		setup(void);
+		// eListenerError		_createSocket(void);
+		// eListenerError		_setSocketOptions();
+		// eListenerError		_setNonBlocking(int fd);
+		// eListenerError		_setAddress();
+		// eListenerError		_bindSocket(void);
+		// eListenerError		_listenSocket(void);
+
+		void			setPort(int port);
+		int				getPort() const;
+		void				setPort(int port);
+		int					getPort() const;
+
+		void			setIpAddr(uint32_t ip_addr);
+		uint32_t		getIpAddr() const;
+		void				setIpAddr(uint32_t ip_addr);
+		uint32_t			getIpAddr() const;
+
+		int				getListenerFd() const;
+		void			setListenerFd(int fd);
+		int					getListenerFd() const;
+		void				setListenerFd(int fd);
+
+		std::vector<const cfg_server_t *> getAllConfig() { return _serverConfigs;};
+		const cfg_server_t	*getServerConfig(int i);
+		// void				setServerConfig(const cfg_server_t *config);
+
+		void closeSocket();
+		void				closeSocket();
+
+		//test
+		void			printPortNumber();
+};
+
 
 void	handleHttpRequest(Http &httpObject);
 
