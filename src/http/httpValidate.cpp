@@ -33,38 +33,47 @@ void Http::validateFile()
 
 int Http::validateURI(std::string uri)
 {
+	// validate format: must start with /
 	if (uri.empty() || uri.front() != '/')
 	{
 		setResponseCode(HTTP_BAD_REQUEST);
 		return FAILURE;
 	}
+	// check for  path traversal, spaces, double slashes
 	if (uri.find("..") != std::string::npos || uri.find(" ") != std::string::npos || uri.find("//") != std::string::npos)
 	{
 		setResponseCode(HTTP_BAD_REQUEST);
 		return FAILURE;
 	}
+	// check length limit
 	if (uri.length() > 2048)
 	{
 		setResponseCode(URI_TOO_LONG);
 		return FAILURE;
 	}
+	
+	// check CGI extensions
 	if (uri.find(".py") != std::string::npos || uri.find(".php") != std::string::npos || uri.find(".cgi") != std::string::npos)
 		setExtension(true);
+	
+	// rewrite URI, strip location prefix and add root
+	if (!requestConfig->location)
+		return FAILURE;
+	
+	std::string prefix = requestConfig->location->prefix;
+	std::string root = requestConfig->location->root;
+	
+	// remove prefix and add root
+	std::string remaining = this->_uri.substr(prefix.length());
+	this->_uri = root + remaining;
+
 	if (this->_uri == "/")
 	{
 		if (!requestConfig->location->index.empty())
-		{
-			if (!requestConfig->location->root.empty())
-				this->_uri = requestConfig->location->root + requestConfig->location->index;
-			else
-				this->_uri = requestConfig->location->index;
-		}
-		else
-		{
-			if (!requestConfig->location->root.empty())
-				this->_uri = requestConfig->location->root;
-		}
+			this->_uri = root + "/" + requestConfig->location->index;
+		// if no index configured, just use root 
 	}
+	
 	return SUCCESS;
 }
 
@@ -90,13 +99,13 @@ void	Http::validateLayer()
 
 	else if (this->_method == GET)
 	{
-		if (requestConfig->location->allowed_methods[GET] == false)
+		if (requestConfig->location->allowed_methods.at((e_method)GET) == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 	}
 
 	else if (this->_method == POST)
 	{
-		if (requestConfig->location->allowed_methods[POST] == false)
+		if (requestConfig->location->allowed_methods.at((e_method)POST) == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 		std::map<std::string, std::string>::iterator it = this->_requestHeaders.find("content-type");
 		if (it == _requestHeaders.end())
@@ -107,7 +116,7 @@ void	Http::validateLayer()
 
 	else if (this->_method == DELETE)
 	{ 
-		if (requestConfig->location->allowed_methods[DELETE] == false)
+		if (requestConfig->location->allowed_methods.at(e_method(DELETE)) == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 	}
 
