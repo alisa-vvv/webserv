@@ -26,6 +26,10 @@ ticket13:
 item: what if there is no matching server config
 desc: do we just use the first server as default?
 
+
+ticket14:
+item: client_max_body_size defaults to -1 -> if it is not initialized, is that ok? or will cnfig validation throw an error 
+
 =========================
 
 

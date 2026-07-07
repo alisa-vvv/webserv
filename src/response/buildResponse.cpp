@@ -20,7 +20,7 @@ void Http::buildResponseString()
 void Http::buildResponse()
 {
 	//ticket04
-	if (getState() != ERROR)
+	if (getState() != CLIENT_ERROR)
 	{
 		if (getExtension() == true)
 		{

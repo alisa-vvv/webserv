@@ -12,6 +12,7 @@ Http::Http()
 	, _contentLen(0)
 	, _hasBody(false)
 	, _hasExtension(false)
+	, requestConfig(nullptr)
 {}
 
 /*======GETTERS======*/
@@ -95,7 +96,7 @@ void Http::setExtension(bool status) {
 /*======UTILS======*/
 
 
-void Http::debugPrint()
+void Http::debugPrintRequest()
 {
 	std::cout << "=== HTTP Debug Print ===" << std::endl;
 	std::cout << "Type: " << this->getState() << std::endl;
@@ -106,5 +107,16 @@ void Http::debugPrint()
 	std::cout << "Content Length: " << this->getContentLen() << std::endl;
 	std::cout << "Body: " << this->getBody() << std::endl;
 	std::cout << "========================" << std::endl;
+	
 }
 
+void Http::debugPrintRequestConfig()
+{
+	std::cout << "=== Request Config ====" << std::endl;
+	int count = this->requestConfig->server->server_names.size();
+	for (int i = 0; i < count; i++)
+		std::cout << "Server names: " << this->requestConfig->server->server_names[i] << std::endl;
+	std::cout << "Root: " << this->requestConfig->server->root << std::endl;
+	std::cout << "Location: prefix" << this->requestConfig->location->prefix << std::endl;
+	
+}

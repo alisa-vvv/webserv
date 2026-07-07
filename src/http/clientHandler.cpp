@@ -1,6 +1,6 @@
 #include "Http.hpp"
 
-#define CHECK_STATE(client) if (client.getState() == ERROR) {client.buildResponse(); return;}
+#define CHECK_STATE(client) if (client.getState() == CLIENT_ERROR) {client.buildResponse(); return;}
 #define CHECK_CGI(client) if (client.getState() == HANDLING_CGI_EXTENSION) { return;}
 
 //Call recv and http buffer

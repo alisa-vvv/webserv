@@ -11,11 +11,19 @@ void Http::validateFile()
 	{
 		if (!std::filesystem::exists(path))
 			return setResponseCode(HTTP_NOT_FOUND); //it dont exist
-		if (getExtension() == false && !std::filesystem::is_regular_file(path))
+		if (std::filesystem::is_directory(path))
+		{
+			if (this->_method == GET) //if its a directory, its ok for get but not for other methods
+				return;
+			return setResponseCode(HTTP_NOT_FOUND);
+		}
+		if (!std::filesystem::is_regular_file(path))
 			return setResponseCode(HTTP_NOT_FOUND); //not a regular file aka dir/link
+
 		struct stat fileStat;
 		if (stat(path.c_str(), &fileStat) == -1)
 			return setResponseCode(HTTP_FORBIDDEN); //denied on parent dir, file perm change during chec and statcall
+
 		if (this->_method == GET && !(fileStat.st_mode & S_IRUSR))
 			return setResponseCode(HTTP_FORBIDDEN); //no read perm on get
 		else if (this->_method == DELETE && !(fileStat.st_mode & S_IWUSR))
@@ -65,14 +73,17 @@ int Http::validateURI(std::string uri)
 	
 	// remove prefix and add root
 	std::string remaining = this->_uri.substr(prefix.length());
-	this->_uri = root + remaining;
 
-	if (this->_uri == "/")
+	if (remaining.empty() || this->_uri == "/")
 	{
 		if (!requestConfig->location->index.empty())
 			this->_uri = root + "/" + requestConfig->location->index;
+		else
+			this->_uri = root + "/";
 		// if no index configured, just use root 
 	}
+	else
+		this->_uri = root + remaining;
 	
 	return SUCCESS;
 }

@@ -58,10 +58,10 @@ void Http::parseHeaders(const std::string &headers)
 	{
 		newLine = headers.find("\r\n", start);
 		if (newLine == std::string::npos)
-			setResponseCode(HTTP_BAD_REQUEST); //bad request //ticket02 
+			return setResponseCode(HTTP_BAD_REQUEST); //bad request //ticket02 
 		colon = headers.find(":", start);
 		if (colon == std::string::npos || colon > newLine)
-			setResponseCode(HTTP_BAD_REQUEST); //bad request
+			return setResponseCode(HTTP_BAD_REQUEST); //bad request
 		currLine = headers.substr(start, newLine - start);
 		// Recalculate colon and newLine positions relative to currLine
 		size_t colonInLine = colon - start;
@@ -80,8 +80,7 @@ void Http::parseHeaders(const std::string &headers)
 				this->_contentLen = stoi(val);
 			}
 			catch (std::exception &e){
-				setResponseCode(HTTP_BAD_REQUEST);
-				return;
+				return setResponseCode(HTTP_BAD_REQUEST);
 			}
 		}
 		this->_requestHeaders[key] = val;
@@ -97,8 +96,7 @@ void Http::parseRequest(const std::string &rawString)
 	size_t	separator = rawString.find("\r\n\r\n");
 	if (separator == std::string::npos)
 	{
-		setResponseCode(HTTP_BAD_REQUEST);
-		return;
+		return setResponseCode(HTTP_BAD_REQUEST);
 	}
 	size_t requestLineEnd = rawString.find("\r\n");
 	std::string requestLine = rawString.substr(0, rawString.find("\r\n"));
@@ -114,15 +112,9 @@ void Http::parseRequest(const std::string &rawString)
 	{
 		std::string body = rawString.substr(bodyStart);
 		if ((unsigned long)this->_contentLen > 0 && body.size() != (unsigned long)this->_contentLen)
-		{
-			setResponseCode(HTTP_BAD_REQUEST);
-			return;
-		}
+			return setResponseCode(HTTP_BAD_REQUEST);
 		else if (this->_contentLen == 0 && body.size() > 0)
-		{
-			setResponseCode(HTTP_BAD_REQUEST);
-			return;
-		}
+			return setResponseCode(HTTP_BAD_REQUEST);
 		this->_hasBody = true;
 		this->setBody(body);
 	}

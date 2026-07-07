@@ -141,7 +141,8 @@ class Http {
 		bool			getExtension() const;
 
 		/*===========DEBUGGER===================*/
-		void			debugPrint();
+		void			debugPrintRequest();
+		void			debugPrintRequestConfig();
 };
 
 void	handleHttpRequest(Http &httpObject);
