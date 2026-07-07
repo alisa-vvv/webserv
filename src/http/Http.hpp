@@ -104,18 +104,20 @@ class Http {
 		void			validateLayer();
 		void			validateFile();
 
+		/*==========ERROR LOADER================*/
+		void			handleErrorResponse(); //load error page content into body based on status
+		
+		/*===========RESPONSE BUILDER===========*/
+		void			buildResponse(); //check statuscode, set header, set body
+		void			buildResponseString(); //build to raw string ready to send to client
+
 		/*==========METHOD HANDLERS==========*/
 		void 			handleGetResponse();
 		void 			handlePostResponse();
 		void 			handleDeleteResponse();
+		void			handleAutoIndexResponse();
+		void			handleReturnResponse();
 
-		/*==========ERROR LOADER================*/
-		void			handleErrorResponse(); //load error page content into body based on status
-
-		/*===========RESPONSE BUILDER===========*/
-		void			buildResponse(); //check statuscode, set header, set body
-		void			buildResponseString(); //build to raw string ready to send to client
-		
 		/*============SETTERS==================*/
 		void			setRequestHeader(const std::string &key, const std::string &value);
 		void			setResponseHeader(const std::string &key, const std::string &value);

@@ -1,5 +1,6 @@
 #include "Http.hpp"
 
+
 void Http::handleGetResponse()
 {
 	std::string file = this->_uri;

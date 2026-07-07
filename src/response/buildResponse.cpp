@@ -22,6 +22,8 @@ void Http::buildResponse()
 	//ticket04
 	if (getState() != CLIENT_ERROR)
 	{
+		//if locations->returns->status != 0
+		//handle return response
 		if (getExtension() == true)
 		{
 			setState(HANDLING_CGI_EXTENSION);
@@ -29,16 +31,30 @@ void Http::buildResponse()
 		}
 		setState(HANDLING_CGI_STATIC);
 		if (this->_method == GET)
-			handleGetResponse();
+		{
+			if (std::filesystem::is_directory(this->_uri))
+			{
+				if (requestConfig->location && requestConfig->location->autoindex)
+					handleAutoIndexResponse();
+				else if (requestConfig->server->autoindex)
+					handleAutoIndexResponse();
+				else
+					setResponseCode(HTTP_NOT_FOUND);
+			}
+			else
+				handleGetResponse();
+		}
 		else if (this->_method == POST)
 			handlePostResponse();
 		else if (this->_method == DELETE)
 			handleDeleteResponse();
-
+		else
+			handleErrorResponse();
 	}
-	else
+	if (getState() == CLIENT_ERROR)
 		handleErrorResponse();
-	setContentType();
+	setContentType(); //double check bc auto index sets the content type inside. maybe just call it inside
+	//the specific functions 
 	setResponseHeader("Content-Length", std::to_string(this->_body.size()));
 	buildResponseString();
 }
