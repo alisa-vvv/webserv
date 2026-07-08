@@ -454,7 +454,7 @@ bool	fillServerErrorPageField(
 		config.servers.back().error_pages[error_code] = error_page_token.val;
 	}
 	else
-	config.servers.back().error_pages.insert({error_code, error_page_token.val});
+		config.servers.back().error_pages.insert({error_code, error_page_token.val});
 	tokens.at(token_index).type = EVALUATED;
 	error_code_token.type = EVALUATED;
 	error_page_token.type = EVALUATED;
@@ -507,7 +507,7 @@ bool	fillServerMaxBodySize(
 		return (false);
 	}
 	config.servers.back().client_max_body_size = std::stol(size_token.val);
-	if (config.servers.back().client_max_body_size > CLIENT_MAX_BODY_SIZE) { // ADD ACTUAL VALUE
+	if (config.servers.back().client_max_body_size > CLIENT_MAX_BODY_SIZE) {
 		configParserError(
 			config,
 			"value for client_max_body_size to big",
@@ -544,6 +544,62 @@ bool	fillServerAutoIndex(
 	std::vector<t_config_token>& tokens
 ) {
 	return (fillAutoIndex(SERVER, config, token_index, tokens));
+}
+
+// std optioonal that's either a t_return or a nullopt
+// then thje caller can actually decide how to put it in
+std::optional<t_return>	fillReturn(
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	std::string		redirect_target_val;
+	t_return		new_return;
+
+	const t_config_token& first_arg = tokens.at(token_index + 1);
+	if (first_arg.val.length() == 3) {
+		const int	code_val = std::stoi(first_arg.val);
+		if (code_val < RETURN_CODE_LOWEST || code_val > RETURN_CODE_HIGHEST) {
+			// brr brr error bad return code
+			return (std::nullopt);
+		}
+		new_return.code = code_val;
+		redirect_target_val = tokens.at(token_index + 2).val;
+	}
+	else
+		redirect_target_val = tokens.at(token_index + 1).val;
+	if (redirect_target_val.find_first_of("http://") != 0
+		&& redirect_target_val.find_first_of("https://") != 0) {
+			// brr brr error bad redirect addresss
+		return (std::nullopt);
+	}
+	new_return.target = redirect_target_val;
+	return (new_return);
+}
+
+bool	fillServerReturn(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	std::optional<t_return>	new_return = fillReturn(token_index, tokens);
+	if (new_return == std::nullopt) {
+		return (false);
+	}
+	config.servers.back().returns = *new_return;
+	return (true);
+}
+
+bool	fillLocationReturn(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	std::optional<t_return>	new_return = fillReturn(token_index, tokens);
+	if (new_return == std::nullopt) {
+		return (false);
+	}
+	config.servers.back().locations.back().returns = *new_return;
+	return (true);
 }
 
 bool	fillLocationRootField(

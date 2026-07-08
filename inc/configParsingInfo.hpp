@@ -17,6 +17,8 @@
 #include <vector>
 
 #define CLIENT_MAX_BODY_SIZE 1000
+#define RETURN_CODE_LOWEST 300
+#define RETURN_CODE_HIGHEST 399
 
 typedef enum	e_context {
 	GLOBAL,
@@ -138,6 +140,7 @@ public:
 		"client_max_body_size",
 		"cgi_pass",
 		"autoindex",
+		"return"
 	};
 	const std::vector<tokenParserFnPtr_t>	server_matching_functions {
 		fillServerNameField,

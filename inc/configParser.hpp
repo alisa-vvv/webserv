@@ -99,7 +99,8 @@ typedef struct t_cgi_pass {
 
 	/*	return	*/
 typedef struct t_return {
-	std::vector<std::string>	params; // not sure what these should look like
+	int			code = 0;
+	std::string	target;
 }	t_return;
 
 	/*	location	*/
@@ -111,7 +112,7 @@ typedef struct t_location {
 	std::map<e_method, bool>	allowed_methods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
 	std::string					upload_store; // opt
 	t_cgi_pass					cgi_pass; // opt
-	t_return					returns; // opt
+	t_return					returns; // can it be multiple?
 }	t_location;
 
 	/*	server	*/
@@ -125,6 +126,7 @@ typedef struct cfg_server_t {
 	std::vector<t_location>		locations;
 	t_cgi_pass					cgi_pass; // opt
 	bool						autoindex = false;
+	t_return					returns; // opt
 }	cfg_server_t;
 /*
 */
