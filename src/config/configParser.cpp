@@ -136,6 +136,7 @@ Config	tokensToConfig(
 			return (config);
 		}
 	}
+	config.is_correct = true;
 	return (config);
 }
 
@@ -160,7 +161,7 @@ bool	locationIsValid( // move this for when we pop context stack?
 	return (true);
 }
 
-static bool checkConfigCorrectness(Config& config) {
+static bool checkConfigCompleteness(Config& config) {
 	if (config.servers.size() == 0) {
 		displayParserError("No server block found in config file", "Bad config");
 		return (false);
@@ -221,7 +222,8 @@ std::optional<Config>	parseConfig(
 	}
 	std::ifstream	config_file(config_path);
 	if (!config_file.is_open()) {
-		displayParserError("Missing or inaccessible config file", std::nullopt);
+		displayParserError("Missing or inaccessible config file", "Config Error");
+		return (std::nullopt);
 	}
 
 	tokens = tokenize(config_file);
@@ -236,9 +238,13 @@ std::optional<Config>	parseConfig(
 		std::cout << "Change SHOW_CONFIG_PARSER_DEBUG define to false to turn off parser debug messages\n";
 		std::cout << CLR_NON << std::endl;
 	}
-	config.is_correct = checkConfigCorrectness(config);
 	if (!config.is_correct) {
-		displayParserError("Incorrect config. Can't start server", std::nullopt);
+		displayParserError("Incorrect config. Can't start server", "Config Error");
+		return (std::nullopt);
+	}
+	config.is_correct = checkConfigCompleteness(config);
+	if (!config.is_correct) {
+		displayParserError("Incorrect config. Can't start server", "Config Error");
 		return (std::nullopt);
 	}
 	return (config);

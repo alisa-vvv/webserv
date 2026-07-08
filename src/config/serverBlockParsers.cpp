@@ -360,6 +360,14 @@ bool	fillServerRootField(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (config.servers.back().root.size() != 0) {
+		configParserError(
+			config,
+			"duplicate root fields",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
 	return (fillRootField(SERVER, config, token_index, tokens));
 }
 

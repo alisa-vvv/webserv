@@ -27,7 +27,7 @@
 #  define	CLR_MAG "\033[95m"
 # endif // CLR_NON and other CLR defines
 
-#define TEST_CONFIG true
+#define TEST_CONFIG false
 #define CONFIG_PATH_DEFAULT "config/default.conf"
 #define CONFIG_PATH_TEST "config/test.conf"
 #define SHOW_CONFIG_PARSER_DEBUG true

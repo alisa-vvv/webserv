@@ -30,10 +30,11 @@ void	displayParserError(
 	const std::string& message,
 	const std::optional<std::string>& prefix = std::nullopt
 ) {
+	std::cout << CLR_RED;
 	if (prefix)
 		std::cout << *prefix << ": ";
 	std::cout << message;
- 	std::cout << std::endl;
+ 	std::cout << CLR_NON << std::endl;
 }
 
 /*
@@ -48,6 +49,6 @@ void	configParserError(
 
 	config.is_correct = false;
 	if (line_number)
-		std::cout << CLR_RED << "Line " << *line_number << ": ";
+		std::cout << "Line " << *line_number << ": ";
 	displayParserError(message, prefix);
 }
