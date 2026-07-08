@@ -48,6 +48,6 @@ void	configParserError(
 
 	config.is_correct = false;
 	if (line_number)
-		std::cout << "Line " << *line_number << ": ";
+		std::cout << CLR_RED << "Line " << *line_number << ": ";
 	displayParserError(message, prefix);
 }

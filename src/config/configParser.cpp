@@ -121,7 +121,8 @@ Config	tokensToConfig(
 	  		}
 		}
 		else {
-			std::cout << CLR_RED << "ERROR: TOKEN TYPE NOT COVERED BY IF-ELSE\n" << CLR_NON;
+			std::cout << CLR_RED << "ERROR: TOKEN TYPE " << cur_token.val;
+			std::cout << " NOT COVERED BY IF-ELSE\n" << CLR_NON;
 			return (config);
 		}
 	}

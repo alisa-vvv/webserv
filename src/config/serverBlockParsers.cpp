@@ -546,33 +546,50 @@ bool	fillServerAutoIndex(
 	return (fillAutoIndex(SERVER, config, token_index, tokens));
 }
 
-// std optioonal that's either a t_return or a nullopt
-// then thje caller can actually decide how to put it in
-std::optional<t_return>	fillReturn(
+static std::optional<t_return>	fillReturn(
+	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
-	std::string		redirect_target_val;
 	t_return		new_return;
+	t_config_token& first_arg = tokens.at(token_index + 1);
+	t_config_token* redirect_target_tok = &tokens.at(token_index + 1);
 
-	const t_config_token& first_arg = tokens.at(token_index + 1);
 	if (first_arg.val.length() == 3) {
+		if (first_arg.val.find_first_not_of("0123456789") != std::string::npos) {
+			return (std::nullopt);
+		}
 		const int	code_val = std::stoi(first_arg.val);
 		if (code_val < RETURN_CODE_LOWEST || code_val > RETURN_CODE_HIGHEST) {
-			// brr brr error bad return code
+			configParserError(
+				config,
+				"return code outside of allowed range",
+				"Config Error",
+				tokens.at(token_index).line_number);
 			return (std::nullopt);
 		}
 		new_return.code = code_val;
-		redirect_target_val = tokens.at(token_index + 2).val;
+		if (tokens.at(token_index + 2).type == VALUE)
+			redirect_target_tok = &tokens.at(token_index + 2);
 	}
-	else
-		redirect_target_val = tokens.at(token_index + 1).val;
-	if (redirect_target_val.find_first_of("http://") != 0
-		&& redirect_target_val.find_first_of("https://") != 0) {
-			// brr brr error bad redirect addresss
-		return (std::nullopt);
+	if (&first_arg != redirect_target_tok) {
+		if (redirect_target_tok->val.find("http://") != 0
+				&& redirect_target_tok->val.find("https://") != 0 &&
+				redirect_target_tok->val.at(0) != '/') {
+			configParserError(
+				config,
+				"return target must start with http:// or https:// if URL or with / if path",
+				"Config Error",
+				tokens.at(token_index).line_number);
+			return (std::nullopt);
+		}
+		new_return.target = redirect_target_tok->val;
 	}
-	new_return.target = redirect_target_val;
+
+	tokens.at(token_index).type = EVALUATED;
+	first_arg.type = EVALUATED;
+	redirect_target_tok->type = EVALUATED;
+
 	return (new_return);
 }
 
@@ -581,11 +598,29 @@ bool	fillServerReturn(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
-	std::optional<t_return>	new_return = fillReturn(token_index, tokens);
+	std::optional<t_return>	new_return = fillReturn(config, token_index, tokens);
 	if (new_return == std::nullopt) {
 		return (false);
 	}
 	config.servers.back().returns = *new_return;
+
+	printParserDebug(
+		"server return code field",
+		"config.servers.back().returns.code",
+		true,
+		std::nullopt,
+		std::nullopt,
+		config.servers.back().returns.code
+	);
+	printParserDebug(
+		"server return target field",
+		"config.servers.back().returns.target",
+		true,
+		config.servers.back().returns.target,
+		std::nullopt,
+		std::nullopt
+	);
+
 	return (true);
 }
 
@@ -594,11 +629,29 @@ bool	fillLocationReturn(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
-	std::optional<t_return>	new_return = fillReturn(token_index, tokens);
+	std::optional<t_return>	new_return = fillReturn(config, token_index, tokens);
 	if (new_return == std::nullopt) {
 		return (false);
 	}
 	config.servers.back().locations.back().returns = *new_return;
+
+	printParserDebug(
+		"location return code field",
+		"config.servers.back().locations.back().returns.code",
+		true,
+		std::nullopt,
+		std::nullopt,
+		config.servers.back().locations.back().returns.code
+	);
+	printParserDebug(
+		"location return target field",
+		"config.servers.back().locations.back().returns.target",
+		true,
+		config.servers.back().locations.back().returns.target,
+		std::nullopt,
+		std::nullopt
+	);
+
 	return (true);
 }
 

@@ -81,6 +81,11 @@ bool	fillServerAutoIndex(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 );
+bool	fillServerReturn(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+);
 
 /*
 * Location block parsers
@@ -111,6 +116,11 @@ bool	fillLocationCgiPass(
 	std::vector<t_config_token>& tokens
 );
 bool	fillLocationAutoIndex(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+);
+bool	fillLocationReturn(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -151,6 +161,7 @@ public:
 		fillServerMaxBodySize,
 		fillServerCgiPass,
 		fillServerAutoIndex,
+		fillServerReturn,
 	};
 
 	const std::vector<std::string>	location_valid_block_names {
@@ -169,6 +180,7 @@ public:
 		fillLocationUploadStoreField,
 		fillLocationCgiPass,
 		fillLocationAutoIndex,
+		fillLocationReturn,
 	};
 
 	const std::vector<std::string>	method_valid_names {
