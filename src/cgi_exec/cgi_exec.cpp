@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "cgi_exec.hpp"
+#include "configParser.hpp"
 #include <unistd.h>
 #include <cstdlib>
 #include <sys/wait.h>
@@ -89,7 +90,17 @@ static int	tryExecveScript(
 	return (err_check);
 }
 
-int	executeCGI() {
+char**	constructEnvironment(const cfg_server_t& server_config) {
+	const t_envVarCGI	env_var_names;
+	char**				env;
+
+	char*	new_env_var;
+	new_env_var = cgi_prefix_document_root + config.
+}
+
+int	executeCGI(
+	const cfg_server_t& server_config
+) {
 	extern char		**environ;
 	char*	argv[] { NULL, NULL, NULL };
 	argv[0] = strdup(PYTHON_EXEC);
