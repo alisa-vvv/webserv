@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/08 13:29:35 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/08 15:30:10 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ eServerError Server::_initPollEvent()
 			if (err != SERVER_OK)
 				return err;
 		}
-		_checkTimeouts();
+		//_checkTimeouts();
 	}
 	return SERVER_OK;
 }
@@ -188,57 +188,13 @@ int Server::_handleClientEvent(int i)
 	{
 		//ready for recv
 		_handleRecv(fd);
-		clientHandler(_clients.at(fd)); //->  clientHandler(Client client);
+		//clientHandler(_clients.at(fd)); //->  clientHandler(Client client);
 	}
 	if (_pollFds[i].revents & POLLOUT)
 	{
 		// ready for send to client
 	}
-}
-
-eServerError Server::_handleRecv(int clientFd)
-{
-	
-	ssize_t					bytesRead;
-	char					buffer[BUFFER_MAX];	
-	time_t					lastActivity = time(NULL);
-	int listenerFd = _clients.at(clientFd).getListenerFd();
-	bool					isBlocking = false;
-	RcvBuffer bufferObj;
-
-	bytesRead = recv(listenerFd, buffer, sizeof(buffer), 0); //recv the string, add to buffer.
-	if (bytesRead == -1)
-	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			isBlocking = true;
-			//todo: timeout check
-		else
-			return SERVER_RECV_ERR;
-	}
-	bufferObj = _clients.at(clientFd).getRcvBuffer();
-	bufferObj.checkStatus();
-	if (isBlocking)
-	{
-		//sleep?
-	}
-}
-/*
-remove clientFd from _pollFds
-erase clientFd from _clients
-*/
-void Server::_closeClientFd(int fd)
-{
-
-	for (int i = 0; i < (int)(_pollFds.size()); i++)
-	{
-		if (fd == _pollFds[i].fd)
-		{
-			_pollFds.erase(_pollFds.begin() + i);
-			break;
-		}
-	}
-	_clients.erase(fd);
-	close(fd);
+	return SERVER_OK;
 }
 
 Server::Server(const Config &config) : _config(config)

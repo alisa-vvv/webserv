@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/08 12:57:21 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/08 13:21:55 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/08 15:28:38 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,12 +60,14 @@ receiveStatus RcvBuffer::checkStatus()
 		return RECV_ERROR;
 	
 
-	if (hasContentLen && bodyReceived >= contLenCnt)
+	if (hasContentLen && bodyReceived == contLenCnt)
 		return COMPLETE;
-	
-	if (!hasContentLen)
-		return COMPLETE;
-	
+	else
+	{
+		if (!hasContentLen)
+			return COMPLETE;
+		return INCOMPLETE;
+	}
 	return (INCOMPLETE);
 }
 
@@ -75,32 +77,32 @@ receiveStatus RcvBuffer::checkStatus()
 /// @brief This is where the recv function lives. We need to refactor because the recv needs to be in the main poll loop.
 /// @param bufferObj 
 /// @param sockFd 
-/// @return COMPLETE, INCOMPLETE, TIMEOUT, SOCKET_CLOSED, RECV_ERRIR
-receiveStatus recvHttpRequest(RcvBuffer &bufferObj, int sockFd) //must take socket as param
-{
-	ssize_t			bytesRead;
-	char			buffer[4096];	
-	static const int		TIMEOUTCONST = 30;
-	time_t					lastActivity = time(NULL);
+///// @return COMPLETE, INCOMPLETE, TIMEOUT, SOCKET_CLOSED, RECV_ERRIR
+//receiveStatus recvHttpRequest(RcvBuffer &bufferObj, int sockFd) //must take socket as param
+//{
+//	ssize_t			bytesRead;
+//	char			buffer[4096];	
+//	static const int		TIMEOUTCONST = 30;
+//	time_t					lastActivity = time(NULL);
 
-	while (1)
-	{
-		//set http.setState(RECEIVING);
-		bytesRead = recv(sockFd, buffer, sizeof(buffer), 0); //recv the string, add to buffer.
-		//the buffer gets overwritten every call
-		if (bytesRead == 0) // if 0, closed
-			return SOCKET_CLOSED;
-		if (bytesRead < 0) // if -1 recv errir
-			return RECV_ERROR;
-		lastActivity = time(NULL); //change last activity to now
+//	while (1)
+//	{
+//		//set http.setState(RECEIVING);
+//		bytesRead = recv(sockFd, buffer, sizeof(buffer), 0); //recv the string, add to buffer.
+//		//the buffer gets overwritten every call
+//		if (bytesRead == 0) // if 0, closed
+//			return SOCKET_CLOSED;
+//		if (bytesRead < 0) // if -1 recv errir
+//			return RECV_ERROR;
+//		lastActivity = time(NULL); //change last activity to now
 
-		bufferObj.totalBytesReceived += bytesRead; //add recv bytes read to total bytes read
-		bufferObj.append(buffer, bytesRead); //append the buffer to the string inside the bufferObj
-		if (bufferObj.checkStatus()== COMPLETE) // //check if the request is complete with headers. 
-			return COMPLETE;
-		if (time(NULL) - lastActivity > TIMEOUTCONST) //timeout check
-			return TIMEOUT;
-		//if incomplete, keep recving. but this is probably what we need to chnge -> recv must be outside the loop
-	}
-	return MAXBYTESRECEIVED;
-}
+//		bufferObj.totalBytesReceived += bytesRead; //add recv bytes read to total bytes read
+//		bufferObj.append(buffer, bytesRead); //append the buffer to the string inside the bufferObj
+//		if (bufferObj.checkStatus()== COMPLETE) // //check if the request is complete with headers. 
+//			return COMPLETE;
+//		if (time(NULL) - lastActivity > TIMEOUTCONST) //timeout check
+//			return TIMEOUT;
+//		//if incomplete, keep recving. but this is probably what we need to chnge -> recv must be outside the loop
+//	}
+//	return MAXBYTESRECEIVED;
+//}

@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: tutku <tutku@student.42.fr>                +#+  +:+       +#+         #
+#    By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/05/12 13:35:28 by tcakir-y          #+#    #+#              #
-#    Updated: 2026/07/02 21:46:57 by tutku            ###   ########.fr        #
+#    Updated: 2026/07/08 15:27:38 by tcakir-y         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -Wall -Werror -Wextra
+CXXFLAGS = -Wall -Werror -Wextra -std=c++20
 
 # Directories
 OBJ_DIR = obj
@@ -26,7 +26,9 @@ SRC = 	main.cpp\
 		Client.cpp\
 		ListenerDebug.cpp\
 		Signal.cpp\
-		Listener.cpp
+		Listener.cpp\
+		RcvUtils.cpp\
+		RcvBuffer.cpp
 
 # Convert source file name into object file path inside obj/
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))

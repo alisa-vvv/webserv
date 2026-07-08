@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 20:52:11 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/06 20:05:51 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/08 15:37:55 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,23 @@ int Server::_isListenerFd(int fd) const
 			return 1;
 	}
 	return 0;
+}
+
+eServerError Server::_setNonBlocking(int fd)
+{
+	int flags = fcntl(fd, F_GETFL, 0);
+	if (flags == ERROR)
+	{
+		std::cerr << "Error fcntl F_GETFL: " << std::strerror(errno) << std::endl;
+		return SERVER_SETNONBLOCKING_ERR;
+	}
+	int status = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+	if (status == ERROR)
+	{
+		std::cerr << "Error making fd non-blocking: " << std::strerror(errno) << std::endl;
+		return SERVER_SETNONBLOCKING_ERR;
+	}
+	return SERVER_OK;
 }
 
 //TODO:fix and finish

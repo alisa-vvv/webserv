@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/08 13:18:16 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/08 15:44:56 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,9 @@ enum eServerError
 	SERVER_LISTENER_SETUP_ERR,
 	SERVER_POLL_ERR,
 	SERVER_ACCEPT_ERR,
-	SERVER_RECV_ERR
+	SERVER_SETNONBLOCKING_ERR,
+	SERVER_RECV_ERR,
+	SERVER_TIMEOUT_ERR
 };
 
 class Server
@@ -43,18 +45,18 @@ private:
 	void			_buildListener(void);
 	void			_addFdToPoll(int fd);
 	void			_addListenerFdsToPoll();
-
+	
 	int				_isListenerFd(int fd) const;
-
+	
 	Server(const Server &other);
 	Server			&operator=(const Server &other);
 	eServerError	_initPollEvent();
-
+	
 	eServerError	_pollEvents();
 	eServerError	_handleListenerEvent(int i);
 	int				_handleClientEvent(int i);
 	eServerError	_handleRecv(int fd);
-
+	
 	eServerError	_acceptClients(int serverListenFd);
 	eServerError	_setNonBlocking(int fd);
 	void			_checkTimeouts(); //TODO:finish
@@ -79,7 +81,6 @@ private:
 };
 
 int					setupSignal();
-
 
 #endif
 

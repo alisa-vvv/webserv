@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:35:04 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/06 19:01:23 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/08 15:43:51 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,10 +49,10 @@ enum eListenerError
 class Listener
 {
 	private:
-		int								_port;
-		uint32_t						_ip_addr;
-		int								_listenerFd;	// the server/listening socket
-		struct sockaddr_in				_address;		// address of the socket
+	int										_listenerFd;	// the server/listening socket
+		int									_port;
+		uint32_t							_ip_addr;
+		struct sockaddr_in					_address;		// address of the socket
 		std::vector<const cfg_server_t *>	_serverConfigs;
 		
 		public:
@@ -78,7 +78,7 @@ class Listener
 
 		const cfg_server_t	*getServerConfig(int i);
 		void				addServerConfig(const cfg_server_t *config);
-
+		
 		void				closeSocket();
 
 		//test

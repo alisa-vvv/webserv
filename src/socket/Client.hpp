@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:25 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/08 13:28:03 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/08 15:25:21 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,9 @@
 
 #include <iostream>
 #include <map>
+#include <vector>
 #include "RcvBuffer.hpp"
+#include "ConfigParser.hpp"
 
 /*
 client obj answers:
@@ -32,7 +34,7 @@ class Client
 		int	_listenerFd;
 		int	_clientFd;
 		RcvBuffer _rcvBuffer;
-		std::vector<const cfg_server_t *>	_serverConfigs;
+		std::vector<cfg_server_t *>	_serverConfigs;
 
 	public:
 		time_t	lastActivity;
