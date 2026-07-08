@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/06 18:59:52 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/08 13:18:16 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ enum eServerError
 	SERVER_CONFIG_ERR,
 	SERVER_LISTENER_SETUP_ERR,
 	SERVER_POLL_ERR,
-	SERVER_ACCEPT_ERR
+	SERVER_ACCEPT_ERR,
+	SERVER_RECV_ERR
 };
 
 class Server
@@ -52,6 +53,7 @@ private:
 	eServerError	_pollEvents();
 	eServerError	_handleListenerEvent(int i);
 	int				_handleClientEvent(int i);
+	eServerError	_handleRecv(int fd);
 
 	eServerError	_acceptClients(int serverListenFd);
 	eServerError	_setNonBlocking(int fd);

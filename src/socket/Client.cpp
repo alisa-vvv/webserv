@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:18 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/06 20:10:11 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/08 13:09:40 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,4 +26,9 @@ Client::Client(int listenerFd, int clientFd) : _listenerFd(listenerFd), _clientF
 Client ::~Client()
 {
 
+}
+
+int Client::getListenerFd()
+{
+	return(_listenerFd);
 }

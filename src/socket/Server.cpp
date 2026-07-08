@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/06 19:33:43 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/08 13:29:35 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,6 +187,8 @@ int Server::_handleClientEvent(int i)
 	if (_pollFds[i].revents & POLLIN)
 	{
 		//ready for recv
+		_handleRecv(fd);
+		clientHandler(_clients.at(fd)); //->  clientHandler(Client client);
 	}
 	if (_pollFds[i].revents & POLLOUT)
 	{
@@ -194,6 +196,32 @@ int Server::_handleClientEvent(int i)
 	}
 }
 
+eServerError Server::_handleRecv(int clientFd)
+{
+	
+	ssize_t					bytesRead;
+	char					buffer[BUFFER_MAX];	
+	time_t					lastActivity = time(NULL);
+	int listenerFd = _clients.at(clientFd).getListenerFd();
+	bool					isBlocking = false;
+	RcvBuffer bufferObj;
+
+	bytesRead = recv(listenerFd, buffer, sizeof(buffer), 0); //recv the string, add to buffer.
+	if (bytesRead == -1)
+	{
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			isBlocking = true;
+			//todo: timeout check
+		else
+			return SERVER_RECV_ERR;
+	}
+	bufferObj = _clients.at(clientFd).getRcvBuffer();
+	bufferObj.checkStatus();
+	if (isBlocking)
+	{
+		//sleep?
+	}
+}
 /*
 remove clientFd from _pollFds
 erase clientFd from _clients

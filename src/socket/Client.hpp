@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:25 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/06 20:09:59 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/08 13:28:03 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <map>
+#include "RcvBuffer.hpp"
 
 /*
 client obj answers:
@@ -30,13 +31,16 @@ class Client
 	private:
 		int	_listenerFd;
 		int	_clientFd;
+		RcvBuffer _rcvBuffer;
+		std::vector<const cfg_server_t *>	_serverConfigs;
 
 	public:
 		time_t	lastActivity;
 		Client();
 		Client(int listenerFd, int clientFd);
 		~Client();
-		
+		int getListenerFd();
+		RcvBuffer getRcvBuffer() { return this->_rcvBuffer;};
 };
 
 #endif
