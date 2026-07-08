@@ -41,7 +41,7 @@ tokenParserFnPtr_t	matchTokenValueToParser(
 	const t_config_token& token
 ) {
 	for (size_t i = 0; i < allowed_strings.size(); i++) {
-		if (i >= parsers.size() || parsers.size() == 0) { // this is for DEBUG only
+		if (i >= parsers.size() || parsers.size() == 0) { // this should never happen
 			std::cout << CLR_RED << "ERROR: Parser not defined for " << token.val;
 			std::cout << CLR_NON << '\n';
 			return (NULL);
