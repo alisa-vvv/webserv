@@ -41,7 +41,7 @@ tokenParserFnPtr_t	matchTokenValueToParser(
 	const t_config_token& token
 ) {
 	for (size_t i = 0; i < allowed_strings.size(); i++) {
-		if (i >= parsers.size() || parsers.size() == 0) { // this is for DEBUG only
+		if (i >= parsers.size() || parsers.size() == 0) { // this should never happen
 			std::cout << CLR_RED << "ERROR: Parser not defined for " << token.val;
 			std::cout << CLR_NON << '\n';
 			return (NULL);
@@ -121,7 +121,8 @@ Config	tokensToConfig(
 	  		}
 		}
 		else {
-			std::cout << CLR_RED << "ERROR: TOKEN TYPE NOT COVERED BY IF-ELSE\n" << CLR_NON;
+			std::cout << CLR_RED << "ERROR: TOKEN TYPE " << cur_token.val;
+			std::cout << " NOT COVERED BY IF-ELSE\n" << CLR_NON;
 			return (config);
 		}
 	}
@@ -135,6 +136,7 @@ Config	tokensToConfig(
 			return (config);
 		}
 	}
+	config.is_correct = true;
 	return (config);
 }
 
@@ -159,7 +161,7 @@ bool	locationIsValid( // move this for when we pop context stack?
 	return (true);
 }
 
-static bool checkConfigCorrectness(Config& config) {
+static bool checkConfigCompleteness(Config& config) {
 	if (config.servers.size() == 0) {
 		displayParserError("No server block found in config file", "Bad config");
 		return (false);
@@ -215,11 +217,13 @@ std::optional<Config>	parseConfig(
 	else {
 		if (arg == NULL)
 			config_path = CONFIG_PATH_DEFAULT; // do we need this?
-		config_path = arg;
+		else
+			config_path = arg;
 	}
 	std::ifstream	config_file(config_path);
 	if (!config_file.is_open()) {
-		displayParserError("Missing or inaccessible config file", std::nullopt);
+		displayParserError("Missing or inaccessible config file", "Config Error");
+		return (std::nullopt);
 	}
 
 	tokens = tokenize(config_file);
@@ -234,9 +238,13 @@ std::optional<Config>	parseConfig(
 		std::cout << "Change SHOW_CONFIG_PARSER_DEBUG define to false to turn off parser debug messages\n";
 		std::cout << CLR_NON << std::endl;
 	}
-	config.is_correct = checkConfigCorrectness(config);
 	if (!config.is_correct) {
-		displayParserError("Incorrect config. Can't start server", std::nullopt);
+		displayParserError("Incorrect config. Can't start server", "Config Error");
+		return (std::nullopt);
+	}
+	config.is_correct = checkConfigCompleteness(config);
+	if (!config.is_correct) {
+		displayParserError("Incorrect config. Can't start server", "Config Error");
 		return (std::nullopt);
 	}
 	return (config);

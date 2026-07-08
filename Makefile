@@ -56,7 +56,7 @@ INCFLAGS	= $(addprefix -I,$(INCLUDE))
 #CFLAGS	= -Wall -Wextra -Werror
 CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined -std=c++20
 LDFLAGS	=
-INPUT	=
+INPUT	= config/test.conf
 
 
 -include $(OFILES:.o=.d)
