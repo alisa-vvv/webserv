@@ -216,7 +216,8 @@ std::optional<Config>	parseConfig(
 	else {
 		if (arg == NULL)
 			config_path = CONFIG_PATH_DEFAULT; // do we need this?
-		config_path = arg;
+		else
+			config_path = arg;
 	}
 	std::ifstream	config_file(config_path);
 	if (!config_file.is_open()) {
