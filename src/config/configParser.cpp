@@ -40,38 +40,30 @@ void	matchTokenToContext(
 }
 
 tokenParserFnPtr_t	matchTokenValueToParser(
-	const std::vector<std::string> allowed_strings,
-	const std::vector<tokenParserFnPtr_t> parsers,
+	std::map<std::string, tokenParserFnPtr_t> parsers,
 	const t_config_token& token,
 	std::stack<UniqueBlockMap>& unique_checker,
 	e_context cur_context
 ) {
-	for (size_t i = 0; i < allowed_strings.size(); i++) {
-		if (i >= parsers.size() || parsers.size() == 0) { // this should never happen
-			std::cout << CLR_RED << "ERROR: Parser not defined for " << token.val;
-			std::cout << CLR_NON << '\n';
-			return (NULL);
-		}
-		if (token.val == allowed_strings.at(i)) {
-			// 1. check if the token string is in list of unique blocks
-			// 2. if it is, check the value of the bool mapped to the name
-			// 3. if the bool is true, report duplicate error and return null
-			//    if the bool is false, set it to true and continue
-			if (!unique_checker.empty()
+	if (parsers.contains(token.val)) {
+		// 1. check if the token string is in list of unique blocks
+		// 2. if it is, check the value of the bool mapped to the name
+		// 3. if the bool is true, report duplicate error and return null
+		//    if the bool is false, set it to true and continue
+		if (!unique_checker.empty()
 				&& unique_checker.top().map.contains(token.val)) {
-				if (unique_checker.top().map[token.val] == true) {
-					std::cout << CLR_RED << "Error: ";
-					std::cout << "duplicate block " << token.val << " on line ";
-					std::cout << token.line_number;
-					std::cout << CLR_NON << '\n';
-					return (NULL);
-				}	
-				else {
-					unique_checker.top().map[token.val] = true;
-				}
+			if (unique_checker.top().map[token.val] == true) {
+				std::cout << CLR_RED << "Error: ";
+				std::cout << "duplicate block " << token.val << " on line ";
+				std::cout << token.line_number;
+				std::cout << CLR_NON << '\n';
+				return (NULL);
+			}	
+			else {
+				unique_checker.top().map[token.val] = true;
 			}
-	  		return (parsers.at(i));
 		}
+		return (parsers[token.val]);
 	}
 	std::cout << CLR_RED << "Error: ";
 	std::cout << "Line " << token.line_number << ": block of type " << token.val;
@@ -97,22 +89,18 @@ tokenParserFnPtr_t	matchTokenValueToParserAccordingToContext(
 	std::stack<e_context>& context_stack,
 	std::stack<UniqueBlockMap>& unique_checker
 ) {
-	std::vector<std::string>		allowed_strings;
-	std::vector<tokenParserFnPtr_t>	parsers;
+	std::map<std::string, tokenParserFnPtr_t>	parsers;
 
 	if (context_stack.top() == GLOBAL) {
-		allowed_strings = parsing_info.global_valid_block_names;
-		parsers = parsing_info.global_matching_functions;
+		parsers = parsing_info.global_block_parsers;
 	}
 	if (context_stack.top() == SERVER) {
-		allowed_strings = parsing_info.server_valid_block_names;
-		parsers = parsing_info.server_matching_functions;
+		parsers = parsing_info.server_block_parsers;
 	}
 	if (context_stack.top() == LOCATION) {
-		allowed_strings = parsing_info.location_valid_block_names;
-		parsers = parsing_info.location_matching_functions;
+		parsers = parsing_info.location_block_parsers;
 	}
-	return (matchTokenValueToParser(allowed_strings, parsers,
+	return (matchTokenValueToParser(parsers,
 								 token, unique_checker, context_stack.top()));
 }
 

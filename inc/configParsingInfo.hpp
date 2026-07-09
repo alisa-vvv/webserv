@@ -143,53 +143,29 @@ bool	fillLocationReturn(
 // values inside a Config instance.
 class	ParsingInfo {
 public:
-	const std::vector<std::string>	global_valid_block_names {
-		"server",
-	};
-	const std::vector<tokenParserFnPtr_t>	global_matching_functions {
-		(tokenParserFnPtr_t) fillServerField,
+	const std::map<std::string, tokenParserFnPtr_t>	global_block_parsers {
+		{ "server", fillServerField },
 	};
 
-	// CHANGE THESE THINGS TO MAPS
-
-	const std::vector<std::string>	server_valid_block_names {
-		"server_name",
-		"listen",
-		"root",
-		"location",
-		"error_page",
-		"client_max_body_size",
-		"cgi_pass",
-		"autoindex",
-	};
-	const std::vector<tokenParserFnPtr_t>	server_matching_functions {
-		fillServerNameField,
-		fillListenField,
-		fillServerRootField,
-		fillServerLocationField,
-		fillServerErrorPageField,
-		fillServerMaxBodySize,
-		fillServerCgiPass,
-		fillServerAutoIndex,
+	const std::map<std::string, tokenParserFnPtr_t>	server_block_parsers {
+		{ "server_name", fillServerNameField },
+		{ "listen", fillListenField },
+		{ "root", fillServerRootField },
+		{ "location", fillServerLocationField },
+		{ "error_page", fillServerErrorPageField },
+		{ "client_max_body_size", fillServerMaxBodySize },
+		{ "cgi_pass", fillServerCgiPass },
+		{ "autoindex", fillServerAutoIndex },
 	};
 
-	const std::vector<std::string>	location_valid_block_names {
-		"root",
-		"index",
-		"allowed_methods",
-		"upload_store",
-		"cgi_pass",
-		"autoindex",
-		"return",
-	};
-	const std::vector<tokenParserFnPtr_t>	location_matching_functions {
-		fillLocationRootField,
-		fillLocationIndexField,
-		fillLocationAllowedMethodsField,
-		fillLocationUploadStoreField,
-		fillLocationCgiPass,
-		fillLocationAutoIndex,
-		fillLocationReturn,
+	const std::map<std::string, tokenParserFnPtr_t>	location_block_parsers {
+		{ "root", fillLocationRootField },
+		{ "index", fillLocationIndexField },
+		{ "allowed_methods", fillLocationAllowedMethodsField },
+		{ "upload_store", fillLocationUploadStoreField },
+		{ "cgi_pass", fillLocationCgiPass },
+		{ "autoindex", fillLocationAutoIndex },
+		{ "return", fillLocationReturn },
 	};
 
 	const std::vector<std::string>	method_valid_names {
