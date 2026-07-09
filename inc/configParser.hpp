@@ -126,7 +126,6 @@ typedef struct cfg_server_t {
 	std::vector<t_location>		locations;
 	t_cgi_pass					cgi_pass; // opt
 	bool						autoindex = false;
-	t_return					returns; // opt
 }	cfg_server_t;
 /*
 */

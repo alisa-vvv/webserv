@@ -22,23 +22,28 @@
 
 void	matchTokenToContext(
 	const t_config_token& token,
-	std::stack<e_context>& context
+	std::stack<e_context>& context,
+	std::stack<UniqueBlockMap>& unique_checker
 ) {
 	if (context.top() == GLOBAL) {
 		if (token.val == "server") {
 			context.push(SERVER);
+			unique_checker.push(UniqueBlockMap());
 		}
 	}
 	else if (context.top() == SERVER) {
-		if (token.val == "location")
+		if (token.val == "location") {
 			context.push(LOCATION);
+			unique_checker.push(UniqueBlockMap());
+		}
 	}
 }
 
 tokenParserFnPtr_t	matchTokenValueToParser(
 	const std::vector<std::string> allowed_strings,
 	const std::vector<tokenParserFnPtr_t> parsers,
-	const t_config_token& token
+	const t_config_token& token,
+	std::stack<UniqueBlockMap>& unique_checker
 ) {
 	for (size_t i = 0; i < allowed_strings.size(); i++) {
 		if (i >= parsers.size() || parsers.size() == 0) { // this should never happen
@@ -47,6 +52,23 @@ tokenParserFnPtr_t	matchTokenValueToParser(
 			return (NULL);
 		}
 		if (token.val == allowed_strings.at(i)) {
+			// 1. check if the token string is in list of unique blocks
+			// 2. if it is, check the value of the bool mapped to the name
+			// 3. if the bool is true, report duplicate error and return null
+			//    if the bool is false, set it to true and continue
+			if (!unique_checker.empty()
+				&& unique_checker.top().map.contains(token.val)) {
+				if (unique_checker.top().map[token.val] == true) {
+					std::cout << CLR_RED << "Error: ";
+					std::cout << "duplicate block " << token.val << " on line ";
+					std::cout << token.line_number;
+					std::cout << CLR_NON << '\n';
+					return (NULL);
+				}	
+				else {
+					unique_checker.top().map[token.val] = true;
+				}
+			}
 	  		return (parsers.at(i));
 		}
 	}
@@ -56,7 +78,8 @@ tokenParserFnPtr_t	matchTokenValueToParser(
 tokenParserFnPtr_t	matchTokenValueToParserAccordingToContext(
 	const ParsingInfo parsing_info,
 	const t_config_token& token,
-	std::stack<e_context>& context_stack
+	std::stack<e_context>& context_stack,
+	std::stack<UniqueBlockMap>& unique_checker
 ) {
 	std::vector<std::string>		allowed_strings;
 	std::vector<tokenParserFnPtr_t>	parsers;
@@ -73,16 +96,17 @@ tokenParserFnPtr_t	matchTokenValueToParserAccordingToContext(
 		allowed_strings = parsing_info.location_valid_block_names;
 		parsers = parsing_info.location_matching_functions;
 	}
-	return (matchTokenValueToParser(allowed_strings, parsers, token));
+	return (matchTokenValueToParser(allowed_strings, parsers, token, unique_checker));
 }
 
 Config	tokensToConfig(
 	const ParsingInfo parsing_info,
 	std::vector<t_config_token>& tokens
 ) {
-	Config					config;
-	std::stack<e_context>	context_stack;
-	tokenParserFnPtr_t		parser = NULL;
+	Config						config;
+	std::stack<e_context>		context_stack;
+	std::stack<UniqueBlockMap>	unique_checker;
+	tokenParserFnPtr_t			parser = NULL;
 
 	context_stack.push(GLOBAL);
 	t_config_token&	cur_token = tokens.at(0);
@@ -97,6 +121,8 @@ Config	tokensToConfig(
 		}
 		else if (cur_token.type == BRACE_CLOSE) {
 			context_stack.pop();
+			if (!unique_checker.empty())
+				unique_checker.pop();
 			if (SHOW_CONFIG_PARSER_DEBUG == true) {
 				std::cout << "Skipping close brace token No." << i << ": ";
 				std::cout << cur_token.val << '\n';
@@ -108,16 +134,15 @@ Config	tokensToConfig(
 				std::cout << cur_token.val << '\n';
 			}
 			parser = matchTokenValueToParserAccordingToContext(
-				parsing_info, cur_token, context_stack);
+				parsing_info, cur_token, context_stack, unique_checker);
 			if (parser == NULL) {
-				std::cout << CLR_RED << "SOMETHING SOMETHING ERROR\n" << CLR_NON;
 				return (config);
 			}
 			else {
 				if ((*parser)(config, i, tokens) == false) {
 					return (config);
 				}
-				matchTokenToContext(cur_token, context_stack);
+				matchTokenToContext(cur_token, context_stack, unique_checker);
 	  		}
 		}
 		else {

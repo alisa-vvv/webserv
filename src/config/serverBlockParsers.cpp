@@ -601,37 +601,6 @@ static std::optional<t_return>	fillReturn(
 	return (new_return);
 }
 
-bool	fillServerReturn(
-	Config& config,
-	const size_t& token_index,
-	std::vector<t_config_token>& tokens
-) {
-	std::optional<t_return>	new_return = fillReturn(config, token_index, tokens);
-	if (new_return == std::nullopt) {
-		return (false);
-	}
-	config.servers.back().returns = *new_return;
-
-	printParserDebug(
-		"server return code field",
-		"config.servers.back().returns.code",
-		true,
-		std::nullopt,
-		std::nullopt,
-		config.servers.back().returns.code
-	);
-	printParserDebug(
-		"server return target field",
-		"config.servers.back().returns.target",
-		true,
-		config.servers.back().returns.target,
-		std::nullopt,
-		std::nullopt
-	);
-
-	return (true);
-}
-
 bool	fillLocationReturn(
 	Config& config,
 	const size_t& token_index,

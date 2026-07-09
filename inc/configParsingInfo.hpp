@@ -26,12 +26,28 @@ typedef enum	e_context {
 	LOCATION,
 }	e_context;
 
+
 // Function pointer type for token parsers
 typedef bool	(*tokenParserFnPtr_t)(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 );
+
+class	UniqueBlockMap {
+public:
+	std::map<std::string, bool> map {
+		{ "prefix", false },
+		{ "root", false },
+		{ "client_max_body_size", false },
+		{ "cgi_pass", false},
+		{ "autoindex", false },
+		{ "index", false },
+		{ "allowed_methods", false },
+		{ "return", false },
+	};
+private:
+};
 
 /*
  * Server block Parsers
@@ -77,11 +93,6 @@ bool	fillServerCgiPass(
 	std::vector<t_config_token>& tokens
 );
 bool	fillServerAutoIndex(
-	Config& config,
-	const size_t& token_index,
-	std::vector<t_config_token>& tokens
-);
-bool	fillServerReturn(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
@@ -150,7 +161,6 @@ public:
 		"client_max_body_size",
 		"cgi_pass",
 		"autoindex",
-		"return"
 	};
 	const std::vector<tokenParserFnPtr_t>	server_matching_functions {
 		fillServerNameField,
@@ -161,7 +171,6 @@ public:
 		fillServerMaxBodySize,
 		fillServerCgiPass,
 		fillServerAutoIndex,
-		fillServerReturn,
 	};
 
 	const std::vector<std::string>	location_valid_block_names {
