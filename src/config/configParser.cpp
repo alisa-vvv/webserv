@@ -182,22 +182,6 @@ Config	tokensToConfig(
 	return (config);
 }
 
-bool	locationIsValid( // move this for when we pop context stack?
-	const t_location& location,
-	const size_t server_index,
-	const size_t location_index
-) {
-	if (location.prefix.size() == 0) {
-		locationValidationError("missing prefix", server_index, location_index);
-		return (false);
-	}
-	if (location.index.size() == 0 && location.cgi_pass.path.size() == 0) {
-		locationValidationError("missing index", server_index, location_index);
-		return (false);
-	}
-	return (true);
-}
-
 static bool checkConfigCompleteness(Config& config) {
 	if (config.servers.size() == 0) {
 		displayParserError("No server block found in config file", "Bad config");
