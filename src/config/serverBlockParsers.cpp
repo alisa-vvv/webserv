@@ -16,6 +16,48 @@
 #include <iostream>
 #include <arpa/inet.h>
 
+static bool	argumentNotValidPath(
+	Config& config,
+	const std::vector<t_config_token>& tokens,
+	const size_t token_index,
+	const size_t arg_index
+) {
+	if (!pathIsValid(tokens.at(arg_index).val)) {
+		const std::string	error_msg =
+			"value of field " + tokens.at(token_index).val + " " +
+			"is not a valid path";
+		configParserError(
+			config,
+			error_msg,
+			"Config Error",
+			tokens.at(arg_index).line_number);
+		return (true);
+	}
+	return (false);
+}
+
+static bool	isAboveMaxArgs(
+	Config& config,
+	const int max_args,
+	const std::vector<t_config_token>& tokens,
+	const size_t token_index
+) {
+	if (tokens.at(token_index + 1 + max_args).type == VALUE) {
+		const std::string	error_msg =
+			"field " + tokens.at(token_index).val + " can only have " +
+			std::to_string(max_args) + ' ' +
+			((max_args > 1) ? "arguments":"argument");
+
+		configParserError(
+			config,
+			error_msg,
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (true);
+	}
+	return (false);
+}
+
 bool	fillServerField(
 	Config& config,
 	const size_t& token_index,
@@ -24,25 +66,23 @@ bool	fillServerField(
 	cfg_server_t	new_server;
 
 	config.servers.push_back(new_server);
-	config.is_correct = false;
 	tokens.at(token_index).type = EVALUATED;
 	return (true);
 }
 
+// 1. has to be a path - DONE
+// 2. only one arg - DONE
 static bool	fillRootField(
 	e_context context,
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
-	if (!pathIsValid(tokens.at(token_index + 1).val)) {
-		configParserError(
-			config,
-			"value of field root is not a valid path",
-			"Config Error",
-			tokens.at(token_index).line_number);
+	if (isAboveMaxArgs(config, 1, tokens, token_index))
 		return (false);
-	}
+	if (argumentNotValidPath(config, tokens, token_index, token_index + 1))
+		return (false);
+
 	if (context == LOCATION) {
 		config.servers.back().locations.back().root = tokens.at(token_index + 1).val;
 		printParserDebug(
@@ -70,12 +110,18 @@ static bool	fillRootField(
 	return (true);
 }
 
+// 1. first argument has to be an allowed extension - DONE
+// 2. second argument has to be a valid path - DONE
+// 3. maximum two arguments - DONE
 static bool	fillCgiPass(
 	e_context context,
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 2, tokens, token_index))
+		return (false);
+
 	t_config_token	ext_token = tokens.at(token_index + 1);
 	t_config_token	path_token = tokens.at(token_index + 2);
 
@@ -111,15 +157,10 @@ static bool	fillCgiPass(
 			tokens.at(token_index).line_number);
 		return (false);
 	}
-	if (!pathIsValid(path_token.val)) {
-		configParserError(
-			config,
-			"invalid path to CGI in cgi_pass",
-			"Config Error",
-			tokens.at(token_index).line_number);
+	if (argumentNotValidPath(config, tokens, token_index, token_index + 2))
 		return (false);
-	}
 	*path_store = path_token.val;
+
 	tokens.at(token_index).type = EVALUATED;
 	tokens.at(token_index + 1).type = EVALUATED;
 	tokens.at(token_index + 2).type = EVALUATED;
@@ -160,15 +201,21 @@ static bool	fillCgiPass(
 						std::nullopt
 		);
 	}
+
 	return (true);
 }
 
+// 1. can only be "on" or "off" - DONE.
+// 2. can only have 1 argument - DONE.
 static bool	fillAutoIndex(
 	e_context context,
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 1, tokens, token_index))
+		return (false);
+
 	bool*	store;
 	if (context == SERVER) {
 		store = &config.servers.back().autoindex;
@@ -218,6 +265,7 @@ static bool	fillAutoIndex(
 	return (true);
 }
 
+// no special conditions
 bool	fillServerNameField(
 	Config& config,
 	const size_t& token_index,
@@ -247,6 +295,7 @@ bool	fillServerNameField(
 	return (true);
 }
 
+// todo this.
 bool	fillListenField(
 	Config& config,
 	const size_t& token_index,
@@ -355,22 +404,19 @@ bool	fillListenField(
 	return (true);
 }
 
+// has to be a valid path - DONE.
+// can ony be one arg - DONE.
+
 bool	fillServerRootField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
-	if (config.servers.back().root.size() != 0) {
-		configParserError(
-			config,
-			"duplicate root fields",
-			"Config Error",
-			tokens.at(token_index).line_number);
-		return (false);
-	}
 	return (fillRootField(SERVER, config, token_index, tokens));
 }
 
+// needs a prefix - DONE.
+// prefix needs to be a path - DONE.
 bool	fillServerLocationField(
 	Config& config,
 	const size_t& token_index,
@@ -405,11 +451,17 @@ bool	fillServerLocationField(
 	return (true);
 }
 
+// 1. can have a maximum of two arguments - DONE.
+// 2. needs to have a code and an html page - DONE
+// 3. code needs to be within error range - DONE.
 bool	fillServerErrorPageField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 2, tokens, token_index))
+		return (false);
+
 	int				error_code;
 	t_config_token&	error_code_token = tokens.at(token_index + 1);
 	t_config_token&	error_page_token = tokens.at(token_index + 2);
@@ -418,7 +470,7 @@ bool	fillServerErrorPageField(
 		&& error_page_token.type != VALUE) {
 		configParserError(
 			config,
-			"HTML error field needs to keys: error code and error page path",
+			"HTML error field needs two values: error code and error page path",
 			"Config Error",
 			tokens.at(token_index).line_number);
 		return (false);
@@ -449,20 +501,15 @@ bool	fillServerErrorPageField(
 			tokens.at(token_index).line_number);
 		return (false);
 	}
-	if (!pathIsValid(error_page_token.val)) {
-		configParserError(
-			config,
-			"error page path must begin with a forward slash",
-			"Config Error",
-			tokens.at(token_index).line_number);
+	if (argumentNotValidPath(config, tokens, token_index, token_index + 2))
 		return (false);
-	}
 	auto it = config.servers.back().error_pages.find(error_code);
 	if (it != config.servers.back().error_pages.end()) {
 		config.servers.back().error_pages[error_code] = error_page_token.val;
 	}
 	else
 		config.servers.back().error_pages.insert({error_code, error_page_token.val});
+
 	tokens.at(token_index).type = EVALUATED;
 	error_code_token.type = EVALUATED;
 	error_page_token.type = EVALUATED;
@@ -487,18 +534,23 @@ bool	fillServerErrorPageField(
 	return (true);
 }
 
+// 1. can only be one arguent - DONE.
+// 2. has to be a number or a number + M or m - DONE.
+// 3. number has to be lower than defined maximum - DONE.
 bool	fillServerMaxBodySize(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 1, tokens, token_index))
+		return (false);
+
 	t_config_token&	size_token = tokens.at(token_index + 1);
 
-	// add check for if it's bigger than max value
 	if (size_token.val.length() > lengthOfInt(CLIENT_MAX_BODY_SIZE)) {
 		configParserError(
 			config,
-			"value for client_max_body_size option is too long",
+			"value for client_max_body_size option is too big",
 			"Config Error",
 			tokens.at(token_index).line_number);
 		return (false);
@@ -518,7 +570,7 @@ bool	fillServerMaxBodySize(
 	if (config.servers.back().client_max_body_size > CLIENT_MAX_BODY_SIZE) {
 		configParserError(
 			config,
-			"value for client_max_body_size to big",
+			"value for client_max_body_size too big",
 			"Config Error",
 			tokens.at(token_index).line_number);
 		return (false);
@@ -554,11 +606,17 @@ bool	fillServerAutoIndex(
 	return (fillAutoIndex(SERVER, config, token_index, tokens));
 }
 
+// 1. can have a maximum of two (three if we do strings) max. arguments - DONE.
+// 2. first argument is either error code or a URI - DONE.
+// 3. error code must be within defined range - DONE.
+// 4. URI must be a path or an http link - DONE.
 static std::optional<t_return>	fillReturn(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 2, tokens, token_index))
+		return (std::nullopt);
 	t_return		new_return;
 	t_config_token& first_arg = tokens.at(token_index + 1);
 	t_config_token* redirect_target_tok = &tokens.at(token_index + 1);
@@ -731,7 +789,6 @@ bool	fillLocationAllowedMethodsField(
 
 	for (int j = token_index; j < i; j++) {
 		tokens.at(j).type = EVALUATED;
-
 	}
 
 	return (true);
