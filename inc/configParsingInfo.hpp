@@ -17,6 +17,8 @@
 #include <vector>
 
 #define CLIENT_MAX_BODY_SIZE 1000
+#define RETURN_CODE_LOWEST 300
+#define RETURN_CODE_HIGHEST 399
 
 typedef enum	e_context {
 	GLOBAL,
@@ -79,6 +81,11 @@ bool	fillServerAutoIndex(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 );
+bool	fillServerReturn(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+);
 
 /*
 * Location block parsers
@@ -113,6 +120,11 @@ bool	fillLocationAutoIndex(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 );
+bool	fillLocationReturn(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+);
 /**/
 
 // Contains vectors with allowed block names.
@@ -138,6 +150,7 @@ public:
 		"client_max_body_size",
 		"cgi_pass",
 		"autoindex",
+		"return"
 	};
 	const std::vector<tokenParserFnPtr_t>	server_matching_functions {
 		fillServerNameField,
@@ -148,6 +161,7 @@ public:
 		fillServerMaxBodySize,
 		fillServerCgiPass,
 		fillServerAutoIndex,
+		fillServerReturn,
 	};
 
 	const std::vector<std::string>	location_valid_block_names {
@@ -166,6 +180,7 @@ public:
 		fillLocationUploadStoreField,
 		fillLocationCgiPass,
 		fillLocationAutoIndex,
+		fillLocationReturn,
 	};
 
 	const std::vector<std::string>	method_valid_names {

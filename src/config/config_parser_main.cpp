@@ -15,8 +15,10 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-int	main(void) {
-	char* config_file_path = NULL; // path to config file
+int	main(int argc, char** argv) {
+	if (argc != 2)
+		return (1);
+	char* config_file_path = argv[1]; // path to config file
 	std::optional<Config>	parse_config_ret = parseConfig(config_file_path);
 	if (parse_config_ret == std::nullopt) { // error during parsing.
 		return (1);

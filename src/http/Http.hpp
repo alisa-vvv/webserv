@@ -13,6 +13,7 @@ static const int FAILURE = -1;
 /*HTTP ERROR CODES*/
 static const int HTTP_OK = 200; //ok!
 static const int HTTP_CREATED = 201; //1xx 2xx 3xx
+static const int HTTP_MOVED_PERMANENTLY = 301; //moved permanently
 static const int HTTP_BAD_REQUEST = 400; //client error
 static const int HTTP_UNAUTHORIZED = 401; //no valid credentials, no login, expired token, wrong password etc
 static const int HTTP_FORBIDDEN = 403; //no permission to access resource

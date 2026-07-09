@@ -30,6 +30,14 @@ desc: do we just use the first server as default?
 ticket14:
 item: client_max_body_size defaults to -1 -> if it is not initialized, is that ok? or will cnfig validation throw an error 
 
+ticket15
+item: return alisa
+description: does she already block if status is >300 <400- others only handle 301....
+
+ticket16
+item: connection keep alive
+description: 	//should i set header for connection keep alive?
+
 =========================
 
 

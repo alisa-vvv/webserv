@@ -25,5 +25,5 @@ void Http::handleGetResponse()
 		setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 		return;
 	}
-
+	setContentType();
 }

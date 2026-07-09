@@ -25,11 +25,11 @@ void Http::handleAutoIndexResponse()
 }
 
 void Http::handleReturnResponse()
-{
-	//if code < 300 or code > 300
-	//error internal server
-	//setresponsecode to redirect code
-	//set responseheader ("Location", redirect target)
-	//setbody to empty
-	//setstate ready to send
+{ //ticket15
+	if (requestConfig->location->returns->status > 300 && requestConfig->location->returns->status < 400)
+		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
+	setResponseCode(HTTP_MOVED_PERMANENTLY);
+	setResponseHeader("Location:", requestConfig->location->returns->target);
+	setBody("");
+	setState(READY_TO_SEND);
 }

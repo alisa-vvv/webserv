@@ -360,6 +360,14 @@ bool	fillServerRootField(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (config.servers.back().root.size() != 0) {
+		configParserError(
+			config,
+			"duplicate root fields",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
 	return (fillRootField(SERVER, config, token_index, tokens));
 }
 
@@ -454,7 +462,7 @@ bool	fillServerErrorPageField(
 		config.servers.back().error_pages[error_code] = error_page_token.val;
 	}
 	else
-	config.servers.back().error_pages.insert({error_code, error_page_token.val});
+		config.servers.back().error_pages.insert({error_code, error_page_token.val});
 	tokens.at(token_index).type = EVALUATED;
 	error_code_token.type = EVALUATED;
 	error_page_token.type = EVALUATED;
@@ -507,7 +515,7 @@ bool	fillServerMaxBodySize(
 		return (false);
 	}
 	config.servers.back().client_max_body_size = std::stol(size_token.val);
-	if (config.servers.back().client_max_body_size > CLIENT_MAX_BODY_SIZE) { // ADD ACTUAL VALUE
+	if (config.servers.back().client_max_body_size > CLIENT_MAX_BODY_SIZE) {
 		configParserError(
 			config,
 			"value for client_max_body_size to big",
@@ -544,6 +552,115 @@ bool	fillServerAutoIndex(
 	std::vector<t_config_token>& tokens
 ) {
 	return (fillAutoIndex(SERVER, config, token_index, tokens));
+}
+
+static std::optional<t_return>	fillReturn(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	t_return		new_return;
+	t_config_token& first_arg = tokens.at(token_index + 1);
+	t_config_token* redirect_target_tok = &tokens.at(token_index + 1);
+
+	if (first_arg.val.length() == 3) {
+		if (first_arg.val.find_first_not_of("0123456789") != std::string::npos) {
+			return (std::nullopt);
+		}
+		const int	code_val = std::stoi(first_arg.val);
+		if (code_val < RETURN_CODE_LOWEST || code_val > RETURN_CODE_HIGHEST) {
+			configParserError(
+				config,
+				"return code outside of allowed range",
+				"Config Error",
+				tokens.at(token_index).line_number);
+			return (std::nullopt);
+		}
+		new_return.code = code_val;
+		if (tokens.at(token_index + 2).type == VALUE)
+			redirect_target_tok = &tokens.at(token_index + 2);
+	}
+	if (&first_arg != redirect_target_tok) {
+		if (redirect_target_tok->val.find("http://") != 0
+				&& redirect_target_tok->val.find("https://") != 0 &&
+				redirect_target_tok->val.at(0) != '/') {
+			configParserError(
+				config,
+				"return target must start with http:// or https:// if URL or with / if path",
+				"Config Error",
+				tokens.at(token_index).line_number);
+			return (std::nullopt);
+		}
+		new_return.target = redirect_target_tok->val;
+	}
+
+	tokens.at(token_index).type = EVALUATED;
+	first_arg.type = EVALUATED;
+	redirect_target_tok->type = EVALUATED;
+
+	return (new_return);
+}
+
+bool	fillServerReturn(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	std::optional<t_return>	new_return = fillReturn(config, token_index, tokens);
+	if (new_return == std::nullopt) {
+		return (false);
+	}
+	config.servers.back().returns = *new_return;
+
+	printParserDebug(
+		"server return code field",
+		"config.servers.back().returns.code",
+		true,
+		std::nullopt,
+		std::nullopt,
+		config.servers.back().returns.code
+	);
+	printParserDebug(
+		"server return target field",
+		"config.servers.back().returns.target",
+		true,
+		config.servers.back().returns.target,
+		std::nullopt,
+		std::nullopt
+	);
+
+	return (true);
+}
+
+bool	fillLocationReturn(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	std::optional<t_return>	new_return = fillReturn(config, token_index, tokens);
+	if (new_return == std::nullopt) {
+		return (false);
+	}
+	config.servers.back().locations.back().returns = *new_return;
+
+	printParserDebug(
+		"location return code field",
+		"config.servers.back().locations.back().returns.code",
+		true,
+		std::nullopt,
+		std::nullopt,
+		config.servers.back().locations.back().returns.code
+	);
+	printParserDebug(
+		"location return target field",
+		"config.servers.back().locations.back().returns.target",
+		true,
+		config.servers.back().locations.back().returns.target,
+		std::nullopt,
+		std::nullopt
+	);
+
+	return (true);
 }
 
 bool	fillLocationRootField(
