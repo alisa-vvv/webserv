@@ -63,7 +63,7 @@ static e_state_label	findValues(
 	if (tokens.at(i).val.back() != ';') {
 		return (FINDING_VALUES);
 	}
-	tokens.at(i).val.pop_back(); // remove ;
+	tokens.at(i).val.pop_back();
 	in_keyval = false;
 	return (FINDING_BLOCK);
 }
@@ -103,7 +103,7 @@ static void	evalTokensError(int depth, bool in_keyval) {
 		std::cout << "\tMissing a closing brace in a block";
 	if (depth < 0)
 		std::cout << "\tMissing an opening brace in a block";
-	std::cout << "\n";
+	std::cout << CLR_NON << "\n";
 }
 
 int	evaluateTokens(std::vector<t_config_token>& tokens) {
@@ -128,7 +128,8 @@ int	evaluateTokens(std::vector<t_config_token>& tokens) {
 			if (SHOW_CONFIG_PARSER_DEBUG == true) {
 				std::cout << "evalled token: ";
 				TEST_print_one_token(tokens.at(i), i);
-				std::cout << "after FINDING_BLOCK, returned: " << TEST_state_to_str(cur_state) << '\n';
+				std::cout << "after FINDING_BLOCK, returned: "
+					<< TEST_state_to_str(cur_state) << '\n';
 			}
 		}
 		else if (cur_state == FINDING_VALUES) {
@@ -136,13 +137,9 @@ int	evaluateTokens(std::vector<t_config_token>& tokens) {
 			if (SHOW_CONFIG_PARSER_DEBUG == true) {
 				std::cout << "evalled token: ";
 				TEST_print_one_token(tokens.at(i), i);
-				std::cout << "after FINDING_VALUES, returned: " << TEST_state_to_str(cur_state) << '\n';
+				std::cout << "after FINDING_VALUES, returned: "
+					<< TEST_state_to_str(cur_state) << '\n';
 			}
-		}
-		// this else should never happen unless things are broken. remove later!
-		else {
-			std::cout << "breaking nwes: \n" << TEST_state_to_str(cur_state) << '\n';
-			break ;
 		}
 	}
 	if (in_keyval == true || depth != 0) {

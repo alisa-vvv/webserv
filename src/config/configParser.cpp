@@ -43,7 +43,7 @@ tokenParserFnPtr_t	matchTokenValueToParser(
 	std::map<std::string, tokenParserFnPtr_t> parsers,
 	const t_config_token& token,
 	std::stack<UniqueBlockMap>& unique_checker,
-	e_context cur_context
+	const e_context cur_context
 ) {
 	if (parsers.contains(token.val)) {
 		// 1. check if the token string is in list of unique blocks
@@ -188,7 +188,7 @@ static bool checkConfigCompleteness(Config& config) {
 			displayParserError("Max body size not specified for server block", "Bad config");
 			return (false);
 		}
-		// add default error pages here!
+		// add default error pages here! -- why?
 		if (cur_serv.locations.size() == 0) {
 			displayParserError("No locations were specified for the server", "Bad config");
 			return (false);

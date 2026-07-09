@@ -21,7 +21,7 @@ bool	tokenIsAlpha(t_config_token& token) {
 	return (true);
 }
 
-bool	pathIsValid(std::string path) { // add more checks here
+bool	pathIsValid(std::string path) { // add more checks here if needed.
 	if (path.at(0) != '/')
 		return (false);
 	return (true);
