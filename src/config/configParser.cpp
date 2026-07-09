@@ -43,7 +43,8 @@ tokenParserFnPtr_t	matchTokenValueToParser(
 	const std::vector<std::string> allowed_strings,
 	const std::vector<tokenParserFnPtr_t> parsers,
 	const t_config_token& token,
-	std::stack<UniqueBlockMap>& unique_checker
+	std::stack<UniqueBlockMap>& unique_checker,
+	e_context cur_context
 ) {
 	for (size_t i = 0; i < allowed_strings.size(); i++) {
 		if (i >= parsers.size() || parsers.size() == 0) { // this should never happen
@@ -72,6 +73,21 @@ tokenParserFnPtr_t	matchTokenValueToParser(
 	  		return (parsers.at(i));
 		}
 	}
+	std::cout << CLR_RED << "Error: ";
+	std::cout << "Line " << token.line_number << ": block of type " << token.val;
+	std::cout << " not allowed inside ";
+	switch (cur_context) {
+		case GLOBAL:
+			std::cout << "global context";
+			break ;
+		case SERVER:
+			std::cout << "server block context";
+			break ;
+		case LOCATION:
+			std::cout << "location block context";
+			break ;
+	}
+	std::cout << CLR_NON << '\n';
 	return (NULL);
 }
 
@@ -96,7 +112,8 @@ tokenParserFnPtr_t	matchTokenValueToParserAccordingToContext(
 		allowed_strings = parsing_info.location_valid_block_names;
 		parsers = parsing_info.location_matching_functions;
 	}
-	return (matchTokenValueToParser(allowed_strings, parsers, token, unique_checker));
+	return (matchTokenValueToParser(allowed_strings, parsers,
+								 token, unique_checker, context_stack.top()));
 }
 
 Config	tokensToConfig(
@@ -174,11 +191,6 @@ bool	locationIsValid( // move this for when we pop context stack?
 		locationValidationError("missing prefix", server_index, location_index);
 		return (false);
 	}
-	if (location.root.size() == 0) {
-		locationValidationError("missing root", server_index, location_index);
-		return (false);
-	}
-	// this is sketchy, double check what's going on here
 	if (location.index.size() == 0 && location.cgi_pass.path.size() == 0) {
 		locationValidationError("missing index", server_index, location_index);
 		return (false);
@@ -215,11 +227,6 @@ static bool checkConfigCompleteness(Config& config) {
 				displayParserError("Prefix not specified for location block", "Bad config");
 				return (false);
 			}
-			// might not be necesary, check
-			//if (cur_loc.root.size() == 0) {
-			//	displayParserError("Root not specified for location block", "Bad config");
-			//	return (false);
-			//}
 			if (cur_loc.index.size() == 0 && cur_loc.cgi_pass.path.size() == 0) {
 				displayParserError("Index not specified for location block", "Bad config");
 				return (false);
