@@ -66,6 +66,7 @@ typedef struct	t_config_token {
 typedef enum	e_state_label {
 	FINDING_BLOCK,
 	FINDING_VALUES,
+	FOUND_ERROR,
 }	e_state_label;
 
 /*

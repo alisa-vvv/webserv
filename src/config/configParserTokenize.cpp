@@ -29,6 +29,11 @@ static e_state_label	findBlock(
 		cur_token.type = BRACE_CLOSE;
 		return (FINDING_BLOCK);
 	}
+	if (cur_token.val.find_first_of(";") != std::string::npos) {
+		std::cout << "Line " << tokens.at(i).line_number << ": ";
+		displayParserError("empty block", "Config Error");
+		return (FOUND_ERROR);
+	}
 	if (i + 1 < tokens.size()) {
 		t_config_token&	next_token = tokens.at(i + 1);
 		if (next_token.val == "{") {
@@ -55,11 +60,16 @@ static e_state_label	findBlock(
 // FINDING_VALUES
 static e_state_label	findValues(
 	std::vector<t_config_token>& tokens,
-	size_t	i,
+	size_t i,
 	bool& in_keyval
 ) {
 	in_keyval = true;
 	tokens.at(i).type = VALUE;
+	if (tokens.at(i).val.front() == ';') {
+		std::cout << "Line " << tokens.at(i).line_number << ": ";
+		displayParserError("empty block", "Config Error");
+		return (FOUND_ERROR);
+	}
 	if (tokens.at(i).val.back() != ';') {
 		return (FINDING_VALUES);
 	}
@@ -140,6 +150,9 @@ int	evaluateTokens(std::vector<t_config_token>& tokens) {
 				std::cout << "after FINDING_VALUES, returned: "
 					<< TEST_state_to_str(cur_state) << '\n';
 			}
+		}
+		else if (cur_state == FOUND_ERROR) {
+			return (1);
 		}
 	}
 	if (in_keyval == true || depth != 0) {

@@ -304,12 +304,16 @@ bool	fillServerNameField(
 // 1. port has to be numeric - DONE.
 // 2. ip has to have correct format - DONE.
 // 3. no duplicate ports in a single virtual server - DONE.
+// 4. can only have one argument
 
 bool	fillListenField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 1, tokens, token_index))
+		return (false);
+
 	std::string	host_name;
 	std::string	port;
 	std::string	del = ":";
@@ -770,11 +774,18 @@ bool	fillLocationRootField(
 	return (fillRootField(LOCATION, config, token_index, tokens));
 }
 
+// 1. has to end with .html - DONE.
+// 2. 1 argument max - DONE.
+// 3. can be called something that's not index.html?
 bool	fillLocationIndexField( // TEST THIS
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 1, tokens, token_index)) {
+		return (false);
+	}
+
 	std::string	val_str = tokens.at(token_index + 1).val;
 
 	if (val_str.size() < 6) {
@@ -802,7 +813,7 @@ bool	fillLocationIndexField( // TEST THIS
 
 	printParserDebug(
 					"location index field",
-					"config.servers.back().autoindex",
+					"config.servers.back().locations.back().index",
 					true,
 					config.servers.back().locations.back().index,
 					std::nullopt,
@@ -812,6 +823,9 @@ bool	fillLocationIndexField( // TEST THIS
 	return (true);
 }
 
+// 1. can be any amount of args - DONE.
+// 2. args have to match pre-defined methods - DONE.
+// 3. no duplicates - DONE.
 bool	fillLocationAllowedMethodsField(
 	Config& config,
 	const size_t& token_index,
@@ -836,24 +850,24 @@ bool	fillLocationAllowedMethodsField(
 			);
 			return (false);
 		}
-		if (config.servers.back().locations.back().allowed_methods[method] == true) { // is this even necessary?
+		if (config.servers.back().locations.back().allowed_methods[method] == true) {
 			configParserError(
-							config,
-							"duplicate method in allowed_methods field",
-							"Config Error",
-							tokens.at(token_index).line_number
+				config,
+				"duplicate method in allowed_methods field",
+				"Config Error",
+				tokens.at(token_index).line_number
 			);
 			return (false);
 		}
 		config.servers.back().locations.back().allowed_methods[method] = true;
 
 		printParserDebug(
-						"location allowed methods field",
-						"config.servers.back().allowed_methods[" + tokens.at(i).val + "]",
-						true,
-						std::nullopt,
-						config.servers.back().locations.back().allowed_methods[method],
-						std::nullopt
+			"location allowed methods field",
+			"config.servers.back().allowed_methods[" + tokens.at(i).val + "]",
+			true,
+			std::nullopt,
+			config.servers.back().locations.back().allowed_methods[method],
+			std::nullopt
 		);
 
 		i++;
@@ -866,29 +880,18 @@ bool	fillLocationAllowedMethodsField(
 	return (true);
 }
 
+// 1. has to be a valid path - DONE.
+// 2. max 1 element - DONE.
 bool	fillLocationUploadStoreField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
-	if (tokens.at(token_index + 2).type == VALUE) {
-		configParserError(
-						config,
-						"upload_store can only have one directory",
-						"Config Error",
-						tokens.at(token_index).line_number
-		);
+	if (isAboveMaxArgs(config, 1, tokens, token_index))
 		return (false);
-	}
-	if (!pathIsValid(tokens.at(token_index +1).val)) {
-		configParserError(
-						config,
-						"upload_store value is not a valid path",
-						"Config Error",
-						tokens.at(token_index).line_number
-		);
+	if (argumentNotValidPath(config, tokens, token_index, token_index + 1))
 		return (false);
-	}
+
 	config.servers.back().locations.back().upload_store = tokens.at(token_index + 1).val;
 
 	tokens.at(token_index).type = EVALUATED;

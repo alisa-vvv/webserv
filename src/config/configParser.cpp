@@ -151,9 +151,15 @@ Config	tokensToConfig(
 	  		}
 		}
 		else {
-			std::cout << CLR_RED << "ERROR: TOKEN TYPE " << cur_token.val;
-			std::cout << " NOT COVERED BY IF-ELSE\n" << CLR_NON;
+			configParserError(
+				config,
+				"missing semicolon",
+				"Config Error",
+				tokens.at(i).line_number);
 			return (config);
+			//std::cout << CLR_RED << "ERROR: TOKEN TYPE " << cur_token.val;
+			//std::cout << " NOT COVERED BY IF-ELSE\n" << CLR_NON;
+			//return (config);
 		}
 	}
 	for (size_t i = 0; i < tokens.size(); i++) {
@@ -231,8 +237,10 @@ std::optional<Config>	parseConfig(
 	}
 
 	tokens = tokenize(config_file);
-	if (evaluateTokens(tokens) == 1)
+	if (evaluateTokens(tokens) == 1) {
+		displayParserError("Incorrect config. Can't start server", "Config Error");
 		return (std::nullopt);
+	}
 	else
 		TEST_print_tokens(tokens);
 
