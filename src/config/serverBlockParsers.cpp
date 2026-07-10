@@ -296,6 +296,13 @@ bool	fillServerNameField(
 }
 
 // todo this.
+// can be:
+// 1. just the port - like 8080
+// 2. host name and port - like 192.x.x.x:8080
+//
+// 1. port has to be numeric - DONE.
+// 2. ip has to have correct format - DONE.
+
 bool	fillListenField(
 	Config& config,
 	const size_t& token_index,
@@ -308,7 +315,7 @@ bool	fillListenField(
 	std::string	listen_value = tokens.at(token_index + 1).val;
 
 	del_pos = listen_value.find(del);
-	if (del_pos == std::string::npos) {
+	if (del_pos != std::string::npos) {
 		if (config.servers.back().ip_addr != INADDR_ANY) {
 			configParserError(
 				config,
@@ -325,17 +332,27 @@ bool	fillListenField(
 	host_name = listen_value.substr(0, del_pos);
 	port = listen_value.substr(del_pos + 1, listen_value.length() - del_pos - 1);
 	if (port.find_first_not_of("0123456789") != std::string::npos) {
-		/// ERROR, brr brr, error
+		configParserError(
+			config,
+			"port value has to be a positive integer",
+			"Config Error",
+			tokens.at(token_index).line_number
+		);
 		return (false);
 	}
 	try {
 		config.servers.back().ports.push_back(stoi(port));
-	} catch(std::exception out_of_range) {
-		/// ERROR, brr brr, error
-		std::cout << "exception!\n";
+	} catch (...) {
+		configParserError(
+			config,
+			"port value outside of integer range",
+			"Config Error",
+			tokens.at(token_index).line_number
+		);
 		return (false);
 	}
 	// Parse IP adress and convert it into uint32_t form
+	if (del_pos != std::string::npos)
 	{
 		std::string	address_part;
 		int			byte_val = 0;
@@ -348,28 +365,52 @@ bool	fillListenField(
 		while (dot_count < 3) {
 			end = host_name.find_first_of(".");
 			if (end == std::string::npos) {
+				configParserError(
+					config,
+					"incorrect format for ip address",
+					"Config Error",
+					tokens.at(token_index).line_number
+				);
 				return (false);
 			}
 			dot_count++;
 			if (end - start > 3) {
-				/// ERROR, brr brr, error
-				std::cout << "ERROR, brr brr, error\n";
+				configParserError(
+					config,
+					"incorrect format for host address",
+					"Config Error",
+					tokens.at(token_index).line_number
+				);
 				return (false);
 			}
 			address_part = host_name.substr(start, end);
+			if (address_part.find_first_not_of("0123456789") != std::string::npos) {
+				configParserError(
+					config,
+					"incorrect format for host address",
+					"Config Error",
+					tokens.at(token_index).line_number
+				);
+				return (false);
+			}
 			try {
 				byte_val = stoi(address_part);
 			} catch (std::exception invalid_argument) {
 				configParserError(
 					config,
-					"Host address bad",
+					"incorrect format for host address",
 					"Config Error",
 					tokens.at(token_index).line_number
 				);
 				return (false);
 			}
 			if (byte_val > 255 || byte_val < 0) {
-				/// ERROR, brr brr, error
+				configParserError(
+					config,
+					"incorrect format for host address",
+					"Config Error",
+					tokens.at(token_index).line_number
+				);
 				return (false);
 			}
 			result += byte_val << bit_shift_val;
@@ -378,10 +419,25 @@ bool	fillListenField(
 		}
 		byte_val = stoi(host_name);
 		if (byte_val > 255 || byte_val < 0) {
-			/// ERROR, brr brr, error
+			configParserError(
+				config,
+				"incorrect format for host address",
+				"Config Error",
+				tokens.at(token_index).line_number
+			);
 			return (false);
 		}
 		result += byte_val;
+		host_name.erase(0, end);
+		if (!host_name.empty()) {
+			configParserError(
+				config,
+				"incorrect format for host address",
+				"Config Error",
+				tokens.at(token_index).line_number
+			);
+			return (false);
+		}
 		config.servers.back().ip_addr = htonl(result);
 	}
 
