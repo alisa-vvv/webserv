@@ -43,6 +43,7 @@ public:
 		{ "cgi_pass", false},
 		{ "autoindex", false },
 		{ "index", false },
+		{ "upload_store", false },
 		{ "allowed_methods", false },
 		{ "return", false },
 	};
