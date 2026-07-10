@@ -14,6 +14,7 @@
 #include "configParsingInfo.hpp"
 #include "configParserTEST.hpp"
 #include <iostream>
+#include <algorithm>
 #include <arpa/inet.h>
 
 static bool	argumentNotValidPath(
@@ -302,6 +303,7 @@ bool	fillServerNameField(
 //
 // 1. port has to be numeric - DONE.
 // 2. ip has to have correct format - DONE.
+// 3. no duplicate ports in a single virtual server - DONE.
 
 bool	fillListenField(
 	Config& config,
@@ -340,8 +342,10 @@ bool	fillListenField(
 		);
 		return (false);
 	}
+
+	int	port_val;
 	try {
-		config.servers.back().ports.push_back(stoi(port));
+		port_val = stoi(port);
 	} catch (...) {
 		configParserError(
 			config,
@@ -351,6 +355,18 @@ bool	fillListenField(
 		);
 		return (false);
 	}
+	if (std::find(config.servers.back().ports.begin(),
+			   config.servers.back().ports.end(), port_val)
+			!= config.servers.back().ports.end()) {
+		configParserError(
+			config,
+			"duplicate ports not allowed inside a single virtual server",
+			"Config Error",
+			tokens.at(token_index).line_number
+		);
+		return (false);
+	}
+	config.servers.back().ports.push_back(port_val);
 	// Parse IP adress and convert it into uint32_t form
 	if (del_pos != std::string::npos)
 	{
