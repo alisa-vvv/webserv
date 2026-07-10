@@ -49,6 +49,8 @@ std::string	TEST_state_to_str(e_state_label	state) {
 			return ("FINDING_BLOCK");
 		case FINDING_VALUES:
 			return ("FINDING_VALUES");
+		case FOUND_ERROR:
+			return ("FOUND_ERROR");
 	}
 }
 
