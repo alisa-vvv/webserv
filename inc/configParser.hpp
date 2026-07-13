@@ -72,11 +72,6 @@ typedef enum	e_state_label {
 /*
 * Data structures that are used inside Config class
 */
-	/*	error_page	*/
-typedef struct t_error_page {
-	int			error_num;
-	std::string	redirect;
-}	t_error_page;
 
 	/*	methods	*/
 typedef enum {
