@@ -161,16 +161,36 @@ static cgi_t	handle_parent(
 ) {
 	cgi_t	cgi;
 
+	time_point<system_clock>	cgi_timer = system_clock::now();
 	close(in_pipe[0]);
 	close(out_pipe[1]);
 	fcntl(in_pipe[1], O_NONBLOCK | O_CLOEXEC); // need to check the timing on this
-	fcntl(out_pipe[0], O_NONBLOCK | O_CLOEXEC);
+	fcntl(out_pipe[0], O_NONBLOCK | O_CLOEXEC); // also error check i guess
 	cgi.child_pid = child_pid;
 	cgi.input = in_pipe[1];
 	cgi.output = out_pipe[0];
+	cgi.timer = cgi_timer;
 	return (cgi);
 }
 
+// true if timeout occured (execution took DEFAULT_TIMEOUT_S seconds or longer)
+// false if no timeout(execution took less than DEFAULT_TIMEOUT_S seconds)
+bool	cgiTimeOut(time_point<system_clock>	timer) {
+	using std::chrono::duration_cast;
+	using std::chrono::seconds;
+
+	time_point<system_clock>	cur_time = system_clock::now();
+	seconds						execution_time = duration_cast<seconds>(cur_time - timer);
+
+	std::cout << "Execution took: ";
+	std::cout << execution_time << '\n';
+	if (execution_time.count() > DEFAULT_TIMEOUT_S) {
+		std::cout << "too long...\n";
+		return (true);
+	}
+	std::cout << "all good\n";
+	return (false);
+}
 // two pipes
 // parent writes to input pipe and reads from output pipe
 // child reads from input pipe and writes to out pipe (dup2 that shit)
@@ -213,7 +233,9 @@ std::optional<cgi_t>	executeCGI(
 		int	p_status;
 		while (1) {
 			if (waitpid(cgi.child_pid, &p_status, WNOHANG) != 0) {
-				std::cout << "child exitted\n";
+				if (cgiTimeOut(cgi.timer)) {
+					// we throw timeout error
+				}
 				if (p_status == 0) {
 					char buffer[4096];
 					read(cgi.output, buffer, 4096);

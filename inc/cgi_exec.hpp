@@ -14,14 +14,20 @@
 
 #include <string>
 #include <optional>
+#include <chrono>
 #include "configParser.hpp"
 
+#define DEFAULT_TIMEOUT_S 30
+
+using std::chrono::time_point;
+using std::chrono::system_clock;
 typedef struct	cgi_t {
-	int			child_pid = -1;
-	int			input = -1;
-	int			output = -1;
-	std::string	input_string = "";
-	std::string	output_string = "";
+	int							child_pid = -1;
+	int							input = -1;
+	int							output = -1;
+	std::string					input_string = "";
+	std::string					output_string = "";
+	time_point<system_clock>	timer;
 }	cgi_t;
 
 std::optional<cgi_t>	executeCGI(
