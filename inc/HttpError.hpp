@@ -24,20 +24,21 @@ static const int HTTP_VERSION_NOT_SUPPORTED = 505; //HTTP Version not supported
 std::map<int, std::tuple<std::string, std::string>> HTTP_STATUS_MESSAGE = {
 	{200, {"OK", ""}},
 	{201, {"Created", ""}},
-	{400, {"Bad request", "/errors/400.html"}},
-	{401, {"Unauthorized", "/errors/401.html"}},
-	{403, {"Forbidden", "/errors/402.html"}},
-	{404, {"Not Found", "/errors/404.html"}},
-	{405, {"Method Not Allowed", "/errors/405.html"}},
-	{408, {"Request Timeout", "/errors/408.html"}},
-	{409, {"Conflict", "/errors/409.html"}},
-	{413, {"Payload Too Large", "/errors/413.html"}},
-	{414, {"URI Too Long", "/errors/414.html"}},
-	{415, {"Unsupported Media Type", "/errors/415.html"}},
-	{500, {"Internal Server Error", "/errors/500.html"}},
-	{502, {"Bad Gateway", "/errors/502.html"}},
-	{504, {"Gateway Timeout", "/errors/504.html"}},
-	{505, {"HTTP Version not supported", "/errors/505.html"}}
+	{400, {"Bad request", "/error_pages/400.html"}},
+	{401, {"Unauthorized", "/error_pages/401.html"}},
+	{403, {"Forbidden", "/error_pages/402.html"}},
+	{404, {"Not Found", "/error_pages/404.html"}},
+	{405, {"Method Not Allowed", "/error_pages/405.html"}},
+	{408, {"Request Timeout", "/error_pages/408.html"}},
+	// {409, {"Conflict", "/error_pages/409.html"}},
+	{411, {"Length Required", "/error_pages/411.html"}},
+	{413, {"Payload Too Large", "/error_pages/413.html"}},
+	{414, {"URI Too Long", "/error_pages/414.html"}},
+	{415, {"Unsupported Media Type", "/error_pages/415.html"}},
+	{500, {"Internal Server Error", "/error_pages/500.html"}},
+	// {502, {"Bad Gateway", "/error_pages/502.html"}},
+	// {504, {"Gateway Timeout", "/error_pages/504.html"}},
+	{505, {"HTTP Version not supported", "/error_pages/505.html"}}
 };
 
 

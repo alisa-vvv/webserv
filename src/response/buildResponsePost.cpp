@@ -1,6 +1,11 @@
 #include "../../inc/Http.hpp"
 #include <fstream>
 
+static int uploadFile()
+{
+	
+}
+
 void Http::handlePostResponse()
 {
 	if (!this->_hasBody || this->_body.empty())
@@ -10,6 +15,7 @@ void Http::handlePostResponse()
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	
 	//create the file? 
+	//if created setResponseCode(HTTP_CREATED)
 	try
 	{
 		std::filesystem::path basePath(uploadDir);
@@ -20,7 +26,7 @@ void Http::handlePostResponse()
 	{
 		setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	}
-	//do I need to setbody to empty?
+	setBody(""); //do I need to setbody to empty? probably
 	//parse request body, validate data, if valid set status code to 200, else set status code to 400 bad request
 	setState(READY_TO_SEND);
 	setContentType(); 
