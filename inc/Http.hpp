@@ -90,7 +90,8 @@ class Http {
 		void			setResponseHeader(const std::string &key, const std::string &value);
 		void 			setResponseCode(int code);
 		void			setExtension(bool status);
-		void			setBody(const std::string &body);
+		void			setBody();
+		void			setBody(const std::string uri); //overload
 		void			setState(clientState state);
 		void			setContentType();
 		

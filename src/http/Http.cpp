@@ -81,8 +81,29 @@ void Http::setResponseHeader(const std::string &key, const std::string &value) {
 	this->_responseHeaders[key] = value; //ticket12
 }
 
-void Http::setBody(const std::string &body) {
+void Http::setBody() {
+	//ticket20
+	std::string file = this->_uri;
+	std::ifstream fileStream(file, std::ios::binary);
+	if (!fileStream.is_open())
+		return setResponseCode(HTTP_FORBIDDEN);
+	std::string body((std::istreambuf_iterator<char>(fileStream)),
+			std::istreambuf_iterator<char>());
 	this->_body = body;
+}
+
+void Http::setBody(const std::string uri) {
+	if (uri.empty())
+		this->_body = "";
+	else
+	{
+		std::ifstream fileStream(uri, std::ios::binary);
+		if (!fileStream.is_open())
+			return setResponseCode(HTTP_FORBIDDEN);
+		std::string body((std::istreambuf_iterator<char>(fileStream)),
+				std::istreambuf_iterator<char>());
+		this->_body = body;
+	}
 }
 
 void Http::setState(clientState state) {

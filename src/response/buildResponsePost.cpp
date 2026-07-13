@@ -8,6 +8,7 @@ void Http::handlePostResponse()
 	const std::string &uploadDir = requestConfig->location->upload_store;
 	if (uploadDir.empty())
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
+	
 	//create the file? 
 	try
 	{
@@ -19,6 +20,7 @@ void Http::handlePostResponse()
 	{
 		setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	}
+	//do I need to setbody to empty?
 	//parse request body, validate data, if valid set status code to 200, else set status code to 400 bad request
 	setState(READY_TO_SEND);
 	setContentType(); 
