@@ -179,17 +179,10 @@ bool	cgiTimeOut(time_point<system_clock>	timer) {
 	using std::chrono::duration_cast;
 	using std::chrono::seconds;
 
-	time_point<system_clock>	cur_time = system_clock::now();
-	seconds						execution_time = duration_cast<seconds>(cur_time - timer);
+	const time_point<system_clock>	cur_time = system_clock::now();
+	const seconds					execution_time = duration_cast<seconds>(cur_time - timer);
 
-	std::cout << "Execution took: ";
-	std::cout << execution_time << '\n';
-	if (execution_time.count() > DEFAULT_TIMEOUT_S) {
-		std::cout << "too long...\n";
-		return (true);
-	}
-	std::cout << "all good\n";
-	return (false);
+	return (execution_time.count() > DEFAULT_TIMEOUT_S);
 }
 // two pipes
 // parent writes to input pipe and reads from output pipe
@@ -232,11 +225,14 @@ std::optional<cgi_t>	executeCGI(
 		// the while (1) is the stand-in for the listen loop.
 		int	p_status;
 		while (1) {
+			if (cgiTimeOut(cgi.timer)) {
+				std::cout << "cgi execution took too long...\n";
+				// we throw timeout error
+				kill(cgi.child_pid, SIGTERM);
+				break ;
+			}
 			if (waitpid(cgi.child_pid, &p_status, WNOHANG) != 0) {
-				if (cgiTimeOut(cgi.timer)) {
-					// we throw timeout error
-				}
-				if (p_status == 0) {
+				if (p_status == 0 && !cgiTimeOut(cgi.timer)) {
 					char buffer[4096];
 					read(cgi.output, buffer, 4096);
 					cgi.output_string = buffer;
