@@ -225,14 +225,15 @@ std::optional<cgi_t>	executeCGI(
 		// the while (1) is the stand-in for the listen loop.
 		int	p_status;
 		while (1) {
-			if (cgiTimeOut(cgi.timer)) {
+			bool	timed_out = cgiTimeOut(cgi.timer);
+			if (timed_out) {
 				std::cout << "cgi execution took too long...\n";
 				// we throw timeout error
 				kill(cgi.child_pid, SIGTERM);
 				break ;
 			}
 			if (waitpid(cgi.child_pid, &p_status, WNOHANG) != 0) {
-				if (p_status == 0 && !cgiTimeOut(cgi.timer)) {
+				if (p_status == 0) {
 					char buffer[4096];
 					read(cgi.output, buffer, 4096);
 					cgi.output_string = buffer;
@@ -244,6 +245,10 @@ std::optional<cgi_t>	executeCGI(
 				break ;
 			}
 		}
+		// at the end of the program, run this for every previously launched cgi
+		// cout message unnecessary
+		while (waitpid(cgi.child_pid, NULL, WNOHANG) == 0);
+		std::cout << "process terminated\n";
 	}
 	return (cgi);
 }
