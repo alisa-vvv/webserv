@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
+
 #include <string>
 #include "configParser.hpp"
 
@@ -57,3 +59,7 @@ typedef struct t_envVarCGI {
 	const std::string	cgi_prefix_server_port = "SERVER_PORT=";
 	const std::string	cgi_prefix_server_software = "SERVER_SOFTWARE=";
 } t_envVarCGI;
+
+int	executeCGI(
+	const cfg_server_t& server_config
+);

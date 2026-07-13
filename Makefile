@@ -21,7 +21,7 @@ CXXFILES	=	config_parser_main.cpp\
 				serverBlockParsers.cpp\
 				configParserHelpers.cpp\
 				configParserError.cpp\
-				cgi_exec.cpp
+				cgi_exec.cpp\
 
 OFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.o))
 DEPFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.d))
