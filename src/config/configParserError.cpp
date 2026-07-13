@@ -30,10 +30,11 @@ void	displayParserError(
 	const std::string& message,
 	const std::optional<std::string>& prefix = std::nullopt
 ) {
+	std::cout << CLR_RED;
 	if (prefix)
 		std::cout << *prefix << ": ";
 	std::cout << message;
- 	std::cout << std::endl;
+ 	std::cout << CLR_NON << std::endl;
 }
 
 /*

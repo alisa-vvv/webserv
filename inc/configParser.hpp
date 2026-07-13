@@ -27,9 +27,12 @@
 #  define	CLR_MAG "\033[95m"
 # endif // CLR_NON and other CLR defines
 
+#define TEST_CONFIG false
 #define CONFIG_PATH_DEFAULT "config/default.conf"
 #define CONFIG_PATH_TEST "config/test.conf"
 #define SHOW_CONFIG_PARSER_DEBUG true
+
+#define DEFAULT_PORT 8080
 
 // dummy class, defined in configParsingInfo.hpp
 class ParsingInfo;
@@ -63,16 +66,12 @@ typedef struct	t_config_token {
 typedef enum	e_state_label {
 	FINDING_BLOCK,
 	FINDING_VALUES,
+	FOUND_ERROR,
 }	e_state_label;
 
 /*
 * Data structures that are used inside Config class
 */
-	/*	error_page	*/
-typedef struct t_error_page {
-	int			error_num;
-	std::string	redirect;
-}	t_error_page;
 
 	/*	methods	*/
 typedef enum {
@@ -96,7 +95,8 @@ typedef struct t_cgi_pass {
 
 	/*	return	*/
 typedef struct t_return {
-	std::vector<std::string>	params; // not sure what these should look like
+	int			code = 0;
+	std::string	target;
 }	t_return;
 
 	/*	location	*/
@@ -104,24 +104,24 @@ typedef struct t_location {
 	std::string					prefix; // needed
 	std::string					root; // needed
 	std::string					index; // opt if cgi_pass is not set
-	bool						autoindex; // needed
+	bool						autoindex = false; // needed
 	std::map<e_method, bool>	allowed_methods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
 	std::string					upload_store; // opt
 	t_cgi_pass					cgi_pass; // opt
-	t_return					returns; // opt
+	t_return					returns;
 }	t_location;
 
 	/*	server	*/
 typedef struct cfg_server_t {
-	std::string					server_name;
+	std::vector<std::string>	server_names;
 	uint32_t					ip_addr = INADDR_ANY;
 	std::vector<int>			ports;
 	std::string					root;
-	size_t						client_max_body_size;
+	int							client_max_body_size = -1;
 	std::map<int, std::string>	error_pages;
 	std::vector<t_location>		locations;
 	t_cgi_pass					cgi_pass; // opt
-	bool						autoindex;
+	bool						autoindex = false;
 }	cfg_server_t;
 /*
 */
@@ -132,7 +132,7 @@ public:
 	std::vector<cfg_server_t>	servers;
 };
 
-int							parseConfig(const ParsingInfo parsing_info);
+std::optional<Config>		parseConfig(const char *const arg);
 std::vector<t_config_token>	tokenize(std::ifstream&	config_file);
 int							evaluateTokens(std::vector<t_config_token>& tokens);
 

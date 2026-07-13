@@ -16,5 +16,6 @@ cache/
 *subject.pdf
 compile_commands.json
 
+configParser
 config_parser
 webserv

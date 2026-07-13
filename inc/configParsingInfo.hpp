@@ -17,6 +17,8 @@
 #include <vector>
 
 #define CLIENT_MAX_BODY_SIZE 1000
+#define RETURN_CODE_LOWEST 300
+#define RETURN_CODE_HIGHEST 399
 
 typedef enum	e_context {
 	GLOBAL,
@@ -24,12 +26,29 @@ typedef enum	e_context {
 	LOCATION,
 }	e_context;
 
+
 // Function pointer type for token parsers
 typedef bool	(*tokenParserFnPtr_t)(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 );
+
+class	UniqueBlockMap {
+public:
+	std::map<std::string, bool> map {
+		{ "prefix", false },
+		{ "root", false },
+		{ "client_max_body_size", false },
+		{ "cgi_pass", false},
+		{ "autoindex", false },
+		{ "index", false },
+		{ "upload_store", false },
+		{ "allowed_methods", false },
+		{ "return", false },
+	};
+private:
+};
 
 /*
  * Server block Parsers
@@ -113,6 +132,11 @@ bool	fillLocationAutoIndex(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 );
+bool	fillLocationReturn(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+);
 /**/
 
 // Contains vectors with allowed block names.
@@ -120,52 +144,29 @@ bool	fillLocationAutoIndex(
 // values inside a Config instance.
 class	ParsingInfo {
 public:
-	const std::vector<std::string>	global_valid_block_names {
-		"server",
-	};
-	const std::vector<tokenParserFnPtr_t>	global_matching_functions {
-		(tokenParserFnPtr_t) fillServerField,
+	const std::map<std::string, tokenParserFnPtr_t>	global_block_parsers {
+		{ "server", fillServerField },
 	};
 
-	// CHANGE THESE THINGS TO MAPS
-
-	const std::vector<std::string>	server_valid_block_names {
-		"server_name",
-		"listen",
-		"root",
-		"location",
-		"error_page",
-		"client_max_body_size",
-		"cgi_pass",
-		"autoindex",
-	};
-	const std::vector<tokenParserFnPtr_t>	server_matching_functions {
-		fillServerNameField,
-		fillListenField,
-		fillServerRootField,
-		fillServerLocationField,
-		fillServerErrorPageField,
-		fillServerMaxBodySize,
-		fillServerCgiPass,
-		fillServerAutoIndex,
+	const std::map<std::string, tokenParserFnPtr_t>	server_block_parsers {
+		{ "server_name", fillServerNameField },
+		{ "listen", fillListenField },
+		{ "root", fillServerRootField },
+		{ "location", fillServerLocationField },
+		{ "error_page", fillServerErrorPageField },
+		{ "client_max_body_size", fillServerMaxBodySize },
+		{ "cgi_pass", fillServerCgiPass },
+		{ "autoindex", fillServerAutoIndex },
 	};
 
-	const std::vector<std::string>	location_valid_block_names {
-		"root",
-		"index",
-		"allowed_methods",
-		"upload_store",
-		"cgi_pass",
-		"autoindex",
-		"return",
-	};
-	const std::vector<tokenParserFnPtr_t>	location_matching_functions {
-		fillLocationRootField,
-		fillLocationIndexField,
-		fillLocationAllowedMethodsField,
-		fillLocationUploadStoreField,
-		fillLocationCgiPass,
-		fillLocationAutoIndex,
+	const std::map<std::string, tokenParserFnPtr_t>	location_block_parsers {
+		{ "root", fillLocationRootField },
+		{ "index", fillLocationIndexField },
+		{ "allowed_methods", fillLocationAllowedMethodsField },
+		{ "upload_store", fillLocationUploadStoreField },
+		{ "cgi_pass", fillLocationCgiPass },
+		{ "autoindex", fillLocationAutoIndex },
+		{ "return", fillLocationReturn },
 	};
 
 	const std::vector<std::string>	method_valid_names {

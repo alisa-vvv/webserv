@@ -11,14 +11,19 @@
 /* ************************************************************************** */
 
 #include "configParser.hpp"
-#include "configParsingInfo.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include "cgi_exec.hpp"
 
-int	main(void) {
-	const	ParsingInfo	parsing_info;
-	parseConfig(parsing_info);
-	executeCGI();
+int	main(int argc, char** argv) {
+	if (argc != 2)
+		return (1);
+	char* config_file_path = argv[1]; // path to config file
+	std::optional<Config>	parse_config_ret = parseConfig(config_file_path);
+	if (parse_config_ret == std::nullopt) { // error during parsing.
+		return (1);
+	}
+	const Config& config = *parse_config_ret;
+	executeCGI(config.servers.back());
 }

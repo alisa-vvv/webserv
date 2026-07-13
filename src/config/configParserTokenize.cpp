@@ -29,6 +29,11 @@ static e_state_label	findBlock(
 		cur_token.type = BRACE_CLOSE;
 		return (FINDING_BLOCK);
 	}
+	if (cur_token.val.find_first_of(";") != std::string::npos) {
+		std::cout << "Line " << tokens.at(i).line_number << ": ";
+		displayParserError("empty block", "Config Error");
+		return (FOUND_ERROR);
+	}
 	if (i + 1 < tokens.size()) {
 		t_config_token&	next_token = tokens.at(i + 1);
 		if (next_token.val == "{") {
@@ -55,15 +60,20 @@ static e_state_label	findBlock(
 // FINDING_VALUES
 static e_state_label	findValues(
 	std::vector<t_config_token>& tokens,
-	size_t	i,
+	size_t i,
 	bool& in_keyval
 ) {
 	in_keyval = true;
 	tokens.at(i).type = VALUE;
+	if (tokens.at(i).val.front() == ';') {
+		std::cout << "Line " << tokens.at(i).line_number << ": ";
+		displayParserError("empty block", "Config Error");
+		return (FOUND_ERROR);
+	}
 	if (tokens.at(i).val.back() != ';') {
 		return (FINDING_VALUES);
 	}
-	tokens.at(i).val.pop_back(); // remove ;
+	tokens.at(i).val.pop_back();
 	in_keyval = false;
 	return (FINDING_BLOCK);
 }
@@ -90,9 +100,6 @@ std::vector<t_config_token>	tokenize(
 				tokens.push_back(new_token);
 			}
 		}
-		//new_token.val = '\n';
-		//new_token.type = NEWLINE;
-		//tokens.push_back(new_token);
 	}
 
 	return (tokens);
@@ -106,7 +113,7 @@ static void	evalTokensError(int depth, bool in_keyval) {
 		std::cout << "\tMissing a closing brace in a block";
 	if (depth < 0)
 		std::cout << "\tMissing an opening brace in a block";
-	std::cout << "\n";
+	std::cout << CLR_NON << "\n";
 }
 
 int	evaluateTokens(std::vector<t_config_token>& tokens) {
@@ -131,7 +138,8 @@ int	evaluateTokens(std::vector<t_config_token>& tokens) {
 			if (SHOW_CONFIG_PARSER_DEBUG == true) {
 				std::cout << "evalled token: ";
 				TEST_print_one_token(tokens.at(i), i);
-				std::cout << "after FINDING_BLOCK, returned: " << TEST_state_to_str(cur_state) << '\n';
+				std::cout << "after FINDING_BLOCK, returned: "
+					<< TEST_state_to_str(cur_state) << '\n';
 			}
 		}
 		else if (cur_state == FINDING_VALUES) {
@@ -139,13 +147,12 @@ int	evaluateTokens(std::vector<t_config_token>& tokens) {
 			if (SHOW_CONFIG_PARSER_DEBUG == true) {
 				std::cout << "evalled token: ";
 				TEST_print_one_token(tokens.at(i), i);
-				std::cout << "after FINDING_VALUES, returned: " << TEST_state_to_str(cur_state) << '\n';
+				std::cout << "after FINDING_VALUES, returned: "
+					<< TEST_state_to_str(cur_state) << '\n';
 			}
 		}
-		// this else should never happen unless things are broken. remove later!
-		else {
-			std::cout << "breaking nwes: \n" << TEST_state_to_str(cur_state) << '\n';
-			break ;
+		else if (cur_state == FOUND_ERROR) {
+			return (1);
 		}
 	}
 	if (in_keyval == true || depth != 0) {
