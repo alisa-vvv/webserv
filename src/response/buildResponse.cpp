@@ -1,4 +1,4 @@
-#include "Http.hpp"
+#include "../../inc/Http.hpp"
 
 /// @brief After building the response, build the response string ready for send()
 /// @return response string 
@@ -6,7 +6,7 @@ void Http::buildResponseString()
 {
 	this->_responseString.clear();
 	this->_responseString += "HTTP/1.0 " + std::to_string(this->_statusCode) + " "
-		+ HTTP_STATUS_MESSAGE.at(this->_statusCode) + "\r\n";
+		+ std::get<0>(HTTP_STATUS_MESSAGE.at(this->_statusCode)) + "\r\n";
 
 	for (std::map<std::string, std::string>::iterator it = this->_responseHeaders.begin(); it != this->_responseHeaders.end(); ++it)
 		this->_responseString += it->first + ": " + it->second + "\r\n";
@@ -22,7 +22,7 @@ void Http::buildResponse()
 	//ticket04
 	if (getState() != CLIENT_ERROR)
 	{
-		if (requestConfig->location->returns->status != 0)
+		if (requestConfig->location->returns.code != 0)
 			handleReturnResponse();
 		else
 		{

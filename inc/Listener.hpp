@@ -26,11 +26,7 @@
 #include <map>
 #include <csignal>
 
-<<<<<<< HEAD
-// #include "ConfigParser.hpp"
-=======
-#include "ConfigParser.hpp"
->>>>>>> main
+#include "configParser.hpp"
 
 #define SUCCESS 0
 #define ERROR -1
@@ -82,10 +78,6 @@ class Listener
 
 		const cfg_server_t	*getServerConfig(int i);
 		void				setServerConfig(const cfg_server_t *config);
-<<<<<<< HEAD
-		int					getConfigCount() { return _serverConfigs.size();};
-=======
->>>>>>> main
 
 		void				closeSocket();
 

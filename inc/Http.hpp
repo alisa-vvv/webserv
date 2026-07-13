@@ -3,48 +3,14 @@
 
 #include <string>
 #include <map>
+#include <tuple>
 #include <fstream>
-#include "../socket/Listener.hpp"
-#include "../../inc/configParser.hpp"
+#include "Listener.hpp"
+#include "configParser.hpp"
+#include "HttpError.hpp"
 
 //success defined in listener
 static const int FAILURE = -1;
-
-/*HTTP ERROR CODES*/
-static const int HTTP_OK = 200; //ok!
-static const int HTTP_CREATED = 201; //1xx 2xx 3xx
-static const int HTTP_MOVED_PERMANENTLY = 301; //moved permanently
-static const int HTTP_BAD_REQUEST = 400; //client error
-static const int HTTP_UNAUTHORIZED = 401; //no valid credentials, no login, expired token, wrong password etc
-static const int HTTP_FORBIDDEN = 403; //no permission to access resource
-static const int HTTP_NOT_FOUND = 404; //resource not found
-static const int HTTP_METHOD_NOT_ALLOWED = 405; //method not supported by resource
-static const int HTTP_REQUEST_TIMEOUT = 408; //client takes too long to send request
-static const int HTTP_LENGTH_REQUIRED = 411; //length required
-static const int HTTP_PAYLOAD_TOO_LARGE = 413; //request body too large
-static const int URI_TOO_LONG = 414; //URI too long
-static const int HTTP_UNSUPPORTED_MEDIA = 415; //unsupported media type
-static const int HTTP_INTERNAL_SERVER_ERROR = 500; //cgi process fails
-static const int HTTP_VERSION_NOT_SUPPORTED = 505; //HTTP Version not supported
-
-static std::map<int, std::string> HTTP_STATUS_MESSAGE = {
-	{200, "OK"},
-	{201, "Created"},
-	{400, "Bad request"},
-	{401, "Unauthorized"},
-	{403, "Forbidden"},
-	{405, "Method Not Allowed"},
-	{404, "Not Found"},
-	{408, "Request Timeout"},
-	{409, "Conflict"},
-	{413, "Payload Too Large"},
-	{414, "URI Too Long"},
-	{415, "Unsupported Media Type"},
-	{500, "Internal Server Error"},
-	{502, "Bad Gateway"},
-	{504, "Gateway Timeout"},
-	{505, "HTTP Version not supported"}
-};
 
 enum clientState {
 	RECEIVING,

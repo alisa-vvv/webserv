@@ -7,18 +7,6 @@ description: Response handler must match the server and location block and serve
 Description: If there are multiple ports, with 8080 inly allowing get and 8034 allowing all -> we need
 to validate server/port
 
-
-ticket06:
-Item: autoindex on/pff
-Descrption: generate html directory, return with content-type: text/html
-
-
-ticket07
-Item: http redirections
-Description: When a client requests a URL, the web server responds with a specific 3xx status code and a Location header containing the new URL. The browser reads this and instantly fetches the new destination.
-//We just return 301 and the browser will make another get request based on the response route
-Read return redirects  from config
-
 ticket12:
 item: what if there are mutiple response header keys - stop using map for response header as some headers are multi valued
 
@@ -38,8 +26,25 @@ ticket16
 item: connection keep alive
 description: 	//should i set header for connection keep alive?
 
+ticket17
+item: uploadstore
+description: idk
+
+ticket18
+item: do i need to check that the user has permission to show the index files?
+
 =========================
 
+ticket06: done
+Item: autoindex on/pff
+Descrption: generate html directory, return with content-type: text/html
+
+
+ticket07: done
+Item: http redirections
+Description: When a client requests a URL, the web server responds with a specific 3xx status code and a Location header containing the new URL. The browser reads this and instantly fetches the new destination.
+//We just return 301 and the browser will make another get request based on the response route
+Read return redirects  from config
 
 ticket11: done
 Item: Validate that the uri + root

@@ -15,7 +15,7 @@
 
 #include "Client.hpp"
 #include "Listener.hpp"
-#include "ConfigParser.hpp"
+#include "configParser.hpp"
 
 #define SUCCESS 0
 #define ERROR -1
