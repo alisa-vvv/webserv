@@ -1,23 +1,14 @@
 #include "../../inc/Http.hpp"
 #include <fstream>
 
-void Http::handleErrorResponse()
+void Http::handleErrorResponse() //ticket19
 {
 	int stat = getStatusCode();
-	bool found = false;
-	for (const t_error_page &page: requestConfig->server->error_pages)
-	{
-		if (stat == page.error_num)
-		{
-			setResponseHeader("Location:", page.redirect);
-			found = true;
-			break;
-		}
-	}
-	if (!found)
-	{
+	auto it = requestConfig->server->error_pages.find(stat);
+	if (it != this->requestConfig->server->error_pages.end())
+		setResponseHeader("Location:", it->second);
+	else
 		setResponseHeader("Location:", std::get<1>(HTTP_STATUS_MESSAGE.at(stat)));
-	}
 	setContentType();
 	//if error pages are configured 
 }

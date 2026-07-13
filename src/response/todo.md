@@ -33,6 +33,8 @@ description: idk
 ticket18
 item: do i need to check that the user has permission to show the index files?
 
+ticket19
+item: change it to map again
 =========================
 
 ticket06: done
