@@ -13,6 +13,7 @@
 #include "cgi_exec.hpp"
 #include "configParser.hpp"
 #include <unistd.h>
+#include <fcntl.h>
 #include <cstdlib>
 #include <sys/wait.h>
 #include <iostream>
@@ -128,35 +129,103 @@ static int	tryExecveScript(
 	std::vector<std::string>	path;
 
 	path = splitPathVar();
-	if (path.size() == 0) // add error message about missing path mabe
+	if (path.size() == 0)
 		return (1);
 	err_check = findAndExecuteScript(server_config, binary_name, argv, path);
 	return (err_check);
 }
 
-int	executeCGI(
+static void	handle_child(
+	const cfg_server_t& server_config,
+	const std::string binary_name,
+	char *const argv[],
+	int in_pipe[2],
+	int out_pipe[2]
+) {
+	close(in_pipe[1]);
+	close(out_pipe[0]);
+	dup2(in_pipe[0], STDIN_FILENO); // add error checks on dup2?
+	dup2(out_pipe[1], STDOUT_FILENO);
+	close(in_pipe[0]);
+	close(out_pipe[1]);
+	std::cout << "executing cgi in child...\n\n";
+	tryExecveScript(server_config, binary_name, argv);
+	std::cout << "if you see this, there's an error\n"; // delete this
+	exit(1);
+}
+
+static cgi_t	handle_parent(
+	int in_pipe[2],
+	int out_pipe[2],
+	int child_pid
+) {
+	cgi_t	cgi;
+
+	close(in_pipe[0]);
+	close(out_pipe[1]);
+	fcntl(in_pipe[1], O_NONBLOCK | O_CLOEXEC); // need to check the timing on this
+	fcntl(out_pipe[0], O_NONBLOCK | O_CLOEXEC);
+	cgi.child_pid = child_pid;
+	cgi.input = in_pipe[1];
+	cgi.output = out_pipe[0];
+	return (cgi);
+}
+
+// two pipes
+// parent writes to input pipe and reads from output pipe
+// child reads from input pipe and writes to out pipe (dup2 that shit)
+std::optional<cgi_t>	executeCGI(
 	const cfg_server_t& server_config
 ) {
-	extern char		**environ;
+	int	in_pipe[2];
+	int	out_pipe[2];
+
+	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
+		// brr brr errorr
+		return (std::nullopt);
+	}
+	if (pipe2(out_pipe, O_NONBLOCK) != 0) {
+		close(in_pipe[0]);
+		close(in_pipe[1]);
+		// brr brr errorr
+		return (std::nullopt);
+	}
+
+	cgi_t	cgi;
 	char*	argv[] { NULL, NULL, NULL };
 	argv[0] = strdup(PYTHON_EXEC);
 	argv[1] = strdup(PATH_TO_SCRIPT);
 	argv[2] = NULL;
-	int			execve_ret = 0;
 
 	int	fork_ret = fork();
 	if (fork_ret < 0) {
 		// brr brr errorr
-		return (1);
+		return (std::nullopt);
 	}
 	else if (fork_ret == 0) {
-		std::cout << "executing cgi in child...\n\n";
-		tryExecveScript(server_config, PYTHON_EXEC, argv); // add checks for fail to exit out of child
-		std::cout << "if you see this, there's an error\n";
-		exit(1);
+		handle_child(server_config, PYTHON_EXEC, argv, in_pipe, out_pipe);
 	}
 	else if (fork_ret > 0) {
-		wait(NULL); // lol
+		cgi = handle_parent(in_pipe, out_pipe, fork_ret);
 	}
-	return (execve_ret);
+	{	// this block is, essentially, what we need to do in the listen loop.
+		// the while (1) is the stand-in for the listen loop.
+		int	p_status;
+		while (1) {
+			if (waitpid(cgi.child_pid, &p_status, WNOHANG) != 0) {
+				std::cout << "child exitted\n";
+				if (p_status == 0) {
+					char buffer[4096];
+					read(cgi.output, buffer, 4096);
+					cgi.output_string = buffer;
+					std::cout << cgi.output_string;
+				}
+				else {
+					// brr brr error
+				}
+				break ;
+			}
+		}
+	}
+	return (cgi);
 }
