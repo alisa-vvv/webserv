@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/05/28 13:16:53 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/12 18:17:00 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/07/14 13:30:10 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,12 +74,12 @@ typedef enum	e_state_label {
 */
 
 	/*	methods	*/
-typedef enum {
+enum httpMethod {
 	GET,
 	POST,
 	DELETE,
-}	e_method;
-
+	UNKNOWN,
+};
 	/* cgi_pass	*/
 #define CGI_EXT_STR_PY ".py"
 

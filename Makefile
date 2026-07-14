@@ -16,7 +16,9 @@ NAME =	config_parser
 
 CXXFILES	=	$(CXXFILES_PARSER)\
 				$(CXXFILES_CGI)\
-				$(CXXFILES_TIMER)
+				$(CXXFILES_TIMER)\
+				$(HTTP_PARSER)\
+				$(RESPONSE_BUILDER)
 
 CXXFILES_PARSER	=	config_parser_main.cpp\
 					configParser.cpp\
@@ -30,6 +32,22 @@ CXXFILES_CGI =		cgi_exec.cpp
 
 CXXFILES_TIMER =	timer.cpp
 
+HTTP_PARSER =	clientHandler.cpp\
+				Http.cpp\
+				httpBuffer.cpp\
+				clientHandler.cpp\
+				htppParsers.cpp\
+				httpValidate.cpp\
+				setRequestConfig.cpp
+
+RESPONSE_BUILDER =	buildResponse.cpp\
+					buildResponseAutoIndexReturn.cpp\
+					buildResponseDelete.cpp\
+					buildResponseError.cpp\
+					buildResponseGet.cpp\
+					buildResponsePost.cpp\
+					buildResponseUtils.cpp
+
 OFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.o))
 DEPFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.d))
 
@@ -37,8 +55,14 @@ VPATH	= $(INCLUDE) $(SRCDIRS)
 BUILDDIR = build/
 SRCDIR = src/
 INCDIR = inc/
-SRCDIRS = $(SRCDIR) \
-			$(addprefix $(SRCDIR), config cgi_exec timer)
+SRCDIRS = $(SRCDIR)\
+			$(addprefix $(SRCDIR),\
+				config\
+				cgi_exec\
+				timer\
+				http\
+				response\
+			)
 $(SRCDIR):
 	mkdir -p $@
 $(INCDIR):
