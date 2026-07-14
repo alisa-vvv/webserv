@@ -36,6 +36,41 @@ static void	cgi_bzero(
 	}
 }
 
+int	readCGIOutput(
+	cgi_t&	cgi,
+	int*	p_status
+) {
+	const bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S_CGI);
+
+	if (timed_out) {
+		std::cout << "cgi execution took too long...\n";
+		// we throw timeout error
+		kill(cgi.child_pid, SIGTERM);
+		close(cgi.input);
+		close(cgi.output);
+		return (1);
+	}
+
+	if (int wait_res = waitpid(cgi.child_pid, p_status, WNOHANG) != 0) {
+		if (wait_res > 0) {
+			char buffer[4096];
+			cgi_bzero(buffer, 4096);
+			read(cgi.output, buffer, 4096); // mayybe recv with MSG_DONTWAIT
+			for (int i = 0; buffer[i] != '\0'; i++) {
+				cgi.output_string.push_back(buffer[i]);
+			}
+			std::cout << cgi.output_string;
+			close(cgi.input);
+			close(cgi.output);
+		}
+		else if (wait_res < 0) {
+			// brr brr error
+			return (-1);
+		}
+		return (1);
+	}
+	return (0);
+}
 
 	/*	These are things we're most likely not going to have. Putting them here in case */
 //"HTTP_COOKIE=", we don't have cookies
@@ -217,30 +252,9 @@ std::optional<cgi_t>	executeCGI(
 	}
 	{	// this block is, essentially, what we need to do in the listen loop.
 		// the while (1) is the stand-in for the listen loop.
-		int	p_status;
+		int	p_status = 0;
 		while (1) {
-			bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S_CGI);
-			if (timed_out) {
-				std::cout << "cgi execution took too long...\n";
-				// we throw timeout error
-				kill(cgi.child_pid, SIGTERM);
-				break ;
-			}
-			if (waitpid(cgi.child_pid, &p_status, WNOHANG) != 0) {
-				if (p_status == 0) {
-					char buffer[4096];
-					cgi_bzero(buffer, 4096);
-					read(cgi.output, buffer, 4096); // mayybe recv with MSG_DONTWAIT
-					for (int i = 0; buffer[i] != '\0'; i++) {
-						cgi.output_string.push_back(buffer[i]);
-					}
-					std::cout << cgi.output_string;
-					close(in_pipe[1]);
-					close(out_pipe[0]);
-				}
-				else {
-					// brr brr error
-				}
+			if (readCGIOutput(cgi, &p_status) != 0) {
 				break ;
 			}
 		}
