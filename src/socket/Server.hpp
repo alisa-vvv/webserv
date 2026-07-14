@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/08 15:44:56 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/14 16:28:47 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ enum eServerError
 	SERVER_ACCEPT_ERR,
 	SERVER_SETNONBLOCKING_ERR,
 	SERVER_RECV_ERR,
+	SERVER_CLIENT_CLOSED,
 	SERVER_TIMEOUT_ERR
 };
 

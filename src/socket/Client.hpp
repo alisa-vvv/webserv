@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:25 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/08 15:25:21 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/14 16:24:19 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,18 +31,24 @@ client obj answers:
 class Client
 {
 	private:
-		int	_listenerFd;
-		int	_clientFd;
-		RcvBuffer _rcvBuffer;
+		int							_listenerFd;
+		int							_clientFd;
+		RcvBuffer					_rcvBuffer;
 		std::vector<cfg_server_t *>	_serverConfigs;
+		time_t						_lastActivity;
 
 	public:
-		time_t	lastActivity;
 		Client();
 		Client(int listenerFd, int clientFd);
 		~Client();
-		int getListenerFd();
-		RcvBuffer getRcvBuffer() { return this->_rcvBuffer;};
+
+		time_t		getLastActivity();
+		int			getListenerFd();
+		RcvBuffer&	getRcvBuffer();
+
+		void		setLastActivity(time_t lastActivity);
+
+		void		updateLastActivity();
 };
 
 #endif

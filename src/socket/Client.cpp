@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:18 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/08 13:09:40 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/14 16:23:55 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,20 +15,37 @@
 
 Client::Client() //set fd=-1??
 {
-
 }
 
-Client::Client(int listenerFd, int clientFd) : _listenerFd(listenerFd), _clientFd(clientFd)
+Client::Client(int listenerFd, int clientFd) : _listenerFd(listenerFd), _clientFd(clientFd), _lastActivity(time(NULL))
 {
-	lastActivity = std::time(NULL);
 }
 
 Client ::~Client()
 {
+}
 
+time_t	Client::getLastActivity()
+{
+	return this->_lastActivity;
 }
 
 int Client::getListenerFd()
 {
-	return(_listenerFd);
+	return this->_listenerFd;
+}
+
+RcvBuffer& Client::getRcvBuffer()
+{
+	return this->_rcvBuffer;
+}
+
+void	Client::setLastActivity(time_t lastActivity)
+{
+	_lastActivity = lastActivity;
+}
+
+void	Client::updateLastActivity()
+{
+	_lastActivity = time(NULL);
 }

@@ -39,6 +39,8 @@ poll
 receiving data
 	https://www.ibm.com/docs/en/aix/7.1.0?topic=se-receiving-data-atm-socket-pvc-server-example-program
 
+recv
+	https://beej.us/guide/bgnet/html/#socket
 
 http messages
 	https://www.geeksforgeeks.org/html/http-messages/
