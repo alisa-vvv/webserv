@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/06/25 12:04:11 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/25 13:40:40 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/07/14 12:51:04 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,7 +225,7 @@ std::optional<cgi_t>	executeCGI(
 		// the while (1) is the stand-in for the listen loop.
 		int	p_status;
 		while (1) {
-			bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S);
+			bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S_CGI);
 			if (timed_out) {
 				std::cout << "cgi execution took too long...\n";
 				// we throw timeout error
