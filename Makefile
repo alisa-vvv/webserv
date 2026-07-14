@@ -12,18 +12,19 @@
 
 .DEFAULT_GOAL := all
 
-NAME	=	config_parser
+NAME =	config_parser
 
-CXXFILES	= $(PARSERCPPFILES)
+CXXFILES =	$(CXXFILES_PARSER)
 
-PARSERCPPFILES = config_parser_main.cpp\
-                 configParser.cpp\
-                 configParserTEST.cpp\
-                 configParserTokenize.cpp\
-                 serverBlockParsers.cpp\
-                 configParserHelpers.cpp\
-                 configParserError.cpp
+CXXFILES_PARSER =	config_parser_main.cpp\
+                 	configParser.cpp\
+                 	configParserTEST.cpp\
+                 	configParserTokenize.cpp\
+                 	serverBlockParsers.cpp\
+                 	configParserHelpers.cpp\
+                 	configParserError.cpp
 
+CXXFILES_TIMER =	
 
 OFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.o))
 DEPFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.d))
@@ -33,7 +34,7 @@ BUILDDIR = build/
 SRCDIR = src/
 INCDIR = inc/
 SRCDIRS = $(SRCDIR) \
-			$(addprefix $(SRCDIR), config)
+			$(addprefix $(SRCDIR), config timer)
 $(SRCDIR):
 	mkdir -p $@
 $(INCDIR):
