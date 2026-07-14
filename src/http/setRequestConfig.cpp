@@ -4,34 +4,37 @@
 /// @brief  looks for the host in given servers
 /// @param listener 
 /// @return returns the index of the config with host match. returns -1 if no match
+
+// commented out by alisa
 int Http::findRequestConfig(Listener *listener)
 {
-	std::string host = getHeader("host");
-	size_t colonPos = host.find(":");
-	if (colonPos != std::string::npos)
-		host = host.substr(0, colonPos);
-	for (int i = 0; i < listener->getConfigCount() ; i++ )
-	{
-		for (const auto &serverName : listener->getServerConfig(i)->server_names)
-		{
-			if (host == serverName)
-			{
-				for (int p : listener->getServerConfig(i)->ports)
-				{
-					if (p == listener->getPort())
-						return i;
-				}
-			}
-		}
-	}
-	for (int i = 0; i < listener->getConfigCount(); i++)
-	{
-		for (const auto &name : listener->getServerConfig(i)->server_names)
-		{
-			if (host == name)
-				return i;
-		}
-	}
+	(void) listener;
+//	std::string host = getHeader("host");
+//	size_t colonPos = host.find(":");
+//	if (colonPos != std::string::npos)
+//		host = host.substr(0, colonPos);
+//	for (int i = 0; i < listener->getConfigCount() ; i++ )
+//	{
+//		for (const auto &serverName : listener->getServerConfig(i)->server_names)
+//		{
+//			if (host == serverName)
+//			{
+//				for (int p : listener->getServerConfig(i)->ports)
+//				{
+//					if (p == listener->getPort())
+//						return i;
+//				}
+//			}
+//		}
+//	}
+//	for (int i = 0; i < listener->getConfigCount(); i++)
+//	{
+//		for (const auto &name : listener->getServerConfig(i)->server_names)
+//		{
+//			if (host == name)
+//				return i;
+//		}
+//	}
 	return -1;
 }
 

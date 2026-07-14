@@ -832,7 +832,7 @@ bool	fillLocationAllowedMethodsField(
 	std::vector<t_config_token>& tokens
 ) {
 	int			i = token_index + 1;
-	e_method	method;
+	httpMethod	method;
 
 	while (tokens.at(i).type == VALUE) {
 		if (tokens.at(i).val == "GET")

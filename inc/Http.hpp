@@ -27,14 +27,6 @@ enum httpVersion {
 	INVALID //we will not handle http versions other than 1.0 and 1.1, so we set INVALID for unsupported versions
 };
 
-
-enum httpMethod {
-	GET,
-	POST,
-	DELETE,
-	UNKNOWN,
-};
-
 /// @brief This is a struct with references to the correct config file to use. context struct
 struct requestConfig
 {

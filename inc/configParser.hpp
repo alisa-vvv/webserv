@@ -105,7 +105,7 @@ typedef struct t_location {
 	std::string					root; // needed
 	std::string					index; // opt if cgi_pass is not set
 	bool						autoindex = false; // needed
-	std::map<e_method, bool>	allowed_methods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
+	std::map<httpMethod, bool>	allowed_methods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
 	std::string					upload_store; // opt
 	t_cgi_pass					cgi_pass; // opt
 	t_return					returns;

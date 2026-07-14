@@ -110,13 +110,13 @@ void	Http::validateLayer()
 
 	else if (this->_method == GET)
 	{
-		if (requestConfig->location->allowed_methods.at((e_method)GET) == false)
+		if (requestConfig->location->allowed_methods.at((httpMethod)GET) == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 	}
 
 	else if (this->_method == POST)
 	{
-		if (requestConfig->location->allowed_methods.at((e_method)POST) == false)
+		if (requestConfig->location->allowed_methods.at((httpMethod)POST) == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 		std::map<std::string, std::string>::iterator it = this->_requestHeaders.find("content-type");
 		if (it == _requestHeaders.end())
@@ -127,7 +127,7 @@ void	Http::validateLayer()
 
 	else if (this->_method == DELETE)
 	{ 
-		if (requestConfig->location->allowed_methods.at(e_method(DELETE)) == false)
+		if (requestConfig->location->allowed_methods.at(httpMethod(DELETE)) == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 	}
 

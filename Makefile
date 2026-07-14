@@ -36,7 +36,7 @@ HTTP_PARSER =	clientHandler.cpp\
 				Http.cpp\
 				httpBuffer.cpp\
 				clientHandler.cpp\
-				htppParsers.cpp\
+				httpParsers.cpp\
 				httpValidate.cpp\
 				setRequestConfig.cpp
 
