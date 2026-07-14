@@ -136,6 +136,10 @@ static int	tryExecveScript(
 	return (err_check);
 }
 
+// 1. epoll() the pipe both in and out
+// 2. then send it (the body of the CGI request) -- body from http parser
+// 3. when ready, read until EOF or death of child process
+// 4. prepare response
 static void	handle_child(
 	const cfg_server_t& server_config,
 	const std::string binary_name,
@@ -225,7 +229,7 @@ std::optional<cgi_t>	executeCGI(
 			if (waitpid(cgi.child_pid, &p_status, WNOHANG) != 0) {
 				if (p_status == 0) {
 					char buffer[4096];
-					read(cgi.output, buffer, 4096);
+					read(cgi.output, buffer, 4096); // mayybe recv with MSG_DONTWAIT
 					cgi.output_string = buffer;
 					std::cout << cgi.output_string;
 				}
@@ -240,5 +244,8 @@ std::optional<cgi_t>	executeCGI(
 		while (waitpid(cgi.child_pid, NULL, WNOHANG) == 0);
 		std::cout << "process terminated\n";
 	}
+	// if response has Status (case insensitive) header, than that's the status
+	// otherwise, 200
+	// 
 	return (cgi);
 }
