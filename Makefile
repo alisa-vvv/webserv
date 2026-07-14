@@ -14,13 +14,15 @@
 
 NAME	=	config_parser
 
-CXXFILES	=	config_parser_main.cpp\
-				configParser.cpp\
-				configParserTEST.cpp\
-				configParserTokenize.cpp\
-				serverBlockParsers.cpp\
-				configParserHelpers.cpp\
-				configParserError.cpp
+CXXFILES	= $(CXXFILES_PARSER)
+
+CXXFILES_PARSER = config_parser_main.cpp\
+                 configParser.cpp\
+                 configParserTEST.cpp\
+                 configParserTokenize.cpp\
+                 serverBlockParsers.cpp\
+                 configParserHelpers.cpp\
+                 configParserError.cpp
 
 OFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.o))
 DEPFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.d))
