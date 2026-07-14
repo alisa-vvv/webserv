@@ -131,7 +131,7 @@ run:
 	./$(NAME) $(INPUT)
 leak:
 	+$(MAKE) -s debug
-	valgrind --track-fds=yes --track-origins=yes \
+	+valgrind --track-fds=yes --track-origins=yes \
 	--leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)
 val:
 	valgrind --track-fds=yes --track-origins=yes \
