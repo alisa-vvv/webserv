@@ -87,6 +87,7 @@ CPPFLAGS	= $(INCFLAGS) -MMD -MP
 INCFLAGS	= $(addprefix -I,$(INCLUDE))
 #CFLAGS	= -Wall -Wextra -Werror
 CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined -std=c++20
+DEBUG_FLAGS	= -g
 LDFLAGS	=
 INPUT	= config/test.conf
 MAKEFLAGS += -j --no-print-directory
@@ -120,19 +121,20 @@ clangd:
 	intercept-build-14 $(MAKE)
 
 #debugging
-debug: CFLAGS += -g
-debug: clean $(NAME)
-gdb: fclean debug
-	gdb -tui ./$(NAME)
+debug:
+	+$(MAKE) fclean
+	+$(MAKE) CFLAGS="$(CFLAGS) $(DEBUG_FLAGS)" $(NAME)
+gdb:
+	+$(MAKE) debug
+	+gdb -tui ./$(NAME)
 test:
 	+$(MAKE) $(NAME)
 	+$(MAKE) run
 run:
 	./$(NAME) $(INPUT)
 leak:
-	+$(MAKE) -s debug
-	+valgrind --track-fds=yes --track-origins=yes \
-	--leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)
+	+$(MAKE) debug
+	+$(MAKE) val
 val:
 	valgrind --track-fds=yes --track-origins=yes \
 	--leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)

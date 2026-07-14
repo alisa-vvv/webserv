@@ -229,9 +229,14 @@ std::optional<cgi_t>	executeCGI(
 			if (waitpid(cgi.child_pid, &p_status, WNOHANG) != 0) {
 				if (p_status == 0) {
 					char buffer[4096];
+					cgi_bzero(buffer, 4096);
 					read(cgi.output, buffer, 4096); // mayybe recv with MSG_DONTWAIT
-					cgi.output_string = buffer;
+					for (int i = 0; buffer[i] != '\0'; i++) {
+						cgi.output_string.push_back(buffer[i]);
+					}
 					std::cout << cgi.output_string;
+					close(in_pipe[1]);
+					close(out_pipe[0]);
 				}
 				else {
 					// brr brr error
@@ -247,5 +252,8 @@ std::optional<cgi_t>	executeCGI(
 	// if response has Status (case insensitive) header, than that's the status
 	// otherwise, 200
 	// 
+	// MAKE THESE REASONABLE ->
+	free(argv[0]);
+	free(argv[1]);
 	return (cgi);
 }
