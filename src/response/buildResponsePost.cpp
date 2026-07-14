@@ -15,8 +15,11 @@ void Http::handlePostResponse()
 	if (uploadDir.empty())
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 
+	
 	//create the file? 
 	//if created setResponseCode(HTTP_CREATED)
+	//upload an image png svg
+	//upload a text file
 	try
 	{
 		std::filesystem::path basePath(uploadDir);

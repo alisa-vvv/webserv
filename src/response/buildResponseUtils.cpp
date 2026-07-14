@@ -26,7 +26,7 @@ std::map<std::string, std::string> MIME_TYPE {
 /// @brief Set the content type from path or mode
 void Http::setContentType()
 {
-	std::filesystem::path path(this->_uri);
+	std::filesystem::path path(this->_builtUri);
 	std::string extension = path.extension().string();
 	std::map<std::string, std::string>::iterator it = MIME_TYPE.find(extension);
 	if (it != MIME_TYPE.end())

@@ -6,7 +6,7 @@
 /// @brief Validate the file for permissions, file traversal, readable, deletable etc.
 void Http::validateFile()
 {
-	std::string path = this->_uri;
+	std::string path = this->_builtUri;
 	try
 	{
 		if (!std::filesystem::exists(path))
@@ -72,18 +72,18 @@ int Http::validateURI(std::string uri)
 	std::string root = requestConfig->location->root;
 	
 	// remove prefix and add root
-	std::string remaining = this->_uri.substr(prefix.length());
+	std::string remaining = this->_receivedUri.substr(prefix.length());
 
-	if (remaining.empty() || this->_uri == "/")
+	if (remaining.empty() || this->_receivedUri == "/")
 	{
 		if (!requestConfig->location->index.empty())
-			this->_uri = root + "/" + requestConfig->location->index;
+			this->_builtUri = root + "/" + requestConfig->location->index;
 		else
-			this->_uri = root + "/";
+			this->_builtUri = root + "/";
 		// if no index configured, just use root 
 	} //add variable for relative uri
 	else
-		this->_uri = root + remaining;
+		this->_builtUri = root + remaining;
 	
 	return SUCCESS;
 }
@@ -132,7 +132,7 @@ void	Http::validateLayer()
 	}
 
 	/*=====URI=====*/
-	if (validateURI(this->_uri) == FAILURE)
+	if (validateURI(this->_builtUri) == FAILURE)
 		return;
 	else
 		validateFile();

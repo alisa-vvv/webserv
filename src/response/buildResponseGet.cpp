@@ -3,7 +3,7 @@
 
 void Http::handleGetResponse()
 {
-	std::string file = this->_uri;
+	std::string file = this->_builtUri;
 	try {
 		long size = std::filesystem::file_size(file);
 		int maxBodySize = requestConfig->server->client_max_body_size;

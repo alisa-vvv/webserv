@@ -76,7 +76,7 @@ void Http::setRequestConfig(Listener *listener)
 			bestMatch = &currentLoc;
 			continue;
 		}
-		if (this->_uri.find(currentLoc.prefix) == 0)
+		if (this->_receivedUri.find(currentLoc.prefix) == 0)
 		{
 			if (currentLoc.prefix.length() > longest)
 			{

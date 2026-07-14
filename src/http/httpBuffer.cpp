@@ -1,4 +1,4 @@
-#include "httpBuffer.hpp"
+#include "../../inc/httpBuffer.hpp"
 
 //*======CONSTRUCTOR======*/
 httpBuffer::httpBuffer()

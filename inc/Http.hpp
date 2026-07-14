@@ -51,7 +51,8 @@ class Http {
 		int									_contentLen;
 		bool								_hasBody;
 		bool								_hasExtension;
-		std::string							_uri;
+		std::string							_receivedUri; //uri from original request
+		std::string							_builtUri; //uri built with root etc
 		std::string							_body;
 		std::string							_responseString;
 		std::map<std::string, std::string>	_requestHeaders;
@@ -98,6 +99,7 @@ class Http {
 		/*=======REQUEST Config===================*/
 		int				findRequestConfig(Listener *listener);
 		void 			setRequestConfig(Listener *listener);
+
 		/*==========GETTERS============*/
 		clientState		getState() const;
 		httpMethod		getMethod() const;
@@ -109,6 +111,8 @@ class Http {
 		int				getStatusCode() const;
 		std::string		getResponseString() const;
 		bool			getExtension() const;
+		std::string		getBuiltUri() const;
+		std::string		getReceivedUri() const;
 
 		/*===========DEBUGGER===================*/
 		void			debugPrintRequest();

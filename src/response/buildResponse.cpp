@@ -34,7 +34,7 @@ void Http::buildResponse()
 			setState(HANDLING_CGI_STATIC);
 			if (this->_method == GET)
 			{
-				if (std::filesystem::is_directory(this->_uri))
+				if (std::filesystem::is_directory(this->_builtUri))
 				{
 					if (requestConfig->location && requestConfig->location->autoindex)
 						handleAutoIndexResponse();

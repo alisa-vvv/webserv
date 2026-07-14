@@ -5,7 +5,7 @@ void Http::handleAutoIndexResponse() //ticket18
 {
 	try
 	{
-		std::filesystem::path dir(this->_uri);
+		std::filesystem::path dir(this->_builtUri);
 		std::string body = "<html><body><ul>";
 		for (const auto &entry : std::filesystem::directory_iterator(dir))
 		{

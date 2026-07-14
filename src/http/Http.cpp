@@ -40,8 +40,12 @@ std::string Http::getHeader(const std::string &key) const {
 	return "";
 }
 
-std::string Http::getUri() const {
-	return (_uri);
+std::string Http::getBuiltUri() const {
+	return (_builtUri);
+}
+
+std::string Http::getReceivedUri() const {
+	return (_receivedUri);
 }
 
 httpVersion Http::getVersion() const {
@@ -83,7 +87,7 @@ void Http::setResponseHeader(const std::string &key, const std::string &value) {
 
 void Http::setBody() {
 	//ticket20
-	std::string file = this->_uri;
+	std::string file = this->_builtUri;
 	std::ifstream fileStream(file, std::ios::binary);
 	if (!fileStream.is_open())
 		return setResponseCode(HTTP_FORBIDDEN);
