@@ -10,9 +10,10 @@ void Http::handleErrorResponse()
 		setResponseHeader("Location:", it->second);
 		setBody(it->second);
 	}
-	else
+	else {
 		setResponseHeader("Location:", std::get<1>(HTTP_STATUS_MESSAGE.at(stat)));
 		setBody(std::get<1>(HTTP_STATUS_MESSAGE.at(stat)));
+	}
 	setContentType();
 	setState(READY_TO_SEND);
 }

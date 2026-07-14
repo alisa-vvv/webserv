@@ -79,6 +79,8 @@ class Listener
 		const cfg_server_t	*getServerConfig(int i);
 		void				setServerConfig(const cfg_server_t *config);
 
+		int					getConfigCount() { return _serverConfigs.size(); };
+
 		void				closeSocket();
 
 		//test

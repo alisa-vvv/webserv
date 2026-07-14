@@ -1,11 +1,12 @@
 #include "../../inc/Http.hpp"
 #include <fstream>
 
-static int uploadFile()
-{
-	if file cannot be opened
-		error
-}
+//static int uploadFile()
+//{
+//	//if file cannot be opened
+//	//	error
+//	return (0);
+//}
 
 void Http::handlePostResponse()
 {

@@ -26,8 +26,6 @@ void Http::handleAutoIndexResponse() //ticket18
 
 void Http::handleReturnResponse()
 { //ticket15
-	if (requestConfig->location->returns.code <= 300 && requestConfig->location->returns.code > 400)
-		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	setResponseCode(HTTP_MOVED_PERMANENTLY);
 	setResponseHeader("Location:", requestConfig->location->returns.target);
 	setBody("");
