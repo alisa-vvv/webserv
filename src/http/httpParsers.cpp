@@ -89,6 +89,8 @@ void Http::parseHeaders(const std::string &headers)
 }
 /// @brief After receiving the rawstring, it gets parsed here. ticket10
 /// @param rawString 
+// can use this for cgi requests, need to pass parseRequestLine by adding
+// maybe add a bool called "is_cgi" and auto pass parseReqeuestLine?
 void Http::parseRequest(const std::string &rawString) 
 {
 	setState(PARSING);
