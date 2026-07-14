@@ -1,97 +1,147 @@
 #include <string>
 #include <iostream>
-#include <sys/socket.h>
-#include "Http.hpp"
+#include "../../inc/Http.hpp"
 
-//Add recvHTTP request to main
-//add a
+/*======CONSTRUCTOR======*/
 
-enum receiveStatus{
-	SOCKET_CLOSED,
-	RECV_ERROR,
-	COMPLETE,
-	INCOMPLETE,
-	MAXBYTESRECEIVED
-};
+Http::Http()
+	: _state(PARSING)
+	, _method(UNKNOWN)
+	, _version(INVALID)
+	, _statusCode(0)
+	, _contentLen(0)
+	, _hasBody(false)
+	, _hasExtension(false)
+	, requestConfig(nullptr)
+{}
 
-class httpBuffer {
-	public:
-	httpBuffer();
-	static const int		maxRequest = 8192;
-	ssize_t					totalBytesReceived;
-	receiveStatus			curentBufferStatus;
-	bool					isBufferComplete;
-	char					bufferLine[maxRequest];
-	receiveStatus			checkStatus(char *buffer);
-	void					reset();
-	void					append();
-};
+/*======GETTERS======*/
 
-httpBuffer::httpBuffer()
-	:totalBytesReceived(0), isBufferComplete(false)
-	{};
+clientState Http::getState() const {
+	return (_state);
+}
 
-receiveStatus checkStatus(char *buffer)
+httpMethod Http::getMethod() const {
+	return (_method);
+}
+
+int Http::getContentLen() const {
+	return (_contentLen);
+}
+
+std::string Http::getBody() const {
+	return (_body);
+}
+
+std::string Http::getHeader(const std::string &key) const {
+	auto it = this->_requestHeaders.find(key);
+	if (it != this->_requestHeaders.end())
+		return (it->second);
+	return "";
+}
+
+std::string Http::getBuiltUri() const {
+	return (_builtUri);
+}
+
+std::string Http::getReceivedUri() const {
+	return (_receivedUri);
+}
+
+httpVersion Http::getVersion() const {
+	return (_version);
+}
+
+int Http::getStatusCode() const {
+	return (_statusCode);
+}
+
+/// @brief get the response string ready for client use
+/// @return 
+std::string Http::getResponseString() const {
+	return _responseString;
+}
+
+bool Http::getExtension() const {
+	return (_hasExtension);
+}
+
+/*======SETTERS======*/
+
+/// @brief Set the status code to given status. Also sets client state to error
+//if status code!= OK
+/// @param code 
+void Http::setResponseCode(int code) {
+	this->_statusCode = code;
+	if (_statusCode != HTTP_OK && _statusCode != HTTP_CREATED)
+		this->_state = CLIENT_ERROR;
+}
+
+void Http::setRequestHeader(const std::string &key, const std::string &value) {
+	this->_requestHeaders[key] = value;
+}
+
+void Http::setResponseHeader(const std::string &key, const std::string &value) {
+	this->_responseHeaders[key] = value; //ticket12
+}
+
+void Http::setBody() {
+	//ticket20
+	std::string file = this->_builtUri;
+	std::ifstream fileStream(file, std::ios::binary);
+	if (!fileStream.is_open())
+		return setResponseCode(HTTP_FORBIDDEN);
+	std::string body((std::istreambuf_iterator<char>(fileStream)),
+			std::istreambuf_iterator<char>());
+	this->_body = body;
+}
+
+void Http::setBody(const std::string uri) {
+	if (uri.empty())
+		this->_body = "";
+	else
+	{
+		std::ifstream fileStream(uri, std::ios::binary);
+		if (!fileStream.is_open())
+			return setResponseCode(HTTP_FORBIDDEN);
+		std::string body((std::istreambuf_iterator<char>(fileStream)),
+				std::istreambuf_iterator<char>());
+		this->_body = body;
+	}
+}
+
+void Http::setState(clientState state) {
+	this->_state = state;
+}
+
+void Http::setExtension(bool status) {
+	this->_hasExtension = status;
+}
+
+/*======UTILS======*/
+
+
+void Http::debugPrintRequest()
 {
-	const char = *separator = "\r\n\r\n";
-	char *endHeader = strstr(buffer, separator);
-	if (!endheader)
-		return = INCOMPLETE;
+	std::cout << "=== HTTP Debug Print ===" << std::endl;
+	std::cout << "Type: " << this->getState() << std::endl;
+	std::cout << "Method: " << this->getMethod() << std::endl;
+	std::cout << "Version: " << this->getVersion() << std::endl;
+	std::cout << "Status Code: " << this->getStatusCode() << std::endl;
+	std::cout << "URI: " << this->getUri() << std::endl;
+	std::cout << "Content Length: " << this->getContentLen() << std::endl;
+	std::cout << "Body: " << this->getBody() << std::endl;
+	std::cout << "========================" << std::endl;
 	
 }
 
-
-
-receiveStatus recvHttpRequest(httpBuffer &bufferObj, int sockFd) //must take socket as param
+void Http::debugPrintRequestConfig()
 {
-	ssize_t			bytesRead;
-
-	//add client last activity?
-	while (bufferObj.totalBytesReceived < bufferObj.maxRequest)
-	{
-		bytesRead = recv(sockFd, bufferObj.bufferLine + bufferObj.totalBytesReceived, bufferObj.maxRequest - bufferObj.totalBytesReceived, 0);
-		if (bytesRead == 0)
-			return SOCKET_CLOSED;
-		if (bytesRead < 0)
-			return RECV_ERROR;
-		bufferObj.totalBytesReceived += bytesRead;
-		bufferObj.checkStatus(bufferObj.bufferLine);
-		if (bufferObj.curentBufferStatus == COMPLETE)
-			return COMPLETE;
-	}
-	return MAXBYTESRECEIVED;
-}
+	std::cout << "=== Request Config ====" << std::endl;
+	int count = this->requestConfig->server->server_names.size();
+	for (int i = 0; i < count; i++)
+		std::cout << "Server names: " << this->requestConfig->server->server_names[i] << std::endl;
+	std::cout << "Root: " << this->requestConfig->server->root << std::endl;
+	std::cout << "Location: prefix" << this->requestConfig->location->prefix << std::endl;
 	
-
-void handleHttpRequest(Http &httpObj, int sockFd)
-{
-	httpBuffer		bufferObj;
-
-	switch (recvHttpRequest(bufferObj, sockFd))
-	{
-		case COMPLETE:
-			httpObj.parseRequest(bufferObj.bufferLine);
-			break;
-		case INCOMPLETE:
-			std::cerr << "Receive buffer error: Incomplete\n";
-			break;
-		case RECV_ERROR:
-			std::cerr << "Receive buffer error\n";
-			break;
-		case SOCKET_CLOSED:
-			std::cerr << "Socket closed\n";
-			break;
-		case MAXBYTESRECEIVED:
-			std::cerr << "Receive error: maxbytes received\n";
-			break;
-	}
 }
-
-std::string handleHttpResponse(Http &httpObject) //must take socket as param
-{
-	httpObject.setResponse();
-	return(httpObject.getResponseString());
-	send();//send to socket
-}
-
-

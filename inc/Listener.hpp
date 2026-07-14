@@ -26,7 +26,7 @@
 #include <map>
 #include <csignal>
 
-#include "ConfigParser.hpp"
+#include "configParser.hpp"
 
 #define SUCCESS 0
 #define ERROR -1

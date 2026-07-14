@@ -6,15 +6,9 @@ main
 
 Http.cpp
 
-handleHttprequest
--recvhttprequest
--parserequest
---parserequestline
---parseheaderline
-
-recv into buffer
-
-->throw excepetion errors
+recv() appends into httpBuffer
+checkStatus() waits until full request is complete
+parseRequest() once on the whole string
 
 parsing layer
 
@@ -38,7 +32,7 @@ valid input?
 
 
 handlehttpResponse.cpp
--setresponse
+-setResponseCode
 -getresponsestring
 -sendresponsestring
 
