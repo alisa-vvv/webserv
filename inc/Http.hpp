@@ -105,6 +105,7 @@ class Http {
 		bool			getExtension() const;
 		std::string		getBuiltUri() const;
 		std::string		getReceivedUri() const;
+		std::string		getContentTypeExtension(const std::string &contentType) const;
 
 		/*===========DEBUGGER===================*/
 		void			debugPrintRequest();

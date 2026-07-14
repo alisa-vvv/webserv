@@ -35,3 +35,15 @@ void Http::setContentType()
 		setResponseHeader("Content-Type", "application/octet-stream"); //fallback
 	
 }
+
+/// @brief 
+/// @return content type of upload
+std::string		Http::getContentTypeExtension(const std::string &contentType) const
+{
+	for (const auto &pair : MIME_TYPE)
+	{
+		if (contentType.find(pair.second) != std::string::npos)
+			return (pair.first);
+		}
+	return "";
+}
