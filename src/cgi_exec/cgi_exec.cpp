@@ -6,12 +6,13 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/06/25 12:04:11 by avaliull            #+#    #+#           */
-/*   Updated: 2026/07/14 12:51:04 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/07/14 13:00:24 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cgi_exec.hpp"
 #include "configParser.hpp"
+#include "Timer.hpp"
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstdlib>
@@ -173,17 +174,6 @@ static cgi_t	handle_parent(
 	return (cgi);
 }
 
-// true if timeout occured (execution took DEFAULT_TIMEOUT_S seconds or longer)
-// false if no timeout(execution took less than DEFAULT_TIMEOUT_S seconds)
-bool	checkTimeOut(time_point<system_clock> timer, int time_in_seconds) {
-	using std::chrono::duration_cast;
-	using std::chrono::seconds;
-
-	const time_point<system_clock>	cur_time = system_clock::now();
-	const seconds					execution_time = duration_cast<seconds>(cur_time - timer);
-
-	return (execution_time.count() > time_in_seconds);
-}
 // two pipes
 // parent writes to input pipe and reads from output pipe
 // child reads from input pipe and writes to out pipe (dup2 that shit)

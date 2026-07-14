@@ -14,14 +14,21 @@
 
 NAME	=	config_parser
 
-CXXFILES	=	config_parser_main.cpp\
-				configParser.cpp\
-				configParserTEST.cpp\
-				configParserTokenize.cpp\
-				serverBlockParsers.cpp\
-				configParserHelpers.cpp\
-				configParserError.cpp\
-				cgi_exec.cpp\
+CXXFILES	=	$(CXXFILES_PARSER)\
+				$(CXXFILES_CGI)\
+				$(CXXFILES_TIMER)
+
+CXXFILES_PARSER	=	config_parser_main.cpp\
+					configParser.cpp\
+					configParserTEST.cpp\
+					configParserTokenize.cpp\
+					serverBlockParsers.cpp\
+					configParserHelpers.cpp\
+					configParserError.cpp
+
+CXXFILES_CGI =		cgi_exec.cpp
+
+CXXFILES_TIMER =	timer.cpp
 
 OFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.o))
 DEPFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.d))
@@ -31,7 +38,7 @@ BUILDDIR = build/
 SRCDIR = src/
 INCDIR = inc/
 SRCDIRS = $(SRCDIR) \
-			$(addprefix $(SRCDIR), config cgi_exec)
+			$(addprefix $(SRCDIR), config cgi_exec timer)
 $(SRCDIR):
 	mkdir -p $@
 $(INCDIR):
