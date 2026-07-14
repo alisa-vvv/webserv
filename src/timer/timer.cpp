@@ -24,3 +24,7 @@ bool	checkTimeOut(
 
 	return (execution_time.count() > time_in_seconds);
 }
+
+time_point<system_clock>	setTimer() {
+	return (system_clock::now());
+}
