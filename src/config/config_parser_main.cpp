@@ -6,15 +6,15 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/05/28 14:18:31 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/25 13:01:45 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/07/14 13:20:07 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "configParser.hpp"
+#include "cgi_exec.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include "cgi_exec.hpp"
 
 int	main(int argc, char** argv) {
 	if (argc != 2)
@@ -25,5 +25,12 @@ int	main(int argc, char** argv) {
 		return (1);
 	}
 	const Config& config = *parse_config_ret;
-	executeCGI(config.servers.back());
+
+	std::vector<cgi_t>		cgis_in_background;
+	std::optional<cgi_t>	cgi = executeCGI(config.servers.back());
+	if (cgi == std::nullopt) {
+		// brr brr error
+		return (1);
+	}
+	cgis_in_background.push_back(*cgi);
 }
