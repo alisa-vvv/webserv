@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/05/28 14:18:31 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/03 15:58:38 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/06/25 13:01:45 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include "cgi_exec.hpp"
 
 int	main(int argc, char** argv) {
 	if (argc != 2)
@@ -24,5 +25,5 @@ int	main(int argc, char** argv) {
 		return (1);
 	}
 	const Config& config = *parse_config_ret;
-	(void) config; // tmp
+	executeCGI(config.servers.back());
 }

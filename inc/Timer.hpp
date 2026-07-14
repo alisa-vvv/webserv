@@ -1,26 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                            ::::::::        */
-/*   timer.cpp                                               :+:    :+:       */
+/*   Timer.hpp                                               :+:    :+:       */
 /*                                                          +:+               */
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
-/*   Created: 2026/07/14 12:40:04 by avaliull            #+#    #+#           */
-/*   Updated: 2026/07/14 13:01:51 by avaliull            ########   odam.nl   */
+/*   Created: 2026/07/14 12:40:17 by avaliull            #+#    #+#           */
+/*   Updated: 2026/07/14 13:01:09 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Timer.hpp"
+#pragma once
 
-bool	checkTimeOut(
-	const time_point<system_clock> timer,
-	const int time_in_seconds
-) {
-	using std::chrono::duration_cast;
-	using std::chrono::seconds;
+#include <chrono>
 
-	const time_point<system_clock>	cur_time = system_clock::now();
-	const seconds					execution_time = duration_cast<seconds>(cur_time - timer);
+#define DEFAULT_TIMEOUT_S 30
+#define DEFAULT_TIMEOUT_S_CGI 30
 
-	return (execution_time.count() > time_in_seconds);
-}
+using std::chrono::time_point;
+using std::chrono::system_clock;
+
+bool	checkTimeOut(const time_point<system_clock> timer, const int time);
