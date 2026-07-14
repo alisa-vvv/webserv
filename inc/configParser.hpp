@@ -66,16 +66,12 @@ typedef struct	t_config_token {
 typedef enum	e_state_label {
 	FINDING_BLOCK,
 	FINDING_VALUES,
+	FOUND_ERROR,
 }	e_state_label;
 
 /*
 * Data structures that are used inside Config class
 */
-	/*	error_page	*/
-typedef struct t_error_page {
-	int			error_num;
-	std::string	redirect;
-}	t_error_page;
 
 	/*	methods	*/
 typedef enum {
@@ -112,7 +108,7 @@ typedef struct t_location {
 	std::map<e_method, bool>	allowed_methods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
 	std::string					upload_store; // opt
 	t_cgi_pass					cgi_pass; // opt
-	t_return					returns; // can it be multiple?
+	t_return					returns;
 }	t_location;
 
 	/*	server	*/
@@ -126,7 +122,6 @@ typedef struct cfg_server_t {
 	std::vector<t_location>		locations;
 	t_cgi_pass					cgi_pass; // opt
 	bool						autoindex = false;
-	t_return					returns; // opt
 }	cfg_server_t;
 /*
 */

@@ -22,67 +22,96 @@
 
 void	matchTokenToContext(
 	const t_config_token& token,
-	std::stack<e_context>& context
+	std::stack<e_context>& context,
+	std::stack<UniqueBlockMap>& unique_checker
 ) {
 	if (context.top() == GLOBAL) {
 		if (token.val == "server") {
 			context.push(SERVER);
+			unique_checker.push(UniqueBlockMap());
 		}
 	}
 	else if (context.top() == SERVER) {
-		if (token.val == "location")
+		if (token.val == "location") {
 			context.push(LOCATION);
+			unique_checker.push(UniqueBlockMap());
+		}
 	}
 }
 
 tokenParserFnPtr_t	matchTokenValueToParser(
-	const std::vector<std::string> allowed_strings,
-	const std::vector<tokenParserFnPtr_t> parsers,
-	const t_config_token& token
+	std::map<std::string, tokenParserFnPtr_t> parsers,
+	const t_config_token& token,
+	std::stack<UniqueBlockMap>& unique_checker,
+	const e_context cur_context
 ) {
-	for (size_t i = 0; i < allowed_strings.size(); i++) {
-		if (i >= parsers.size() || parsers.size() == 0) { // this should never happen
-			std::cout << CLR_RED << "ERROR: Parser not defined for " << token.val;
-			std::cout << CLR_NON << '\n';
-			return (NULL);
+	if (parsers.contains(token.val)) {
+		// 1. check if the token string is in list of unique blocks
+		// 2. if it is, check the value of the bool mapped to the name
+		// 3. if the bool is true, report duplicate error and return null
+		//    if the bool is false, set it to true and continue
+		if (!unique_checker.empty()
+				&& unique_checker.top().map.contains(token.val)) {
+			if (unique_checker.top().map[token.val] == true) {
+				std::cout << CLR_RED << "Error: ";
+				std::cout << "duplicate block " << token.val << " on line ";
+				std::cout << token.line_number;
+				std::cout << CLR_NON << '\n';
+				return (NULL);
+			}	
+			else {
+				unique_checker.top().map[token.val] = true;
+			}
 		}
-		if (token.val == allowed_strings.at(i)) {
-	  		return (parsers.at(i));
-		}
+		return (parsers[token.val]);
 	}
+	std::cout << CLR_RED << "Error: ";
+	std::cout << "Line " << token.line_number << ": block of type " << token.val;
+	std::cout << " not allowed inside ";
+	switch (cur_context) {
+		case GLOBAL:
+			std::cout << "global context";
+			break ;
+		case SERVER:
+			std::cout << "server block context";
+			break ;
+		case LOCATION:
+			std::cout << "location block context";
+			break ;
+	}
+	std::cout << CLR_NON << '\n';
 	return (NULL);
 }
 
 tokenParserFnPtr_t	matchTokenValueToParserAccordingToContext(
 	const ParsingInfo parsing_info,
 	const t_config_token& token,
-	std::stack<e_context>& context_stack
+	std::stack<e_context>& context_stack,
+	std::stack<UniqueBlockMap>& unique_checker
 ) {
-	std::vector<std::string>		allowed_strings;
-	std::vector<tokenParserFnPtr_t>	parsers;
+	std::map<std::string, tokenParserFnPtr_t>	parsers;
 
 	if (context_stack.top() == GLOBAL) {
-		allowed_strings = parsing_info.global_valid_block_names;
-		parsers = parsing_info.global_matching_functions;
+		parsers = parsing_info.global_block_parsers;
 	}
 	if (context_stack.top() == SERVER) {
-		allowed_strings = parsing_info.server_valid_block_names;
-		parsers = parsing_info.server_matching_functions;
+		parsers = parsing_info.server_block_parsers;
 	}
 	if (context_stack.top() == LOCATION) {
-		allowed_strings = parsing_info.location_valid_block_names;
-		parsers = parsing_info.location_matching_functions;
+		parsers = parsing_info.location_block_parsers;
 	}
-	return (matchTokenValueToParser(allowed_strings, parsers, token));
+	return (matchTokenValueToParser(parsers,
+								 token, unique_checker, context_stack.top()));
 }
 
 Config	tokensToConfig(
 	const ParsingInfo parsing_info,
 	std::vector<t_config_token>& tokens
 ) {
-	Config					config;
-	std::stack<e_context>	context_stack;
-	tokenParserFnPtr_t		parser = NULL;
+	Config						config;
+	std::stack<e_context>		context_stack;
+	std::stack<UniqueBlockMap>	unique_checker;
+	tokenParserFnPtr_t			parser = NULL;
 
 	context_stack.push(GLOBAL);
 	t_config_token&	cur_token = tokens.at(0);
@@ -97,6 +126,8 @@ Config	tokensToConfig(
 		}
 		else if (cur_token.type == BRACE_CLOSE) {
 			context_stack.pop();
+			if (!unique_checker.empty())
+				unique_checker.pop();
 			if (SHOW_CONFIG_PARSER_DEBUG == true) {
 				std::cout << "Skipping close brace token No." << i << ": ";
 				std::cout << cur_token.val << '\n';
@@ -108,22 +139,27 @@ Config	tokensToConfig(
 				std::cout << cur_token.val << '\n';
 			}
 			parser = matchTokenValueToParserAccordingToContext(
-				parsing_info, cur_token, context_stack);
+				parsing_info, cur_token, context_stack, unique_checker);
 			if (parser == NULL) {
-				std::cout << CLR_RED << "SOMETHING SOMETHING ERROR\n" << CLR_NON;
 				return (config);
 			}
 			else {
 				if ((*parser)(config, i, tokens) == false) {
 					return (config);
 				}
-				matchTokenToContext(cur_token, context_stack);
+				matchTokenToContext(cur_token, context_stack, unique_checker);
 	  		}
 		}
 		else {
-			std::cout << CLR_RED << "ERROR: TOKEN TYPE " << cur_token.val;
-			std::cout << " NOT COVERED BY IF-ELSE\n" << CLR_NON;
+			configParserError(
+				config,
+				"missing semicolon",
+				"Config Error",
+				tokens.at(i).line_number);
 			return (config);
+			//std::cout << CLR_RED << "ERROR: TOKEN TYPE " << cur_token.val;
+			//std::cout << " NOT COVERED BY IF-ELSE\n" << CLR_NON;
+			//return (config);
 		}
 	}
 	for (size_t i = 0; i < tokens.size(); i++) {
@@ -138,27 +174,6 @@ Config	tokensToConfig(
 	}
 	config.is_correct = true;
 	return (config);
-}
-
-bool	locationIsValid( // move this for when we pop context stack?
-	const t_location& location,
-	const size_t server_index,
-	const size_t location_index
-) {
-	if (location.prefix.size() == 0) {
-		locationValidationError("missing prefix", server_index, location_index);
-		return (false);
-	}
-	if (location.root.size() == 0) {
-		locationValidationError("missing root", server_index, location_index);
-		return (false);
-	}
-	// this is sketchy, double check what's going on here
-	if (location.index.size() == 0 && location.cgi_pass.path.size() == 0) {
-		locationValidationError("missing index", server_index, location_index);
-		return (false);
-	}
-	return (true);
 }
 
 static bool checkConfigCompleteness(Config& config) {
@@ -179,7 +194,7 @@ static bool checkConfigCompleteness(Config& config) {
 			displayParserError("Max body size not specified for server block", "Bad config");
 			return (false);
 		}
-		// add default error pages here!
+		// add default error pages here! -- why?
 		if (cur_serv.locations.size() == 0) {
 			displayParserError("No locations were specified for the server", "Bad config");
 			return (false);
@@ -190,11 +205,6 @@ static bool checkConfigCompleteness(Config& config) {
 				displayParserError("Prefix not specified for location block", "Bad config");
 				return (false);
 			}
-			// might not be necesary, check
-			//if (cur_loc.root.size() == 0) {
-			//	displayParserError("Root not specified for location block", "Bad config");
-			//	return (false);
-			//}
 			if (cur_loc.index.size() == 0 && cur_loc.cgi_pass.path.size() == 0) {
 				displayParserError("Index not specified for location block", "Bad config");
 				return (false);
@@ -227,8 +237,10 @@ std::optional<Config>	parseConfig(
 	}
 
 	tokens = tokenize(config_file);
-	if (evaluateTokens(tokens) == 1)
+	if (evaluateTokens(tokens) == 1) {
+		displayParserError("Incorrect config. Can't start server", "Config Error");
 		return (std::nullopt);
+	}
 	else
 		TEST_print_tokens(tokens);
 

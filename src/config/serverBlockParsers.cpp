@@ -14,7 +14,50 @@
 #include "configParsingInfo.hpp"
 #include "configParserTEST.hpp"
 #include <iostream>
+#include <algorithm>
 #include <arpa/inet.h>
+
+static bool	argumentNotValidPath(
+	Config& config,
+	const std::vector<t_config_token>& tokens,
+	const size_t token_index,
+	const size_t arg_index
+) {
+	if (!pathIsValid(tokens.at(arg_index).val)) {
+		const std::string	error_msg =
+			"value of field " + tokens.at(token_index).val + " " +
+			"is not a valid path";
+		configParserError(
+			config,
+			error_msg,
+			"Config Error",
+			tokens.at(arg_index).line_number);
+		return (true);
+	}
+	return (false);
+}
+
+static bool	isAboveMaxArgs(
+	Config& config,
+	const int max_args,
+	const std::vector<t_config_token>& tokens,
+	const size_t token_index
+) {
+	if (tokens.at(token_index + 1 + max_args).type == VALUE) {
+		const std::string	error_msg =
+			"field " + tokens.at(token_index).val + " can only have " +
+			std::to_string(max_args) + ' ' +
+			((max_args > 1) ? "arguments":"argument");
+
+		configParserError(
+			config,
+			error_msg,
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (true);
+	}
+	return (false);
+}
 
 bool	fillServerField(
 	Config& config,
@@ -24,25 +67,23 @@ bool	fillServerField(
 	cfg_server_t	new_server;
 
 	config.servers.push_back(new_server);
-	config.is_correct = false;
 	tokens.at(token_index).type = EVALUATED;
 	return (true);
 }
 
+// 1. has to be a path - DONE
+// 2. only one arg - DONE
 static bool	fillRootField(
 	e_context context,
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
-	if (!pathIsValid(tokens.at(token_index + 1).val)) {
-		configParserError(
-			config,
-			"value of field root is not a valid path",
-			"Config Error",
-			tokens.at(token_index).line_number);
+	if (isAboveMaxArgs(config, 1, tokens, token_index))
 		return (false);
-	}
+	if (argumentNotValidPath(config, tokens, token_index, token_index + 1))
+		return (false);
+
 	if (context == LOCATION) {
 		config.servers.back().locations.back().root = tokens.at(token_index + 1).val;
 		printParserDebug(
@@ -70,12 +111,18 @@ static bool	fillRootField(
 	return (true);
 }
 
+// 1. first argument has to be an allowed extension - DONE
+// 2. second argument has to be a valid path - DONE
+// 3. maximum two arguments - DONE
 static bool	fillCgiPass(
 	e_context context,
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 2, tokens, token_index))
+		return (false);
+
 	t_config_token	ext_token = tokens.at(token_index + 1);
 	t_config_token	path_token = tokens.at(token_index + 2);
 
@@ -111,15 +158,10 @@ static bool	fillCgiPass(
 			tokens.at(token_index).line_number);
 		return (false);
 	}
-	if (!pathIsValid(path_token.val)) {
-		configParserError(
-			config,
-			"invalid path to CGI in cgi_pass",
-			"Config Error",
-			tokens.at(token_index).line_number);
+	if (argumentNotValidPath(config, tokens, token_index, token_index + 2))
 		return (false);
-	}
 	*path_store = path_token.val;
+
 	tokens.at(token_index).type = EVALUATED;
 	tokens.at(token_index + 1).type = EVALUATED;
 	tokens.at(token_index + 2).type = EVALUATED;
@@ -160,15 +202,21 @@ static bool	fillCgiPass(
 						std::nullopt
 		);
 	}
+
 	return (true);
 }
 
+// 1. can only be "on" or "off" - DONE.
+// 2. can only have 1 argument - DONE.
 static bool	fillAutoIndex(
 	e_context context,
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 1, tokens, token_index))
+		return (false);
+
 	bool*	store;
 	if (context == SERVER) {
 		store = &config.servers.back().autoindex;
@@ -218,6 +266,7 @@ static bool	fillAutoIndex(
 	return (true);
 }
 
+// no special conditions
 bool	fillServerNameField(
 	Config& config,
 	const size_t& token_index,
@@ -247,11 +296,24 @@ bool	fillServerNameField(
 	return (true);
 }
 
+// todo this.
+// can be:
+// 1. just the port - like 8080
+// 2. host name and port - like 192.x.x.x:8080
+//
+// 1. port has to be numeric - DONE.
+// 2. ip has to have correct format - DONE.
+// 3. no duplicate ports in a single virtual server - DONE.
+// 4. can only have one argument
+
 bool	fillListenField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 1, tokens, token_index))
+		return (false);
+
 	std::string	host_name;
 	std::string	port;
 	std::string	del = ":";
@@ -259,7 +321,7 @@ bool	fillListenField(
 	std::string	listen_value = tokens.at(token_index + 1).val;
 
 	del_pos = listen_value.find(del);
-	if (del_pos == std::string::npos) {
+	if (del_pos != std::string::npos) {
 		if (config.servers.back().ip_addr != INADDR_ANY) {
 			configParserError(
 				config,
@@ -276,17 +338,41 @@ bool	fillListenField(
 	host_name = listen_value.substr(0, del_pos);
 	port = listen_value.substr(del_pos + 1, listen_value.length() - del_pos - 1);
 	if (port.find_first_not_of("0123456789") != std::string::npos) {
-		/// ERROR, brr brr, error
+		configParserError(
+			config,
+			"port value has to be a positive integer",
+			"Config Error",
+			tokens.at(token_index).line_number
+		);
 		return (false);
 	}
+
+	int	port_val;
 	try {
-		config.servers.back().ports.push_back(stoi(port));
-	} catch(std::exception out_of_range) {
-		/// ERROR, brr brr, error
-		std::cout << "exception!\n";
+		port_val = stoi(port);
+	} catch (...) {
+		configParserError(
+			config,
+			"port value outside of integer range",
+			"Config Error",
+			tokens.at(token_index).line_number
+		);
 		return (false);
 	}
+	if (std::find(config.servers.back().ports.begin(),
+			   config.servers.back().ports.end(), port_val)
+			!= config.servers.back().ports.end()) {
+		configParserError(
+			config,
+			"duplicate ports not allowed inside a single virtual server",
+			"Config Error",
+			tokens.at(token_index).line_number
+		);
+		return (false);
+	}
+	config.servers.back().ports.push_back(port_val);
 	// Parse IP adress and convert it into uint32_t form
+	if (del_pos != std::string::npos)
 	{
 		std::string	address_part;
 		int			byte_val = 0;
@@ -299,28 +385,52 @@ bool	fillListenField(
 		while (dot_count < 3) {
 			end = host_name.find_first_of(".");
 			if (end == std::string::npos) {
+				configParserError(
+					config,
+					"incorrect format for ip address",
+					"Config Error",
+					tokens.at(token_index).line_number
+				);
 				return (false);
 			}
 			dot_count++;
 			if (end - start > 3) {
-				/// ERROR, brr brr, error
-				std::cout << "ERROR, brr brr, error\n";
+				configParserError(
+					config,
+					"incorrect format for host address",
+					"Config Error",
+					tokens.at(token_index).line_number
+				);
 				return (false);
 			}
 			address_part = host_name.substr(start, end);
+			if (address_part.find_first_not_of("0123456789") != std::string::npos) {
+				configParserError(
+					config,
+					"incorrect format for host address",
+					"Config Error",
+					tokens.at(token_index).line_number
+				);
+				return (false);
+			}
 			try {
 				byte_val = stoi(address_part);
 			} catch (std::exception invalid_argument) {
 				configParserError(
 					config,
-					"Host address bad",
+					"incorrect format for host address",
 					"Config Error",
 					tokens.at(token_index).line_number
 				);
 				return (false);
 			}
 			if (byte_val > 255 || byte_val < 0) {
-				/// ERROR, brr brr, error
+				configParserError(
+					config,
+					"incorrect format for host address",
+					"Config Error",
+					tokens.at(token_index).line_number
+				);
 				return (false);
 			}
 			result += byte_val << bit_shift_val;
@@ -329,10 +439,25 @@ bool	fillListenField(
 		}
 		byte_val = stoi(host_name);
 		if (byte_val > 255 || byte_val < 0) {
-			/// ERROR, brr brr, error
+			configParserError(
+				config,
+				"incorrect format for host address",
+				"Config Error",
+				tokens.at(token_index).line_number
+			);
 			return (false);
 		}
 		result += byte_val;
+		host_name.erase(0, end);
+		if (!host_name.empty()) {
+			configParserError(
+				config,
+				"incorrect format for host address",
+				"Config Error",
+				tokens.at(token_index).line_number
+			);
+			return (false);
+		}
 		config.servers.back().ip_addr = htonl(result);
 	}
 
@@ -355,22 +480,19 @@ bool	fillListenField(
 	return (true);
 }
 
+// has to be a valid path - DONE.
+// can ony be one arg - DONE.
+
 bool	fillServerRootField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
-	if (config.servers.back().root.size() != 0) {
-		configParserError(
-			config,
-			"duplicate root fields",
-			"Config Error",
-			tokens.at(token_index).line_number);
-		return (false);
-	}
 	return (fillRootField(SERVER, config, token_index, tokens));
 }
 
+// needs a prefix - DONE.
+// prefix needs to be a path - DONE.
 bool	fillServerLocationField(
 	Config& config,
 	const size_t& token_index,
@@ -405,11 +527,17 @@ bool	fillServerLocationField(
 	return (true);
 }
 
+// 1. can have a maximum of two arguments - DONE.
+// 2. needs to have a code and an html page - DONE
+// 3. code needs to be within error range - DONE.
 bool	fillServerErrorPageField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 2, tokens, token_index))
+		return (false);
+
 	int				error_code;
 	t_config_token&	error_code_token = tokens.at(token_index + 1);
 	t_config_token&	error_page_token = tokens.at(token_index + 2);
@@ -418,7 +546,7 @@ bool	fillServerErrorPageField(
 		&& error_page_token.type != VALUE) {
 		configParserError(
 			config,
-			"HTML error field needs to keys: error code and error page path",
+			"HTML error field needs two values: error code and error page path",
 			"Config Error",
 			tokens.at(token_index).line_number);
 		return (false);
@@ -449,20 +577,15 @@ bool	fillServerErrorPageField(
 			tokens.at(token_index).line_number);
 		return (false);
 	}
-	if (!pathIsValid(error_page_token.val)) {
-		configParserError(
-			config,
-			"error page path must begin with a forward slash",
-			"Config Error",
-			tokens.at(token_index).line_number);
+	if (argumentNotValidPath(config, tokens, token_index, token_index + 2))
 		return (false);
-	}
 	auto it = config.servers.back().error_pages.find(error_code);
 	if (it != config.servers.back().error_pages.end()) {
 		config.servers.back().error_pages[error_code] = error_page_token.val;
 	}
 	else
 		config.servers.back().error_pages.insert({error_code, error_page_token.val});
+
 	tokens.at(token_index).type = EVALUATED;
 	error_code_token.type = EVALUATED;
 	error_page_token.type = EVALUATED;
@@ -487,18 +610,23 @@ bool	fillServerErrorPageField(
 	return (true);
 }
 
+// 1. can only be one arguent - DONE.
+// 2. has to be a number or a number + M or m - DONE.
+// 3. number has to be lower than defined maximum - DONE.
 bool	fillServerMaxBodySize(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 1, tokens, token_index))
+		return (false);
+
 	t_config_token&	size_token = tokens.at(token_index + 1);
 
-	// add check for if it's bigger than max value
 	if (size_token.val.length() > lengthOfInt(CLIENT_MAX_BODY_SIZE)) {
 		configParserError(
 			config,
-			"value for client_max_body_size option is too long",
+			"value for client_max_body_size option is too big",
 			"Config Error",
 			tokens.at(token_index).line_number);
 		return (false);
@@ -518,7 +646,7 @@ bool	fillServerMaxBodySize(
 	if (config.servers.back().client_max_body_size > CLIENT_MAX_BODY_SIZE) {
 		configParserError(
 			config,
-			"value for client_max_body_size to big",
+			"value for client_max_body_size too big",
 			"Config Error",
 			tokens.at(token_index).line_number);
 		return (false);
@@ -554,11 +682,17 @@ bool	fillServerAutoIndex(
 	return (fillAutoIndex(SERVER, config, token_index, tokens));
 }
 
+// 1. can have a maximum of two (three if we do strings) max. arguments - DONE.
+// 2. first argument is either error code or a URI - DONE.
+// 3. error code must be within defined range - DONE.
+// 4. URI must be a path or an http link - DONE.
 static std::optional<t_return>	fillReturn(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 2, tokens, token_index))
+		return (std::nullopt);
 	t_return		new_return;
 	t_config_token& first_arg = tokens.at(token_index + 1);
 	t_config_token* redirect_target_tok = &tokens.at(token_index + 1);
@@ -601,37 +735,6 @@ static std::optional<t_return>	fillReturn(
 	return (new_return);
 }
 
-bool	fillServerReturn(
-	Config& config,
-	const size_t& token_index,
-	std::vector<t_config_token>& tokens
-) {
-	std::optional<t_return>	new_return = fillReturn(config, token_index, tokens);
-	if (new_return == std::nullopt) {
-		return (false);
-	}
-	config.servers.back().returns = *new_return;
-
-	printParserDebug(
-		"server return code field",
-		"config.servers.back().returns.code",
-		true,
-		std::nullopt,
-		std::nullopt,
-		config.servers.back().returns.code
-	);
-	printParserDebug(
-		"server return target field",
-		"config.servers.back().returns.target",
-		true,
-		config.servers.back().returns.target,
-		std::nullopt,
-		std::nullopt
-	);
-
-	return (true);
-}
-
 bool	fillLocationReturn(
 	Config& config,
 	const size_t& token_index,
@@ -671,11 +774,18 @@ bool	fillLocationRootField(
 	return (fillRootField(LOCATION, config, token_index, tokens));
 }
 
+// 1. has to end with .html - DONE.
+// 2. 1 argument max - DONE.
+// 3. can be called something that's not index.html?
 bool	fillLocationIndexField( // TEST THIS
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	if (isAboveMaxArgs(config, 1, tokens, token_index)) {
+		return (false);
+	}
+
 	std::string	val_str = tokens.at(token_index + 1).val;
 
 	if (val_str.size() < 6) {
@@ -703,7 +813,7 @@ bool	fillLocationIndexField( // TEST THIS
 
 	printParserDebug(
 					"location index field",
-					"config.servers.back().autoindex",
+					"config.servers.back().locations.back().index",
 					true,
 					config.servers.back().locations.back().index,
 					std::nullopt,
@@ -713,6 +823,9 @@ bool	fillLocationIndexField( // TEST THIS
 	return (true);
 }
 
+// 1. can be any amount of args - DONE.
+// 2. args have to match pre-defined methods - DONE.
+// 3. no duplicates - DONE.
 bool	fillLocationAllowedMethodsField(
 	Config& config,
 	const size_t& token_index,
@@ -737,24 +850,24 @@ bool	fillLocationAllowedMethodsField(
 			);
 			return (false);
 		}
-		if (config.servers.back().locations.back().allowed_methods[method] == true) { // is this even necessary?
+		if (config.servers.back().locations.back().allowed_methods[method] == true) {
 			configParserError(
-							config,
-							"duplicate method in allowed_methods field",
-							"Config Error",
-							tokens.at(token_index).line_number
+				config,
+				"duplicate method in allowed_methods field",
+				"Config Error",
+				tokens.at(token_index).line_number
 			);
 			return (false);
 		}
 		config.servers.back().locations.back().allowed_methods[method] = true;
 
 		printParserDebug(
-						"location allowed methods field",
-						"config.servers.back().allowed_methods[" + tokens.at(i).val + "]",
-						true,
-						std::nullopt,
-						config.servers.back().locations.back().allowed_methods[method],
-						std::nullopt
+			"location allowed methods field",
+			"config.servers.back().allowed_methods[" + tokens.at(i).val + "]",
+			true,
+			std::nullopt,
+			config.servers.back().locations.back().allowed_methods[method],
+			std::nullopt
 		);
 
 		i++;
@@ -762,35 +875,23 @@ bool	fillLocationAllowedMethodsField(
 
 	for (int j = token_index; j < i; j++) {
 		tokens.at(j).type = EVALUATED;
-
 	}
 
 	return (true);
 }
 
+// 1. has to be a valid path - DONE.
+// 2. max 1 element - DONE.
 bool	fillLocationUploadStoreField(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
-	if (tokens.at(token_index + 2).type == VALUE) {
-		configParserError(
-						config,
-						"upload_store can only have one directory",
-						"Config Error",
-						tokens.at(token_index).line_number
-		);
+	if (isAboveMaxArgs(config, 1, tokens, token_index))
 		return (false);
-	}
-	if (!pathIsValid(tokens.at(token_index +1).val)) {
-		configParserError(
-						config,
-						"upload_store value is not a valid path",
-						"Config Error",
-						tokens.at(token_index).line_number
-		);
+	if (argumentNotValidPath(config, tokens, token_index, token_index + 1))
 		return (false);
-	}
+
 	config.servers.back().locations.back().upload_store = tokens.at(token_index + 1).val;
 
 	tokens.at(token_index).type = EVALUATED;
