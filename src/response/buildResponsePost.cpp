@@ -3,7 +3,8 @@
 
 static int uploadFile()
 {
-	
+	if file cannot be opened
+		error
 }
 
 void Http::handlePostResponse()
@@ -13,7 +14,7 @@ void Http::handlePostResponse()
 	const std::string &uploadDir = requestConfig->location->upload_store;
 	if (uploadDir.empty())
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
-	
+
 	//create the file? 
 	//if created setResponseCode(HTTP_CREATED)
 	try

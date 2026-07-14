@@ -81,7 +81,7 @@ int Http::validateURI(std::string uri)
 		else
 			this->_uri = root + "/";
 		// if no index configured, just use root 
-	}
+	} //add variable for relative uri
 	else
 		this->_uri = root + remaining;
 	
