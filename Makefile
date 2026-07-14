@@ -12,17 +12,44 @@
 
 .DEFAULT_GOAL := all
 
-NAME	=	config_parser
+NAME =	config_parser
 
-CXXFILES	= $(CXXFILES_PARSER)
+CXXFILES	=	$(CXXFILES_PARSER)\
+				$(CXXFILES_CGI)\
+				$(CXXFILES_TIMER)\
+				$(HTTP_PARSER)\
+				$(RESPONSE_BUILDER)\
+				$(CXXFILES_SOCKET)
 
-CXXFILES_PARSER = config_parser_main.cpp\
-                 configParser.cpp\
-                 configParserTEST.cpp\
-                 configParserTokenize.cpp\
-                 serverBlockParsers.cpp\
-                 configParserHelpers.cpp\
-                 configParserError.cpp
+CXXFILES_PARSER	=	config_parser_main.cpp\
+					configParser.cpp\
+					configParserTEST.cpp\
+					configParserTokenize.cpp\
+					serverBlockParsers.cpp\
+					configParserHelpers.cpp\
+					configParserError.cpp
+
+CXXFILES_CGI =		cgi_exec.cpp
+
+CXXFILES_TIMER =	timer.cpp
+
+HTTP_PARSER =	clientHandler.cpp\
+				Http.cpp\
+				httpBuffer.cpp\
+				clientHandler.cpp\
+				httpParsers.cpp\
+				httpValidate.cpp\
+				setRequestConfig.cpp
+
+RESPONSE_BUILDER =	buildResponse.cpp\
+					buildResponseAutoIndexReturn.cpp\
+					buildResponseDelete.cpp\
+					buildResponseError.cpp\
+					buildResponseGet.cpp\
+					buildResponsePost.cpp\
+					buildResponseUtils.cpp
+
+CXXFILES_SOCKET =	Listener.cpp
 
 OFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.o))
 DEPFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.d))
@@ -31,13 +58,16 @@ VPATH	= $(INCLUDE) $(SRCDIRS)
 BUILDDIR = build/
 SRCDIR = src/
 INCDIR = inc/
-SRCDIRS = $(SRCDIR) \
-			$(addprefix $(SRCDIR), config)
-$(SRCDIR):
-	mkdir -p $@
-$(INCDIR):
-	mkdir -p $@
-$(BUILDDIR):
+SRCDIRS = $(SRCDIR)\
+			$(addprefix $(SRCDIR),\
+				config\
+				cgi_exec\
+				timer\
+				http\
+				response\
+				socket\
+			)
+%/:
 	mkdir -p $@
 
 INCLUDE = $(INCDIR)
@@ -59,6 +89,7 @@ INCFLAGS	= $(addprefix -I,$(INCLUDE))
 CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined -std=c++20
 LDFLAGS	=
 INPUT	= config/test.conf
+MAKEFLAGS += -j --no-print-directory
 
 
 -include $(OFILES:.o=.d)
@@ -79,7 +110,9 @@ clean:
 	$(RM) $(OFILES)
 fclean:	clean #libs_clean
 	$(RM) $(NAME) $(DEPFILES)
-re:	fclean all
+re:
+	+$(MAKE) fclean
+	+$(MAKE) all
 
 #LSP connection for neovim
 clangd:
@@ -91,11 +124,13 @@ debug: CFLAGS += -g
 debug: clean $(NAME)
 gdb: fclean debug
 	gdb -tui ./$(NAME)
-test: $(NAME) run
+test:
+	+$(MAKE) $(NAME)
+	+$(MAKE) run
 run:
 	./$(NAME) $(INPUT)
 leak:
-	$(MAKE) -s debug
+	+$(MAKE) -s debug
 	valgrind --track-fds=yes --track-origins=yes \
 	--leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)
 val:

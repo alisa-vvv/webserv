@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/05/28 13:16:53 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/12 18:17:00 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/07/14 13:30:10 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,12 +74,12 @@ typedef enum	e_state_label {
 */
 
 	/*	methods	*/
-typedef enum {
+enum httpMethod {
 	GET,
 	POST,
 	DELETE,
-}	e_method;
-
+	UNKNOWN,
+};
 	/* cgi_pass	*/
 #define CGI_EXT_STR_PY ".py"
 
@@ -105,7 +105,7 @@ typedef struct t_location {
 	std::string					root; // needed
 	std::string					index; // opt if cgi_pass is not set
 	bool						autoindex = false; // needed
-	std::map<e_method, bool>	allowed_methods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
+	std::map<httpMethod, bool>	allowed_methods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
 	std::string					upload_store; // opt
 	t_cgi_pass					cgi_pass; // opt
 	t_return					returns;
