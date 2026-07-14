@@ -99,7 +99,6 @@ class Http {
 		int				getContentLen() const;
 		std::string		getBody() const;
 		std::string		getHeader(const std::string &key) const;
-		std::string		getUri() const;
 		httpVersion		getVersion() const;
 		int				getStatusCode() const;
 		std::string		getResponseString() const;
