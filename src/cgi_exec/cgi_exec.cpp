@@ -175,14 +175,14 @@ static cgi_t	handle_parent(
 
 // true if timeout occured (execution took DEFAULT_TIMEOUT_S seconds or longer)
 // false if no timeout(execution took less than DEFAULT_TIMEOUT_S seconds)
-bool	cgiTimeOut(time_point<system_clock>	timer) {
+bool	checkTimeOut(time_point<system_clock> timer, int time_in_seconds) {
 	using std::chrono::duration_cast;
 	using std::chrono::seconds;
 
 	const time_point<system_clock>	cur_time = system_clock::now();
 	const seconds					execution_time = duration_cast<seconds>(cur_time - timer);
 
-	return (execution_time.count() > DEFAULT_TIMEOUT_S);
+	return (execution_time.count() > time_in_seconds);
 }
 // two pipes
 // parent writes to input pipe and reads from output pipe
@@ -225,7 +225,7 @@ std::optional<cgi_t>	executeCGI(
 		// the while (1) is the stand-in for the listen loop.
 		int	p_status;
 		while (1) {
-			bool	timed_out = cgiTimeOut(cgi.timer);
+			bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S);
 			if (timed_out) {
 				std::cout << "cgi execution took too long...\n";
 				// we throw timeout error
