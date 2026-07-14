@@ -18,7 +18,8 @@ CXXFILES	=	$(CXXFILES_PARSER)\
 				$(CXXFILES_CGI)\
 				$(CXXFILES_TIMER)\
 				$(HTTP_PARSER)\
-				$(RESPONSE_BUILDER)
+				$(RESPONSE_BUILDER)\
+				$(CXXFILES_SOCKET)
 
 CXXFILES_PARSER	=	config_parser_main.cpp\
 					configParser.cpp\
@@ -48,6 +49,8 @@ RESPONSE_BUILDER =	buildResponse.cpp\
 					buildResponsePost.cpp\
 					buildResponseUtils.cpp
 
+CXXFILES_SOCKET =	Listener.cpp
+
 OFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.o))
 DEPFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.d))
 
@@ -62,6 +65,7 @@ SRCDIRS = $(SRCDIR)\
 				timer\
 				http\
 				response\
+				socket\
 			)
 $(SRCDIR):
 	mkdir -p $@

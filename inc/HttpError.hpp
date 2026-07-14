@@ -21,7 +21,7 @@ static const int HTTP_INTERNAL_SERVER_ERROR = 500; //cgi process fails
 static const int HTTP_VERSION_NOT_SUPPORTED = 505; //HTTP Version not supported
 
 
-std::map<int, std::tuple<std::string, std::string>> HTTP_STATUS_MESSAGE = {
+static const std::map<int, std::tuple<std::string, std::string>> HTTP_STATUS_MESSAGE = {
 	{200, {"OK", ""}},
 	{201, {"Created", ""}},
 	{400, {"Bad request", "/error_pages/400.html"}},
