@@ -1,38 +1,13 @@
 
-main
---call handleHttpRequest
---call handleHttpResponse
+Every connection/client creates an Http Object - this is specific for each request. 
 
+This object goes through a linear pipeline: Parse → Route → Validate → Handle → Execute → Build Response String.
 
-Http.cpp
+So when we get the string from recv....
 
-recv() appends into httpBuffer
-checkStatus() waits until full request is complete
-parseRequest() once on the whole string
-
-parsing layer
-
-validation layer
-invalid input? -> map to status message
-
-response builder
-valid input?
-->no? build response, map to status builder (if not )
-->yes?
-	-> check hasextension 
-		-> yes? call cgi response and exit to poll loop
-		-> no? switch case http method, call handler
-	->handlers
-		->get
-		->post
-	->delete
-->build response string
-->send
-	
-
-
-handlehttpResponse.cpp
--setResponseCode
--getresponsestring
--sendresponsestring
-
+Parsing - httpParser,cpp- send the string to parseRequest - parse it into parts
+Routing - setRequestConfig.cpp - match the request to server/location block
+Validation - httpValidate.cpp - validate the parsed parts, the allowed methods from routing, uri, permissions, detect file extensions
+Handle Response - buildResponse.cpp - dispatcher
+Method execution - handleGet/Post/Delete/Error/AutoindexReturn - execute the logic
+Build Response String - buildResponse.cpp - build the string, ready for send
