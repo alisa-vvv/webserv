@@ -28,6 +28,7 @@ void Http::parseRequestLine(const std::string line)
 	else
 		this->_method = UNKNOWN;
 	
+	this->_receivedUri = uri;
 	this->_builtUri = uri;
 
 	if (version == "HTTP/1.0")

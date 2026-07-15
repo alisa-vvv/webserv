@@ -103,7 +103,10 @@ void Http::setBody(const std::string uri) {
 	{
 		std::ifstream fileStream(uri, std::ios::binary);
 		if (!fileStream.is_open())
-			return setResponseCode(HTTP_FORBIDDEN);
+		{
+			this->_body = "";
+			return;
+		}
 		std::string body((std::istreambuf_iterator<char>(fileStream)),
 				std::istreambuf_iterator<char>());
 		this->_body = body;
