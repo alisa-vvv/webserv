@@ -83,7 +83,7 @@ void Http::parseHeaders(const std::string &headers)
 				return setResponseCode(HTTP_BAD_REQUEST);
 			}
 		}
-		this->_requestHeaders[key] = val;
+		this->_requestHeaders.insert({key, val});
 		start = newLine + 2;
 	}
 }

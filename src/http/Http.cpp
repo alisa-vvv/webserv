@@ -78,11 +78,11 @@ void Http::setResponseCode(int code) {
 }
 
 void Http::setRequestHeader(const std::string &key, const std::string &value) {
-	this->_requestHeaders[key] = value;
+	this->_requestHeaders.insert({key, value});
 }
 
 void Http::setResponseHeader(const std::string &key, const std::string &value) {
-	this->_responseHeaders[key] = value; //ticket12
+	this->_responseHeaders.insert({key, value}); //ticket12
 }
 
 void Http::setBody() {
