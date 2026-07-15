@@ -10,6 +10,8 @@ void Http::handleGetResponse()
 		if (maxBodySize >= 0 && size > maxBodySize)
 			return setResponseCode(HTTP_PAYLOAD_TOO_LARGE);
 		setBody();
+		if (getState() == CLIENT_ERROR)
+			return;
 		setResponseCode(HTTP_OK);
 		setState(READY_TO_SEND);
 	}

@@ -28,8 +28,6 @@ void Http::validateFile()
 			return setResponseCode(HTTP_FORBIDDEN); //no read perm on get
 		else if (this->_method == DELETE && !(fileStat.st_mode & S_IWUSR))
 			return setResponseCode(HTTP_FORBIDDEN); //no edit perm on del
-		else if (this->_method == POST && !(fileStat.st_mode & S_IWUSR))
-			return setResponseCode(HTTP_FORBIDDEN); //no write perm on post
 		else if (getExtension() == true && !(fileStat.st_mode & S_IXUSR))
 			return setResponseCode(HTTP_FORBIDDEN); 
 	}
@@ -74,17 +72,25 @@ int Http::validateURI(std::string uri)
 	// remove prefix and add root
 	std::string remaining = this->_receivedUri.substr(prefix.length());
 
-	if (remaining.empty() || this->_receivedUri == "/")
+	// only serve index if request ends with / or is exactly /
+	bool isDirectoryRequest = (this->_receivedUri == "/") || (this->_receivedUri.length() > 0 && this->_receivedUri.back() == '/');
+
+	if (isDirectoryRequest)
 	{
 		if (!requestConfig->location->index.empty())
-			this->_builtUri = root + "/" + requestConfig->location->index;
+		{
+			if (remaining.empty())
+				this->_builtUri = root + "/" + requestConfig->location->index;
+			else if (remaining.back() == '/')
+				this->_builtUri = root + remaining + requestConfig->location->index;
+			else
+				this->_builtUri = root + remaining + "/" + requestConfig->location->index;
+		}
 		else
-			this->_builtUri = root + "/";
-		// if no index configured, just use root 
-	} //add variable for relative uri
+			this->_builtUri = root + (remaining.empty() ? "/" : remaining);
+	}
 	else
 		this->_builtUri = root + remaining;
-	
 	return SUCCESS;
 }
 
@@ -120,7 +126,7 @@ void	Http::validateLayer()
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 		std::map<std::string, std::string>::iterator it = this->_requestHeaders.find("content-type");
 		if (it == _requestHeaders.end())
-			return setResponseCode(HTTP_UNSUPPORTED_MEDIA);
+			return setResponseCode(HTTP_BAD_REQUEST);
 		else if (it->second.empty())
 			return setResponseCode(HTTP_BAD_REQUEST);
 	}

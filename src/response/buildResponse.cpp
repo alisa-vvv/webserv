@@ -42,7 +42,7 @@ void Http::buildResponse()
 					else if (requestConfig->server->autoindex)
 						handleAutoIndexResponse();
 					else
-						setResponseCode(HTTP_NOT_FOUND);
+						setResponseCode(HTTP_FORBIDDEN);
 				}
 				else
 					handleGetResponse();
@@ -52,12 +52,13 @@ void Http::buildResponse()
 			else if (this->_method == DELETE)
 				handleDeleteResponse();
 			else
-				handleErrorResponse();
+				handleErrorResponse(); //defensive fallcase->getstate should already handle it
 		}
 	}
 	if (getState() == CLIENT_ERROR)
 		handleErrorResponse();
 	setResponseHeader("Content-Length", std::to_string(this->_body.size()));
 	setResponseHeader("Connection:", "keep-alive"); //ticket16
+	// setResponseHeader("Date", time(nullptr)); need to add date and not time. probably need to make a httpdatefucntion
 	buildResponseString();
 }

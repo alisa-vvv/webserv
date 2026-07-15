@@ -13,27 +13,27 @@ int Http::findRequestConfig(Listener *listener)
 	size_t colonPos = host.find(":");
 	if (colonPos != std::string::npos)
 		host = host.substr(0, colonPos);
+
 	for (int i = 0; i < listener->getConfigCount() ; i++ )
 	{
-		for (const auto &serverName : listener->getServerConfig(i)->server_names)
+		const cfg_server_t *server = listener->getServerConfig(i);
+		
+		bool portMatch = false;
+		for (int p : server->ports)
 		{
-			if (host == serverName)
+			if (p == listener->getPort())
 			{
-				for (int p : listener->getServerConfig(i)->ports)
-				{
-					if (p == listener->getPort())
-						return i;
-				}
+				portMatch = true;
+				break;
 			}
 		}
-	}
-	for (int i = 0; i < listener->getConfigCount(); i++)
+	if (!portMatch)
+		continue;
+	for (const auto &name : listener->getServerConfig(i)->server_names)
 	{
-		for (const auto &name : listener->getServerConfig(i)->server_names)
-		{
-			if (host == name)
-				return i;
-		}
+		if (host == name)
+			return i;
+	}
 	}
 	return -1;
 }
@@ -53,23 +53,11 @@ void Http::setRequestConfig(Listener *listener)
 	if (!server)
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 
-	bool portMatch = false;
-	if (server->ports.empty())
-		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
-	for (int p : server->ports)
-	{
-		if (p == listener->getPort())
-		{
-			portMatch = true;
-			break;
-		}
-	}
-	if (!portMatch)
-		return setResponseCode(HTTP_BAD_REQUEST); //port mismatch
 	this->requestConfig->server = server;
 	
 	if (server->locations.empty())
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
+
 	const t_location *bestMatch = nullptr;
 	size_t longest = 0;
 	for (const auto &currentLoc : server->locations)

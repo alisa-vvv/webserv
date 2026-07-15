@@ -13,7 +13,7 @@ void Http::parseRequestLine(const std::string line)
 	size_t	secSep = line.rfind(' ');
 
 	if (firstSep == std::string::npos || secSep == std::string::npos)
-		setResponseCode(HTTP_BAD_REQUEST);
+		return setResponseCode(HTTP_BAD_REQUEST);
 	std::string method = line.substr(0, firstSep);
 	std::string uri = line.substr(firstSep + 1, secSep - firstSep - 1);
 	std::string version = line.substr(secSep + 1);

@@ -48,8 +48,8 @@ class Http {
 		std::string							_builtUri; //uri built with root etc
 		std::string							_body;
 		std::string							_responseString;
-		std::map<std::string, std::string>	_requestHeaders;
-		std::map<std::string, std::string>	_responseHeaders;
+		std::multimap<std::string, std::string>	_requestHeaders;
+		std::multimap<std::string, std::string>	_responseHeaders;
 
 	public:
 		Http();

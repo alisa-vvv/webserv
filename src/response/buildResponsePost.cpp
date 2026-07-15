@@ -1,5 +1,5 @@
 #include "../../inc/Http.hpp"
-#include <fstream>
+#include <ctime>
 
 
 void Http::handlePostResponse()
@@ -23,20 +23,32 @@ void Http::handlePostResponse()
 	std::string extension = getContentTypeExtension(getHeader("Content-Type"));
 	if (extension.empty())
 		return setResponseCode(HTTP_UNSUPPORTED_MEDIA);
+	
+	if (_body.size() > (size_t)requestConfig->server->client_max_body_size)
+		return setResponseCode(HTTP_PAYLOAD_TOO_LARGE);
+
 	try
 	{
-		std::string filename = "file_upload_" + std::to_string(std::time(nullptr)) + extension;
-		std::filesystem::path filepath = std::filesystem::path(uploadDir);
+		std::string baseFileName = "upload_" + std::to_string(std::time(nullptr));
+		std::string filename = baseFileName + extension;
+		std::filesystem::path filepath = std::filesystem::path(uploadDir)/filename;
 		
+		int count = 1;
+		while(std::filesystem::exists(filepath))
+		{
+			filename = baseFileName + "_" + std::to_string(count) + extension;
+			filepath = std::filesystem::path(uploadDir)/filename;
+			count++;
+		}
+
 		std::ofstream outFile(filepath, std::ios::binary);
 		if (!outFile.is_open())
 			return setResponseCode(HTTP_FORBIDDEN);
 		outFile.write(this->_body.c_str(), this->_body.size());
 		outFile.close();
-		
 		setResponseCode(HTTP_CREATED);
 		setResponseHeader("Location:", "/" + filename);
-		setBody();
+		setBody("");
 		setState(READY_TO_SEND);
 	}
 	catch (const std::exception &e)
