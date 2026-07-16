@@ -3,7 +3,9 @@
 
 * TODO:
 	* process signals like SIGINT for clean shutdown
-
+	*finish setState
+	*finish send
+	*fix check status
 
 logic:
 Parse and validate configuration

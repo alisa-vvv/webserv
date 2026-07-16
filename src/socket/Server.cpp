@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/08 15:30:10 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 01:14:35 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,8 +145,8 @@ eServerError Server::_pollEvents()
 		}
 		else
 		{
-			int clientClosed = _handleClientEvent(i);
-			if (clientClosed == 0) //if client is not deleted i++
+			eClientEventResult clientClosed = _handleClientEvent(i);
+			if (clientClosed == CLIENT_KEPT)
 				i++;
 		}
 		//_checkTimeouts(); //TODO
@@ -175,26 +175,29 @@ eServerError Server::_handleListenerEvent(int i)
 	return SERVER_OK;
 }
 
-int Server::_handleClientEvent(int i)
+eClientEventResult Server::_handleClientEvent(int i)
 {
 	int fd = _pollFds[i].fd;
 
 	if (_pollFds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 	{
 		_closeClientFd(fd);
-		return 1;
+		return CLIENT_REMOVED;
 	}
 	if (_pollFds[i].revents & POLLIN)
 	{
-		//ready for recv
-		_handleRecv(fd);
-		//clientHandler(_clients.at(fd)); //->  clientHandler(Client client);
+		eServerError err = _handleRecv(fd);
+		if (err != SERVER_OK)
+		{
+			_closeClientFd(fd);
+			return CLIENT_REMOVED; //client removed
+		}
 	}
 	if (_pollFds[i].revents & POLLOUT)
 	{
-		// ready for send to client
+		eServerError err = _handleSend(fd);
 	}
-	return SERVER_OK;
+	return CLIENT_KEPT;
 }
 
 Server::Server(const Config &config) : _config(config)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/14 16:28:47 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 01:12:48 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,12 @@ enum eServerError
 	SERVER_TIMEOUT_ERR
 };
 
+enum eClientEventResult
+{
+	CLIENT_KEPT,
+	CLIENT_REMOVED
+};
+
 class Server
 {
 private:
@@ -43,28 +49,29 @@ private:
 	std::map<int, Client>		_clients;	// client state, found by client fd
 	std::vector<struct pollfd>	_pollFds;	// the list poll() watches
 
-	void			_buildListener(void);
-	void			_addFdToPoll(int fd);
-	void			_addListenerFdsToPoll();
+	void				_buildListener(void);
+	void				_addFdToPoll(int fd);
+	void				_addListenerFdsToPoll();
 	
-	int				_isListenerFd(int fd) const;
+	int					_isListenerFd(int fd) const;
 	
 	Server(const Server &other);
-	Server			&operator=(const Server &other);
-	eServerError	_initPollEvent();
+	Server				&operator=(const Server &other);
+	eServerError		_initPollEvent();
 	
-	eServerError	_pollEvents();
-	eServerError	_handleListenerEvent(int i);
-	int				_handleClientEvent(int i);
-	eServerError	_handleRecv(int fd);
-	
-	eServerError	_acceptClients(int serverListenFd);
-	eServerError	_setNonBlocking(int fd);
-	void			_checkTimeouts(); //TODO:finish
+	eServerError		_pollEvents();
+	eServerError		_handleListenerEvent(int i);
+	eClientEventResult	_handleClientEvent(int i);
+	eServerError		_handleRecv(int fd);
+	eServerError		_handleSend(int fd);
 
-	void			_closeClientFd(int fd);
-	void			_closeClients();
-	void			_closeAll();
+	eServerError		_acceptClients(int serverListenFd);
+	eServerError		_setNonBlocking(int fd);
+	void				_checkTimeouts(); //TODO:finish
+
+	void				_closeClientFd(int fd);
+	void				_closeClients();
+	void				_closeAll();
 	
 	public:
 	Server(const Config &config);
