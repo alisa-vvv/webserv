@@ -51,16 +51,23 @@ static int	gotCGIOutput(
 		return (1);
 	}
 
+	#define CGI_RECV_BUF 512
 	if (int wait_res = waitpid(cgi.child_pid, p_status, WNOHANG) != 0) {
 		if (wait_res > 0) {
-			char buffer[4096];
-			cgi_bzero(buffer, 4096);
-			read(cgi.output, buffer, 4096); // mayybe recv with MSG_DONTWAIT
-			// should be looped as well since it can be arbitrarily long
-			for (int i = 0; buffer[i] != '\0'; i++) {
-				cgi.output_string.push_back(buffer[i]);
-			}
+			char buffer[CGI_RECV_BUF];
+			cgi_bzero(buffer, CGI_RECV_BUF);
+			int	recv_ret;
+			do {
+				recv_ret = read(cgi.output, buffer, CGI_RECV_BUF);
+				for (int i = 0; buffer[i] != '\0'; i++) {
+					cgi.output_string.push_back(buffer[i]);
+				}
+				cgi_bzero(buffer, CGI_RECV_BUF);
+			} while (recv_ret > 0);
+			std::cout << CLR_YEL << "[cgi output start]\n";
+			std::cout << CLR_NON;
 			std::cout << cgi.output_string;
+			std::cout << CLR_YEL << "\n[cgi output end]" << CLR_NON << "\n";
 			close(cgi.input);
 			close(cgi.output);
 		}
@@ -92,7 +99,7 @@ std::tuple<int, size_t>	checkBackgroundCGIs(
 		if (got_output == true)
 			return (std::tuple<int, size_t> { 1, i });
 		else if (got_output == -1) // error
-			return (std::tuple<int, size_t> { -1, 0 });
+			return (std::tuple<int, size_t> { -1, i });
 	}
 	return (std::tuple<int, size_t> { 0, 0 });
 }
@@ -291,6 +298,7 @@ std::optional<cgi_t>	executeCGI(
 			}
 			else if (cgi_responded == -1) {
 				// brr brr error
+				// we can do an error response and erase the background_cgi that gave error
 				return std::nullopt;
 			}
 		}
