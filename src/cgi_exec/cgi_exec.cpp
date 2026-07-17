@@ -236,8 +236,8 @@ static cgi_t	handle_parent(
 	time_point<system_clock>	cgi_timer = system_clock::now();
 	close(in_pipe[0]);
 	close(out_pipe[1]);
-	fcntl(in_pipe[1], O_NONBLOCK | O_CLOEXEC); // need to check the timing on this
-	fcntl(out_pipe[0], O_NONBLOCK | O_CLOEXEC); // also error check i guess
+	fcntl(in_pipe[1], O_NONBLOCK | O_CLOEXEC);
+	fcntl(out_pipe[0], O_NONBLOCK | O_CLOEXEC);
 	cgi.child_pid = child_pid;
 	cgi.input = in_pipe[1];
 	cgi.output = out_pipe[0];
