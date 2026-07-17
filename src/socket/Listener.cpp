@@ -46,7 +46,7 @@ eListenerError Listener::setup(void)
 		closeSocket();
 		return err;
 	}
-	this->_printSocketName(); //test
+	//this->_printSocketName(); //test
 	err = this->_listenSocket();
 	if (err != LISTENER_OK)
 	{

@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:35:04 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/08 15:43:51 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 10:55:35 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 #include <map>
 #include <csignal>
 
-#include "ConfigParser.hpp"
+#include "configParser.hpp"
 
 #define SUCCESS 0
 #define ERROR -1
@@ -78,6 +78,7 @@ class Listener
 
 		const cfg_server_t	*getServerConfig(int i);
 		void				addServerConfig(const cfg_server_t *config);
+		int					getConfigCount() { return _serverConfigs.size(); };
 		
 		void				closeSocket();
 

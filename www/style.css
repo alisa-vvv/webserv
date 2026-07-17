@@ -1,0 +1,75 @@
+
+h1 {
+	margin-bottom: 5px;
+	font-size: xx-large;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	align-self: flex-start;
+	margin-left: 10px;
+}
+
+#title {
+	color: antiquewhite;
+	text-decoration: none;
+}
+
+h2 {
+	font-style: italic;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	font-size: large;
+}
+
+#header-info {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	align-self: flex-start;
+	margin-left: 10px;
+}
+
+#made-by {
+	margin-top: 0;
+	font-size: medium;
+	margin-left: 0;
+}
+
+#read-me {
+	margin-top: 0;
+	font-size: medium;
+	margin-left: 0;
+	text-decoration: none;
+	color: antiquewhite;
+}
+
+#read-me.button:hover {
+	cursor: pointer;
+}
+
+body {
+	background-color: rgb(49, 49, 49);
+	color: antiquewhite;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	/* height: 100vh; */
+	margin: 0;
+}
+
+.button {
+	height: 10vh;
+	width: 60vh;
+	border-radius: 5px;
+	padding: 2px;
+	margin: 0;
+	background-color: cornflowerblue;
+	font-size: small;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.button:hover {
+	scale: 105%;
+	cursor: pointer;
+}
+

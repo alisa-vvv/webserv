@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<h1><a href="localhost:8080" id="title">webserv</a> </h1>
+		<div id="header-info">
+		<h2 id="made-by">made by Alisa, Ally, and Tutku</h2>
+		<h2><a href="../README.md" id="read-me">Read Me</a></h2>
+		</div>
+		<canvas id="confetti-canvas"></canvas>
+		<br>
+		<button id="confetti-button" class="button"> Confetti! </button>
+		<br>
+		<button id="regular-button"class="button">
+			This button also does confetti, 
+			but JS does not ask to "execute a script first"
+		</button>
+		<script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js">
+		</script>
+		<script src="confetti.js">
+		</script>
+	</body>
+
+</html>

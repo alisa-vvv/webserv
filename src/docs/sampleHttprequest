@@ -1,0 +1,9 @@
+POST /concerts/stars.py HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+Content-Length: 37
+Connection: keep-alive
+Authorization: Bearer eyJhbGci...
+
+/r/n/r/n ->blank line indicates separator for header and body
+{"username": "ally", "active": true}

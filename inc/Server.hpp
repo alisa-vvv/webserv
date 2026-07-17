@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 01:12:48 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/17 10:56:21 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include "Client.hpp"
 #include "Listener.hpp"
-#include "ConfigParser.hpp"
+#include "configParser.hpp"
 
 #define SUCCESS 0
 #define ERROR -1
@@ -89,6 +89,7 @@ private:
 };
 
 int					setupSignal();
+
 
 #endif
 

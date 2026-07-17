@@ -1,0 +1,12 @@
+HTTP/1.1 400 Not Found Content-Type: application/json
+Location: http://example.com/users/123
+
+{
+  "message": "New user created",
+  "user": {
+    "id": 123,
+    "firstName": "Example",
+    "lastName": "Person",
+    "email": "bsmth@example.com"
+  }
+}
