@@ -145,5 +145,4 @@ void Http::debugPrintRequestConfig()
 		std::cout << "Server names: " << this->requestConfig->server->server_names[i] << std::endl;
 	std::cout << "Root: " << this->requestConfig->server->root << std::endl;
 	std::cout << "Location: prefix" << this->requestConfig->location->prefix << std::endl;
-	
 }
