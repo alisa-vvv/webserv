@@ -16,10 +16,7 @@
 #include "configParser.hpp"
 #include <string>
 #include <optional>
-#include <chrono>
 
-using std::chrono::time_point;
-using std::chrono::system_clock;
 typedef struct	cgi_t {
 	int							child_pid = -1;
 	int							input = -1;
@@ -31,4 +28,7 @@ typedef struct	cgi_t {
 
 std::optional<cgi_t>	executeCGI(
 	const cfg_server_t& server_config
+);
+std::tuple<int, size_t>	checkBackgroundCGIs(
+	std::vector<cgi_t>&	background_cgis
 );
