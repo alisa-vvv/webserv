@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 01:14:35 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/17 11:15:22 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,6 +196,10 @@ eClientEventResult Server::_handleClientEvent(int i)
 	if (_pollFds[i].revents & POLLOUT)
 	{
 		eServerError err = _handleSend(fd);
+		if (err != SERVER_OK)
+		{
+			//TODO:finish
+		}
 	}
 	return CLIENT_KEPT;
 }

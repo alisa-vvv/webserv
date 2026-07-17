@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:35:04 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/17 10:55:35 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 11:08:46 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,10 @@
 #include <stdint.h>
 #include <map>
 #include <csignal>
+
+#include "cgi_exec.hpp"
+#include <sys/types.h>
+#include <netdb.h>
 
 #include "configParser.hpp"
 

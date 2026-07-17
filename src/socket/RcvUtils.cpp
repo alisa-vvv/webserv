@@ -48,50 +48,10 @@ eServerError Server::_handleRecv(int clientFd)
 
 eServerError Server::_handleSend(int clientFd)
 {
-
+	(void)clientFd; //TODO:remove
+	return SERVER_OK;
 }
 
-receiveStatus RcvBuffer::checkStatus()
-{
-	int contLenCnt = -1;
-	bool hasContentLen = false;
-
-	size_t headerEnd = this->recvStr.find("\r\n\r\n");
-	if (headerEnd == std::string::npos)
-	{
-		// if (recvStr.size() > ) // add define MAX HEADER SIZE
-		// 	return RECV_ERROR;
-		return (INCOMPLETE);
-	}
-
-	std::string headers = this->recvStr.substr(0, headerEnd);
-	size_t contentLenPos = headers.find("Content-Length:");
-
-	size_t bodyStart = headerEnd + 4;
-	size_t bodyReceived = this->recvStr.size() - bodyStart;
-
-	if (contentLenPos != std::string::npos)
-	{
-		hasContentLen = true;
-		int result = sscanf(headers.c_str() + contentLenPos, "Content-Length: %d", &contLenCnt);
-
-		if (result != 1 || contLenCnt < 0)
-			return RECV_ERROR;
-	}
-	if (!hasContentLen)
-	{
-		// if (bodyReceived > 0)
-		// 	return RECV_ERROR;
-		return COMPLETE;
-	}
-	if (bodyReceived == contLenCnt)
-		return COMPLETE;
-
-	if (bodyReceived < contLenCnt)
-	return (INCOMPLETE);
-	
-	return RECV_ERROR;
-}
 
 //recv with the while loop
 // eServerError Server::_handleRecv(int clientFd)

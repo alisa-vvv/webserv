@@ -1,28 +1,28 @@
 # **************************************************************************** #
 #                                                                              #
-#                                                        ::::::::              #
-#    Makefile                                          :+:    :+:              #
-#                                                     +:+                      #
-#    By: avaliull <avaliull@student.codam.nl>        +#+                       #
-#                                                   +#+                        #
-#    Created: 2025/07/22 19:01:25 by avaliull     #+#    #+#                   #
-#    Updated: 2025/08/06 15:25:10 by avaliull     ########   odam.nl           #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/07/22 19:01:25 by avaliull          #+#    #+#              #
+#    Updated: 2026/07/17 11:25:40 by tcakir-y         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 .DEFAULT_GOAL := all
 
-NAME =	config_parser
+NAME =	webserv
 
 CXXFILES	=	$(CXXFILES_PARSER)\
 				$(CXXFILES_CGI)\
 				$(CXXFILES_TIMER)\
 				$(HTTP_PARSER)\
 				$(RESPONSE_BUILDER)\
-				$(CXXFILES_SOCKET)
+				$(CXXFILES_SOCKET)\
+				$(MAIN)
 
-CXXFILES_PARSER	=	config_parser_main.cpp\
-					configParser.cpp\
+CXXFILES_PARSER	=	configParser.cpp\
 					configParserTEST.cpp\
 					configParserTokenize.cpp\
 					serverBlockParsers.cpp\
@@ -33,13 +33,12 @@ CXXFILES_CGI =		cgi_exec.cpp
 
 CXXFILES_TIMER =	timer.cpp
 
-HTTP_PARSER =	clientHandler.cpp\
-				Http.cpp\
-				httpBuffer.cpp\
-				clientHandler.cpp\
-				httpParsers.cpp\
-				httpValidate.cpp\
-				setRequestConfig.cpp
+HTTP_PARSER =		clientHandler.cpp\
+					Http.cpp\
+					clientHandler.cpp\
+					httpParsers.cpp\
+					httpValidate.cpp\
+					setRequestConfig.cpp
 
 RESPONSE_BUILDER =	buildResponse.cpp\
 					buildResponseAutoIndexReturn.cpp\
@@ -47,9 +46,18 @@ RESPONSE_BUILDER =	buildResponse.cpp\
 					buildResponseError.cpp\
 					buildResponseGet.cpp\
 					buildResponsePost.cpp\
-					buildResponseUtils.cpp
+					buildResponseUtils.cpp				
 
-CXXFILES_SOCKET =	Listener.cpp
+CXXFILES_SOCKET =	Server.cpp\
+					Signal.cpp\
+					Client.cpp\
+					ServerUtils.cpp\
+					Listener.cpp\
+					ListenerDebug.cpp\
+					RcvUtils.cpp\
+					RcvBuffer.cpp
+		
+MAIN =				main.cpp
 
 OFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.o))
 DEPFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.d))

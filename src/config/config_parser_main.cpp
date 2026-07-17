@@ -1,19 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                            ::::::::        */
-/*   config_parser_main.cpp                                  :+:    :+:       */
-/*                                                          +:+               */
-/*   By: avaliull <avaliull@student.codam.nl>              +#+                */
-/*                                                        +#+                 */
-/*   Created: 2026/05/28 14:18:31 by avaliull            #+#    #+#           */
-/*   Updated: 2026/07/14 13:20:07 by avaliull            ########   odam.nl   */
+/*                                                        :::      ::::::::   */
+/*   config_parser_main.cpp                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/28 14:18:31 by avaliull          #+#    #+#             */
+/*   Updated: 2026/07/17 11:08:16 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "configParser.hpp"
 #include "cgi_exec.hpp"
 #include <sys/types.h>
-#include <sys/socket.h>
+
 #include <netdb.h>
 
 int	main(int argc, char** argv) {
