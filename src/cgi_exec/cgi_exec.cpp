@@ -36,7 +36,7 @@ static void	cgi_bzero(
 	}
 }
 
-int	readCGIOutput(
+static int	gotCGIOutput(
 	cgi_t&	cgi,
 	int*	p_status
 ) {
@@ -56,6 +56,7 @@ int	readCGIOutput(
 			char buffer[4096];
 			cgi_bzero(buffer, 4096);
 			read(cgi.output, buffer, 4096); // mayybe recv with MSG_DONTWAIT
+			// should be looped as well since it can be arbitrarily long
 			for (int i = 0; buffer[i] != '\0'; i++) {
 				cgi.output_string.push_back(buffer[i]);
 			}
@@ -70,6 +71,30 @@ int	readCGIOutput(
 		return (1);
 	}
 	return (0);
+}
+
+// returns
+// 	int 0: no response from cgi
+// 	int 1: got response from cgi
+// 	int -1: error when reading cgi response
+// 	size_t 0: whenever int is not 1
+// 	size_t i: index of the cgi instance that returned a response
+std::tuple<int, size_t>	checkBackgroundCGIs(
+	std::vector<cgi_t>&	background_cgis
+) {
+	int			p_status = 0;
+	int			got_output;
+
+	for (size_t i = 0; i < background_cgis.size(); i++) {
+		do { // REPLACE THIS do while with a single check in actual code.
+			got_output = gotCGIOutput(background_cgis.at(i), &p_status);
+		} while (got_output == false);
+		if (got_output == true)
+			return (std::tuple<int, size_t> { 1, i });
+		else if (got_output == -1) // error
+			return (std::tuple<int, size_t> { -1, 0 });
+	}
+	return (std::tuple<int, size_t> { 0, 0 });
 }
 
 	/*	These are things we're most likely not going to have. Putting them here in case */
@@ -233,7 +258,10 @@ std::optional<cgi_t>	executeCGI(
 		return (std::nullopt);
 	}
 
+	std::vector<cgi_t>		background_cgis;
+	std::tuple<int, size_t>	cgi_response;
 	cgi_t	cgi;
+	cgi_t	cgi_response_data;
 	char*	argv[] { NULL, NULL, NULL };
 	argv[0] = strdup(PYTHON_EXEC);
 	argv[1] = strdup(PATH_TO_SCRIPT);
@@ -249,13 +277,21 @@ std::optional<cgi_t>	executeCGI(
 	}
 	else if (fork_ret > 0) {
 		cgi = handle_parent(in_pipe, out_pipe, fork_ret);
+		background_cgis.push_back(cgi);
 	}
 	{	// this block is, essentially, what we need to do in the listen loop.
 		// the while (1) is the stand-in for the listen loop.
-		int	p_status = 0;
-		while (1) {
-			if (readCGIOutput(cgi, &p_status) != 0) {
+		while (!background_cgis.empty()) {
+			cgi_response = checkBackgroundCGIs(background_cgis);
+			const auto& [cgi_responded, cgi_index] = cgi_response;
+			if (cgi_responded == 1) {
+				cgi_response_data = background_cgis.at(cgi_index);
+				background_cgis.erase(background_cgis.begin() + cgi_index);
 				break ;
+			}
+			else if (cgi_responded == -1) {
+				// brr brr error
+				return std::nullopt;
 			}
 		}
 		// at the end of the program, run this for every previously launched cgi
