@@ -23,7 +23,7 @@ void Http::buildResponse()
 	//ticket04
 	if (getState() != CLIENT_ERROR)
 	{
-		if (requestConfig->location->returns.code != 0)
+		if (requestConfig.location->returns.code != 0)
 			handleReturnResponse();
 		else
 		{
@@ -37,9 +37,9 @@ void Http::buildResponse()
 			{
 				if (std::filesystem::is_directory(this->_builtUri))
 				{
-					if (requestConfig->location && requestConfig->location->autoindex)
+					if (requestConfig.location && requestConfig.location->autoindex)
 						handleAutoIndexResponse();
-					else if (requestConfig->server->autoindex)
+					else if (requestConfig.server->autoindex)
 						handleAutoIndexResponse();
 					else
 						setResponseCode(HTTP_FORBIDDEN);

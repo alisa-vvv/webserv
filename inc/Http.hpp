@@ -53,7 +53,7 @@ class Http {
 
 	public:
 		Http();
-		requestConfig	*requestConfig;
+		requestConfig	requestConfig;
 
 		/*==========PARSING===========*/
 		void			parseRequest(const std::string &rawString);
@@ -90,8 +90,8 @@ class Http {
 		void			setContentType();
 		
 		/*=======REQUEST Config===================*/
-		int				findRequestConfig(Listener *listener);
-		void 			setRequestConfig(Listener *listener);
+		int				findRequestConfig(const Listener *listener);
+		void 			setRequestConfig(const Listener *listener);
 
 		/*==========GETTERS============*/
 		clientState		getState() const;
@@ -112,6 +112,6 @@ class Http {
 		void			debugPrintRequestConfig();
 };
 
-void	handleHttpRequest(Http &httpObject);
+std::string	clientHandler(const Listener *listener, std::string recvStr);
 
 #endif

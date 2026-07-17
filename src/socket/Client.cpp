@@ -6,19 +6,21 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:18 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/14 16:23:55 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 12:56:05 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "Listener.hpp"
 #include <ctime>
 
-Client::Client() //set fd=-1??
+Client::Client() : _listenerFd(-1), _clientFd(-1), _lastActivity(time(NULL)), _listener(NULL)
 {
 }
 
-Client::Client(int listenerFd, int clientFd) : _listenerFd(listenerFd), _clientFd(clientFd), _lastActivity(time(NULL))
+Client::Client(const Listener *listener, int clientFd) : _clientFd(clientFd), _lastActivity(time(NULL)), _listener(listener)
 {
+	_listenerFd = listener->getListenerFd();
 }
 
 Client ::~Client()
@@ -38,6 +40,11 @@ int Client::getListenerFd()
 RcvBuffer& Client::getRcvBuffer()
 {
 	return this->_rcvBuffer;
+}
+
+const Listener*	Client::getListenerClass() const
+{
+	return _listener;
 }
 
 void	Client::setLastActivity(time_t lastActivity)

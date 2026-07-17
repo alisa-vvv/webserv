@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:25 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/17 11:01:41 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 13:42:26 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,27 +19,30 @@
 #include "RcvBuffer.hpp"
 #include "configParser.hpp"
 
+class Listener;
+
 class Client
 {
 	private:
 		int							_listenerFd;
 		int							_clientFd;
 		RcvBuffer					_rcvBuffer;
-		std::vector<cfg_server_t *>	_serverConfigs;
 		time_t						_lastActivity;
+		const Listener				*_listener;
 
 	public:
 		Client();
-		Client(int listenerFd, int clientFd);
+		Client(const Listener *listener, int clientFd);
 		~Client();
 
-		time_t		getLastActivity();
-		int			getListenerFd();
-		RcvBuffer&	getRcvBuffer();
+		time_t			getLastActivity();
+		int				getListenerFd();
+		RcvBuffer&		getRcvBuffer();
+		const Listener*	getListenerClass() const;
 
-		void		setLastActivity(time_t lastActivity);
-		void		setState();
-		void		updateLastActivity();
+		void			setLastActivity(time_t lastActivity);
+		void			setState();
+		void			updateLastActivity();
 };
 
 #endif

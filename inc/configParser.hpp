@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                            ::::::::        */
-/*   configParser.hpp                                        :+:    :+:       */
-/*                                                          +:+               */
-/*   By: avaliull <avaliull@student.codam.nl>              +#+                */
-/*                                                        +#+                 */
-/*   Created: 2026/05/28 13:16:53 by avaliull            #+#    #+#           */
-/*   Updated: 2026/07/14 13:30:10 by avaliull            ########   odam.nl   */
+/*                                                        :::      ::::::::   */
+/*   configParser.hpp                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/28 13:16:53 by avaliull          #+#    #+#             */
+/*   Updated: 2026/07/17 13:27:50 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@
 #define TEST_CONFIG false
 #define CONFIG_PATH_DEFAULT "config/default.conf"
 #define CONFIG_PATH_TEST "config/test.conf"
-#define SHOW_CONFIG_PARSER_DEBUG true
+#define SHOW_CONFIG_PARSER_DEBUG false
 
 #define DEFAULT_PORT 8080
 

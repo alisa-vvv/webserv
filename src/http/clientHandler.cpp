@@ -10,21 +10,21 @@
 /// @param recvStr feed the str from recv
 /// @return response string ready for accept
 
-//std::string	clientHandler(Listener *listener, std::string recvStr)
-//{
-//	Http client;
-//	
-//	client.parseRequest(recvStr);
-//	CHECK_STATE(client);
-//
-//	client.setRequestConfig(listener); //ticket04
-//	CHECK_STATE(client);
-//
-//	client.validateLayer();
-//	CHECK_STATE(client);
-//
-//	client.buildResponse();
-//	CHECK_CGI(client);
-//
-//	return client.getResponseString();
-//}
+std::string	clientHandler(const Listener *listener, std::string recvStr)
+{
+	Http client;
+	
+	client.parseRequest(recvStr);
+	//CHECK_STATE(client);
+
+	client.setRequestConfig(listener); //ticket04
+	//CHECK_STATE(client);
+
+	client.validateLayer();
+	//CHECK_STATE(client);
+
+	client.buildResponse();
+	//CHECK_CGI(client);
+
+	return client.getResponseString();
+}

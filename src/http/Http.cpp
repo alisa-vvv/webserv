@@ -12,7 +12,6 @@ Http::Http()
 	, _contentLen(0)
 	, _hasBody(false)
 	, _hasExtension(false)
-	, requestConfig(nullptr)
 {}
 
 /*======GETTERS======*/
@@ -140,9 +139,9 @@ void Http::debugPrintRequest()
 void Http::debugPrintRequestConfig()
 {
 	std::cout << "=== Request Config ====" << std::endl;
-	int count = this->requestConfig->server->server_names.size();
+	int count = this->requestConfig.server->server_names.size();
 	for (int i = 0; i < count; i++)
-		std::cout << "Server names: " << this->requestConfig->server->server_names[i] << std::endl;
-	std::cout << "Root: " << this->requestConfig->server->root << std::endl;
-	std::cout << "Location: prefix" << this->requestConfig->location->prefix << std::endl;
+		std::cout << "Server names: " << this->requestConfig.server->server_names[i] << std::endl;
+	std::cout << "Root: " << this->requestConfig.server->root << std::endl;
+	std::cout << "Location: prefix" << this->requestConfig.location->prefix << std::endl;
 }

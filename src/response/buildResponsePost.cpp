@@ -7,7 +7,7 @@ void Http::handlePostResponse()
 	if (!this->_hasBody || this->_body.empty())
 		return setResponseCode(HTTP_BAD_REQUEST); //post needs body
 
-	const std::string &uploadDir = requestConfig->location->upload_store;
+	const std::string &uploadDir = requestConfig.location->upload_store;
 	if (uploadDir.empty())
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	try
@@ -24,7 +24,7 @@ void Http::handlePostResponse()
 	if (extension.empty())
 		return setResponseCode(HTTP_UNSUPPORTED_MEDIA);
 	
-	if (_body.size() > (size_t)requestConfig->server->client_max_body_size)
+	if (_body.size() > (size_t)requestConfig.server->client_max_body_size)
 		return setResponseCode(HTTP_PAYLOAD_TOO_LARGE);
 
 	try

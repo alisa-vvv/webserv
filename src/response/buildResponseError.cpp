@@ -4,8 +4,8 @@
 void Http::handleErrorResponse()
 {
 	int stat = getStatusCode();
-	auto it = requestConfig->server->error_pages.find(stat);
-	if (it != this->requestConfig->server->error_pages.end())
+	auto it = requestConfig.server->error_pages.find(stat);
+	if (it != this->requestConfig.server->error_pages.end())
 	{
 		setBody(it->second);
 		if (getState() == CLIENT_ERROR)

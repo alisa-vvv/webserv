@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 20:52:11 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/08 15:37:55 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 12:40:46 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,16 @@ int Server::_isListenerFd(int fd) const
 	return 0;
 }
 
+const Listener *Server::_findListenerByFd(int fd)
+{
+	for (size_t i = 0; i < _listeners.size(); ++i)
+	{
+		if (_listeners[i].getListenerFd() == fd)
+			return &_listeners[i];
+	}
+	return NULL;
+}
+
 eServerError Server::_setNonBlocking(int fd)
 {
 	int flags = fcntl(fd, F_GETFL, 0);
@@ -113,7 +123,7 @@ eServerError Server::_acceptClients(int serverListenFd)
 			}
 			_addFdToPoll(clientFd);
 
-			Client newClient(serverListenFd, clientFd);
+			Client newClient(_findListenerByFd(serverListenFd), clientFd);
 			_clients[clientFd] = newClient;
 			continue;
 		}

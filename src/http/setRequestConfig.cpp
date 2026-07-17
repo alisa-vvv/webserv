@@ -6,15 +6,14 @@
 /// @return returns the index of the config with host match. returns -1 if no match
 
 // commented out by alisa
-int Http::findRequestConfig(Listener *listener)
+int Http::findRequestConfig(const Listener *listener)
 {
-	(void) listener;
 	std::string host = getHeader("host");
 	size_t colonPos = host.find(":");
 	if (colonPos != std::string::npos)
 		host = host.substr(0, colonPos);
 
-	for (int i = 0; i < listener->getConfigCount() ; i++ )
+	for (size_t i = 0; i < listener->getConfigCount() ; i++ )
 	{
 		const cfg_server_t *server = listener->getServerConfig(i);
 		
@@ -41,7 +40,7 @@ int Http::findRequestConfig(Listener *listener)
 
 /// @brief sets a pointer to the matching configuration of the current client. it also rewrites the uri
 
-void Http::setRequestConfig(Listener *listener)
+void Http::setRequestConfig(const Listener *listener)
 {
 	if (listener->getConfigCount() <= 0)
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
@@ -53,7 +52,7 @@ void Http::setRequestConfig(Listener *listener)
 	if (!server)
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 
-	this->requestConfig->server = server;
+	requestConfig.server = server;
 	
 	if (server->locations.empty())
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
@@ -78,5 +77,5 @@ void Http::setRequestConfig(Listener *listener)
 	}
 	if (!bestMatch)
 		bestMatch = &server->locations[0];
-	this->requestConfig->location = bestMatch;
+	requestConfig.location = bestMatch;
 }

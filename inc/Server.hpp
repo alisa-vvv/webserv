@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 11:10:37 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 13:25:23 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ private:
 	void				_addListenerFdsToPoll();
 	
 	int					_isListenerFd(int fd) const;
+	const Listener*		_findListenerByFd(int fd);
 	
 	Server(const Server &other);
 	Server				&operator=(const Server &other);
@@ -63,7 +64,7 @@ private:
 	eServerError		_handleListenerEvent(int i);
 	eClientEventResult	_handleClientEvent(int i);
 	eServerError		_handleRecv(int fd);
-	eServerError		_handleSend(int fd);
+	eServerError		_handleSend(Client client, std::string response);
 
 	eServerError		_acceptClients(int serverListenFd);
 	eServerError		_setNonBlocking(int fd);

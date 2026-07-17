@@ -63,11 +63,11 @@ int Http::validateURI(std::string uri)
 		setExtension(true);
 	
 	// rewrite URI, strip location prefix and add root
-	if (!requestConfig->location)
+	if (!requestConfig.location)
 		return FAILURE;
 	
-	std::string prefix = requestConfig->location->prefix;
-	std::string root = requestConfig->location->root;
+	std::string prefix = requestConfig.location->prefix;
+	std::string root = requestConfig.location->root;
 	
 	// remove prefix and add root
 	std::string remaining = this->_receivedUri.substr(prefix.length());
@@ -77,14 +77,14 @@ int Http::validateURI(std::string uri)
 
 	if (isDirectoryRequest)
 	{
-		if (!requestConfig->location->index.empty())
+		if (!requestConfig.location->index.empty())
 		{
 			if (remaining.empty())
-				this->_builtUri = root + "/" + requestConfig->location->index;
+				this->_builtUri = root + "/" + requestConfig.location->index;
 			else if (remaining.back() == '/')
-				this->_builtUri = root + remaining + requestConfig->location->index;
+				this->_builtUri = root + remaining + requestConfig.location->index;
 			else
-				this->_builtUri = root + remaining + "/" + requestConfig->location->index;
+				this->_builtUri = root + remaining + "/" + requestConfig.location->index;
 		}
 		else
 			this->_builtUri = root + (remaining.empty() ? "/" : remaining);
@@ -116,13 +116,13 @@ void	Http::validateLayer()
 
 	else if (this->_method == GET)
 	{
-		if (requestConfig->location->allowed_methods.at((httpMethod)GET) == false)
+		if (requestConfig.location->allowed_methods.at((httpMethod)GET) == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 	}
 
 	else if (this->_method == POST)
 	{
-		if (requestConfig->location->allowed_methods.at((httpMethod)POST) == false)
+		if (requestConfig.location->allowed_methods.at((httpMethod)POST) == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 		std::map<std::string, std::string>::iterator it = this->_requestHeaders.find("content-type");
 		if (it == _requestHeaders.end())
@@ -133,7 +133,7 @@ void	Http::validateLayer()
 
 	else if (this->_method == DELETE)
 	{ 
-		if (requestConfig->location->allowed_methods.at(httpMethod(DELETE)) == false)
+		if (requestConfig.location->allowed_methods.at(httpMethod(DELETE)) == false)
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 	}
 

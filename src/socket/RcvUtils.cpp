@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Http.hpp"
 
 eServerError Server::_handleRecv(int clientFd)
 {
@@ -30,7 +31,12 @@ eServerError Server::_handleRecv(int clientFd)
 
 		if (status == COMPLETE)
 		{
-			// call http parser here
+			std::string response = clientHandler(client.getListenerClass(), bufferObj.getRecvStr());
+
+			std::cout << "respnse string: " << response << std::endl;
+			std::cout << "fuck yeah " << std::endl;
+			_handleSend(client, response);
+
 		}
 		return SERVER_OK;
 	}
@@ -46,9 +52,18 @@ eServerError Server::_handleRecv(int clientFd)
 	return SERVER_RECV_ERR;
 }
 
-eServerError Server::_handleSend(int clientFd)
+eServerError Server::_handleSend(Client client, std::string response)
 {
-	(void)clientFd; //TODO:remove
+	//int socketFd = client.getListenerFd();
+
+	//int len = response.length();
+	//const char *responseChar = response.c_str();
+
+	//strcpy(responseChar, response.c_str());
+
+	//send(socketFd, responseChar, response.size(), MSG_OOB);
+	(void) response;
+	(void)client;
 	return SERVER_OK;
 }
 
