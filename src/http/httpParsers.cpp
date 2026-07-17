@@ -33,6 +33,8 @@ void Http::parseRequestLine(const std::string line)
 
 	if (version == "HTTP/1.0")
 		this->_version = HTTP_1_0;
+	else if (version == "HTTP/1.1")
+		this->_version = HTTP_1_1;
 	else
 		this->_version = INVALID;
 }

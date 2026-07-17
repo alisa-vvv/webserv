@@ -5,8 +5,13 @@
 /// @return response string 
 void Http::buildResponseString()
 {
+	std::string httpVer = "HTTP/1.1 ";
+	if (getVersion() == HTTP_1_0)
+		httpVer = "HTTP/1.0 ";
+	else if (getVersion() == HTTP_1_1)
+		httpVer = "HTTP/1.1 ";
 	this->_responseString.clear();
-	this->_responseString += "HTTP/1.0 " + std::to_string(this->_statusCode) + " "
+	this->_responseString += httpVer + std::to_string(this->_statusCode) + " "
 		+ std::get<0>(HTTP_STATUS_MESSAGE.at(this->_statusCode)) + "\r\n";
 
 	for (std::map<std::string, std::string>::iterator it = this->_responseHeaders.begin(); it != this->_responseHeaders.end(); ++it)

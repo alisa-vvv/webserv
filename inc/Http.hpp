@@ -25,6 +25,7 @@ enum clientState {
 
 enum httpVersion {
 	HTTP_1_0,
+	HTTP_1_1,
 	INVALID //we will not handle http versions other than 1.0 and 1.1, so we set INVALID for unsupported versions
 };
 

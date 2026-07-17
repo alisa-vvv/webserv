@@ -195,11 +195,12 @@ eClientEventResult Server::_handleClientEvent(int i)
 	}
 	if (_pollFds[i].revents & POLLOUT)
 	{
-		eServerError err = _handleSend(fd);
-		if (err != SERVER_OK)
-		{
-			//TODO:finish
-		}
+		return CLIENT_KEPT;
+		// eServerError err = _handleSend(fd);
+		// if (err != SERVER_OK)
+		// {
+		// 	//TODO:finish
+		// }
 	}
 	return CLIENT_KEPT;
 }
