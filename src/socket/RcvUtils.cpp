@@ -22,21 +22,23 @@ eServerError Server::_handleRecv(int clientFd)
 		bufferObj.append(buffer, bytesRead);
 		receiveStatus status = bufferObj.checkStatus();
 		if (status == INCOMPLETE)
+		{
+			client.setRecvStatus(status);
 			return SERVER_OK;
+		}
 		if (status == RECV_ERROR)
 		{
 			//400 err?
+			client.setRecvStatus(status);
 			return SERVER_OK;
 		}
 
 		if (status == COMPLETE)
 		{
 			std::string response = clientHandler(client.getListenerClass(), bufferObj.getRecvStr());
-
-			std::cout << "respnse string: " << response << std::endl;
-			std::cout << "fuck yeah " << std::endl;
-			_handleSend(client, response);
-
+			client.setResponse(response.c_str());
+			client.setRecvStatus(status);
+			client.setResponseStatus(true);
 		}
 		return SERVER_OK;
 	}
@@ -52,18 +54,15 @@ eServerError Server::_handleRecv(int clientFd)
 	return SERVER_RECV_ERR;
 }
 
-eServerError Server::_handleSend(Client client, std::string response)
+eServerError Server::_handleSend(Client& client)
 {
-	//int socketFd = client.getListenerFd();
+	int socketFd = client.getClientFd();
+	const char *response = client.updatedResponse(client.getResponse());
+	std::cout << "GOES TO SEND" << std::endl; 
+	
+	send(socketFd, response, sizeof(response), 0);
+	std::cout << "finisHED SEND" << std::endl; 
 
-	//int len = response.length();
-	//const char *responseChar = response.c_str();
-
-	//strcpy(responseChar, response.c_str());
-
-	//send(socketFd, responseChar, response.size(), MSG_OOB);
-	(void) response;
-	(void)client;
 	return SERVER_OK;
 }
 

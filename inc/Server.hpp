@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 13:25:23 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 16:44:45 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ private:
 	eServerError		_handleListenerEvent(int i);
 	eClientEventResult	_handleClientEvent(int i);
 	eServerError		_handleRecv(int fd);
-	eServerError		_handleSend(Client client, std::string response);
+	eServerError		_handleSend(Client& client);
 
 	eServerError		_acceptClients(int serverListenFd);
 	eServerError		_setNonBlocking(int fd);

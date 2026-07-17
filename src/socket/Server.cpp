@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 11:15:22 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 16:52:55 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,15 +192,30 @@ eClientEventResult Server::_handleClientEvent(int i)
 			_closeClientFd(fd);
 			return CLIENT_REMOVED; //client removed
 		}
+		if (_clients.at(fd).getResponseStatus())
+		{
+			_pollFds[i].events = POLLOUT;
+			std::cout << "pollout set!" << std::endl;
+			//tODO: check if you need to setResponseStat to false again
+		}
 	}
 	if (_pollFds[i].revents & POLLOUT)
 	{
-		return CLIENT_KEPT;
-		// eServerError err = _handleSend(fd);
-		// if (err != SERVER_OK)
-		// {
-		// 	//TODO:finish
-		// }
+		std::cout << "should go to send" << std::endl;
+
+		eServerError err = _handleSend(_clients.at(fd));
+		std::cout << "after send" << std::endl;
+		if (err != SERVER_OK)
+		{
+			_closeClientFd(fd);
+			return CLIENT_REMOVED;
+		}
+		//if (_clients.at(fd).isResponseComplete())
+		//{
+		//	_closeClientFd(fd);
+		//	return CLIENT_REMOVED;
+		//}
+		
 	}
 	return CLIENT_KEPT;
 }

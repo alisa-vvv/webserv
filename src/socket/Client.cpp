@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:18 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/17 12:56:05 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 16:48:08 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,15 @@
 
 Client::Client() : _listenerFd(-1), _clientFd(-1), _lastActivity(time(NULL)), _listener(NULL)
 {
+	_responseStatus = false;
+
 }
 
 Client::Client(const Listener *listener, int clientFd) : _clientFd(clientFd), _lastActivity(time(NULL)), _listener(listener)
 {
 	_listenerFd = listener->getListenerFd();
+	_responseStatus = false;
+
 }
 
 Client ::~Client()
@@ -55,4 +59,43 @@ void	Client::setLastActivity(time_t lastActivity)
 void	Client::updateLastActivity()
 {
 	_lastActivity = time(NULL);
+}
+
+void Client::setRecvStatus(receiveStatus recvStatus)
+{
+	this->_recvStatus = recvStatus;
+}
+
+receiveStatus Client::getRecvStatus() const
+{
+	return (_recvStatus);
+}
+
+void  Client::setResponse(std::string response)
+{
+	_response = response;
+}
+std::string Client::getResponse() const
+{
+	return _response;
+}
+
+const char* Client::updatedResponse(std::string response)
+{
+	const char *responseChar = response.c_str();
+	return responseChar;
+}
+
+void  Client::setResponseStatus(bool response)
+{
+	_responseStatus = response;
+}
+bool Client::getResponseStatus() const
+{
+	return _responseStatus;
+}
+
+int Client::getClientFd()
+{
+	return _clientFd;
 }
