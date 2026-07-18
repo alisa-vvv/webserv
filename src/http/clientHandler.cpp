@@ -33,7 +33,7 @@ std::string	clientHandler(const Listener *listener, std::string recvStr)
 	if (!checkState(client))
 		return 0;
 
-	client.setRequestConfig(listener); //ticket04
+	client.setRequestConfig(listener);
 	if (!checkState(client))
 		return 0;
 

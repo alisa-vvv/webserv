@@ -1,7 +1,7 @@
 #include "../../inc/Http.hpp"
 
 
-void Http::handleAutoIndexResponse() //ticket18 
+void Http::handleAutoIndexResponse() 
 {
 	try
 	{
@@ -25,7 +25,7 @@ void Http::handleAutoIndexResponse() //ticket18
 }
 
 void Http::handleReturnResponse()
-{ //ticket15
+{
 	setResponseCode(HTTP_MOVED_PERMANENTLY);
 	setResponseHeader("Location:", requestConfig.location->returns.target);
 	setBody("");
