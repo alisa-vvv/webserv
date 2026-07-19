@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/19 20:23:41 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/19 22:35:47 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 
 #define SUCCESS 0
 #define ERROR -1
+#define POLL_TIMEOUT_MS 1000
 
 extern volatile sig_atomic_t	gStop;
 
@@ -69,7 +70,7 @@ private:
 
 	eServerError		_acceptClients(int serverListenFd);
 	eServerError		_setNonBlocking(int fd);
-	void				_checkTimeouts(); //TODO:finish
+	void				_checkClientTimeouts();
 
 	void				_closeClientFd(int fd);
 	void				_closeClients();

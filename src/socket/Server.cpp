@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/19 20:28:08 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/19 23:19:17 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ eServerError Server::setup(void)
 		if (errListenerSetup != LISTENER_OK)
 		{
 			closeListeners();
-			//TODO: also close the socket for according port
 			return SERVER_LISTENER_SETUP_ERR;
 		}
 	}
@@ -86,7 +85,7 @@ eServerError Server::_initPollEvent()
 
 	while (gStop == 0)
 	{
-		pollFdCount = poll(_pollFds.data(), _pollFds.size(), 1000);
+		pollFdCount = poll(_pollFds.data(), _pollFds.size(), POLL_TIMEOUT_MS);
 
 		if (pollFdCount == ERROR)
 		{
@@ -114,9 +113,26 @@ eServerError Server::_initPollEvent()
 			if (err != SERVER_OK)
 				return err;
 		}
-		//_checkTimeouts();
+		_checkClientTimeouts();
+		//add CGI timeout stuff
 	}
 	return SERVER_OK;
+}
+
+void Server::_checkClientTimeouts()
+{
+	for (auto client : _clients)
+	{
+		time_point<system_clock> lastActivity = client.second.getLastActivity();
+		if (checkTimeOut(lastActivity, DEFAULT_TIMEOUT_S))
+		{
+			std::cout << "Client with fd "
+					  << client.first
+					  << " timed out"
+					  << std::endl;
+			_closeClientFd(client.first);
+		}
+	}
 }
 
 eServerError Server::_pollEvents()
@@ -149,7 +165,6 @@ eServerError Server::_pollEvents()
 			if (clientClosed == CLIENT_KEPT)
 				i++;
 		}
-		//_checkTimeouts(); //TODO
 	}
 	return SERVER_OK;
 }
@@ -190,21 +205,21 @@ eClientEventResult Server::_handleClientEvent(int i)
 		if (err != SERVER_OK)
 		{
 			_closeClientFd(fd);
-			return CLIENT_REMOVED; //client removed
+			return CLIENT_REMOVED;
 		}
 		if (_clients.at(fd).getResponseStatus())
 		{
 			_pollFds[i].events = POLLOUT;
-			std::cout << "pollout set!" << std::endl;
-			//tODO: check if you need to setResponseStat to false again
+			_clients.at(fd).setResponseStatus(false);
+			std::cout
+				<< "Client " << fd
+				<< " will be monitored for POLLOUT"
+				<< std::endl;
 		}
 	}
 	if (_pollFds[i].revents & POLLOUT)
 	{
-		std::cout << "should go to send" << std::endl;
-
 		eServerError err = _handleSend(_clients.at(fd));
-		std::cout << "after send" << std::endl;
 		if (err != SERVER_OK)
 		{
 			_closeClientFd(fd);

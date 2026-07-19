@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:18 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/19 20:30:35 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/19 22:52:40 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Client::Client() :
 	_listenerFd(-1),
 	_clientFd(-1),
 	_rcvBuffer(),
-	_lastActivity(time(NULL)),
+	_lastActivity(setTimer()),
 	_listener(NULL),
 	_recvStatus(INCOMPLETE),
 	_response(),
@@ -31,7 +31,7 @@ Client::Client() :
 Client::Client(const Listener *listener, int clientFd) :
 	_clientFd(clientFd),
 	_rcvBuffer(),
-	_lastActivity(time(NULL)),
+	_lastActivity(setTimer()),
 	_listener(listener),
 	_recvStatus(INCOMPLETE),
 	_response(),
@@ -50,7 +50,7 @@ Client ::~Client()
 
 /* ============================== GETTERS ============================== */
 
-time_t	Client::getLastActivity() const
+time_point<system_clock> Client::getLastActivity() const
 {
 	return this->_lastActivity;
 }
@@ -97,7 +97,7 @@ int Client::getClientFd() const
 
 /* ============================== SETTERS ============================== */
 
-void	Client::setLastActivity(time_t lastActivity)
+void Client::setLastActivity(time_point<system_clock> lastActivity)
 {
 	_lastActivity = lastActivity;
 }
@@ -132,5 +132,5 @@ bool Client::isResponseComplete() const
 /* ========================== TIMEOUT HANDLING ========================== */
 void Client::updateLastActivity()
 {
-	_lastActivity = time(NULL);
+	_lastActivity = setTimer();
 }

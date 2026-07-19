@@ -69,9 +69,9 @@ eServerError Server::_handleSend(Client& client)
 	const char *responseStart = response.c_str() + client.getBytesSent();
 	size_t sendSize = response.size() - client.getBytesSent();
 
-	if (_bytesSent > _response.size())
+	if (client.getBytesSent() > response.size())
 		return SERVER_SEND_ERR;
-	if (_bytesSent == _response.size())
+	if (client.getBytesSent() == response.size())
 		return SERVER_OK;
 	ssize_t result = send(clientFd, responseStart, sendSize, 0);
 	if (result == ERROR)
@@ -81,7 +81,6 @@ eServerError Server::_handleSend(Client& client)
 	}
 	else if (result > 0)
 	{
-		std::cout << "finished sending";
 		client.updateBytesSent(static_cast<size_t>(result));
 		client.updateLastActivity();
 	}

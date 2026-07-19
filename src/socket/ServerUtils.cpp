@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 20:52:11 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 16:49:50 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/19 22:07:50 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,6 +124,7 @@ eServerError Server::_acceptClients(int serverListenFd)
 			_addFdToPoll(clientFd);
 
 			Client newClient(_findListenerByFd(serverListenFd), clientFd);
+			newClient.updateLastActivity();
 			_clients[clientFd] = newClient;
 			continue;
 		}

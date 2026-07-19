@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:34:57 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/17 13:44:56 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/19 23:05:15 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,43 +17,25 @@ eListenerError Listener::setup(void)
 	eListenerError err;
 
 	err = this->_createSocket();
+	if (err == LISTENER_OK)
+		err = this->_setSocketOptions();
+
+	if (err == LISTENER_OK)
+		err = this->_setNonBlocking(_listenerFd);
+
+	if (err == LISTENER_OK)
+		err = this->_setAddress();
+
+	if (err == LISTENER_OK)
+		err = this->_bindSocket();
+
+	if (err == LISTENER_OK)
+		err = this->_listenSocket();
+
 	if (err != LISTENER_OK)
-	{
 		closeSocket();
-		return err;
-	}
-	err = this->_setSocketOptions();
-	if (err != LISTENER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	err = this->_setNonBlocking(_listenerFd);
-	if (err != LISTENER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	err = this->_setAddress();
-	if (err != LISTENER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	err = this->_bindSocket();
-	if (err != LISTENER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	//this->_printSocketName(); //test
-	err = this->_listenSocket();
-	if (err != LISTENER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	return LISTENER_OK;
+
+	return err;
 }
 
 /*
