@@ -54,13 +54,37 @@ eServerError Server::_handleRecv(int clientFd)
 	return SERVER_RECV_ERR;
 }
 
+/*
+send(
+	socketFd,       // which socket
+	dataPointer,    // where the data starts
+	dataSize,       // how many bytes to try sending
+	flags           // usually 0
+);
+*/
 eServerError Server::_handleSend(Client& client)
 {
-	int socketFd = client.getClientFd();
-	const char *response = client.updatedResponse(client.getResponse());
-	std::cout << "GOES TO SEND" << std::endl; 
-	
-	send(socketFd, response, sizeof(response), 0);
+	int clientFd = client.getClientFd();
+	const std::string &response = client.getResponse();
+	const char *responseStart = response.c_str() + client.getBytesSent();
+	size_t sendSize = response.size() - client.getBytesSent();
+
+	if (_bytesSent > _response.size())
+		return SERVER_SEND_ERR;
+	if (_bytesSent == _response.size())
+		return SERVER_OK;
+	ssize_t result = send(clientFd, responseStart, sendSize, 0);
+	if (result == ERROR)
+	{
+		std::cerr << "send() failed" << std::endl;
+		return SERVER_SEND_ERR;
+	}
+	else if (result > 0)
+	{
+		std::cout << "finished sending";
+		client.updateBytesSent(static_cast<size_t>(result));
+		client.updateLastActivity();
+	}
 	std::cout << "finisHED SEND" << std::endl; 
 
 	return SERVER_OK;

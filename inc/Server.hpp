@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 16:44:45 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/19 20:23:41 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,8 @@ enum eServerError
 	SERVER_SETNONBLOCKING_ERR,
 	SERVER_RECV_ERR,
 	SERVER_CLIENT_CLOSED,
-	SERVER_TIMEOUT_ERR
+	SERVER_TIMEOUT_ERR,
+	SERVER_SEND_ERR
 };
 
 enum eClientEventResult

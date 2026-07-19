@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 16:52:55 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/19 20:28:08 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,12 +210,11 @@ eClientEventResult Server::_handleClientEvent(int i)
 			_closeClientFd(fd);
 			return CLIENT_REMOVED;
 		}
-		//if (_clients.at(fd).isResponseComplete())
-		//{
-		//	_closeClientFd(fd);
-		//	return CLIENT_REMOVED;
-		//}
-		
+		if (_clients.at(fd).isResponseComplete())
+		{
+			_closeClientFd(fd);
+			return CLIENT_REMOVED;
+		}
 	}
 	return CLIENT_KEPT;
 }

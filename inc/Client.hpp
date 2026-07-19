@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:25 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/17 16:48:17 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/19 20:00:05 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,32 +32,37 @@ class Client
 		receiveStatus	_recvStatus;
 		std::string		_response;
 		bool			_responseStatus;
-
+		size_t			_bytesSent;
 
 	public:
+		/* ============================ CONSTRUCTORS ============================ */
 		Client();
 		Client(const Listener *listener, int clientFd);
 		~Client();
 
-		time_t			getLastActivity();
-		int				getListenerFd();
-		RcvBuffer&		getRcvBuffer();
-		const Listener*	getListenerClass() const;
+		/* ============================== GETTERS ============================== */
+		time_t				getLastActivity() const;
+		receiveStatus		getRecvStatus() const;
+		const std::string	&getResponse() const;
+		bool				getResponseStatus() const;
+		size_t				getBytesSent() const;
+		int					getListenerFd() const;
+		RcvBuffer			&getRcvBuffer();
+		const Listener*		getListenerClass() const;
+		int 				getClientFd() const;
 
-		void			setRecvStatus(receiveStatus recvStatus);
-		receiveStatus	getRecvStatus() const;
+		/* ============================== SETTERS ============================== */
+		void				setLastActivity(time_t lastActivity);
+		void				setRecvStatus(receiveStatus recvStatus);
+		void				setResponse(const std::string& response);
+		void				setResponseStatus(bool response);
+		
+		/* ======================== RESPONSE HANDLING ========================= */
+		void				updateBytesSent(size_t bytes);
+		bool				isResponseComplete() const;
 
-		void			setResponse(std::string response);
-		std::string		getResponse() const;
-		const char		*updatedResponse(std::string response);
-
-		void			setResponseStatus(bool response);
-		bool			getResponseStatus() const;
-
-		int 			getClientFd();
-
-		void			setLastActivity(time_t lastActivity);
-		void			updateLastActivity();
+		/* ========================== TIMEOUT HANDLING ========================== */
+		void				updateLastActivity();
 };
 
 #endif

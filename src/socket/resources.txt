@@ -66,6 +66,8 @@ https://www.geeksforgeeks.org/cpp/vector-erase-in-cpp-stl/
 signals
 https://pubs.opengroup.org/onlinepubs/009695399/functions/sigaction.html
 
+static cast
+https://www.geeksforgeeks.org/cpp/static_cast-in-cpp/
 
 https://beej.us/guide/bgnet/html/split/system-calls-or-bust.html#connect
 https://medium.com/@ahmadesekak/setting-up-a-server-using-c-sockets-124e404593c9
