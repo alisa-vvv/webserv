@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:18 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/19 22:52:40 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/20 00:42:32 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ void  Client::setResponse(const std::string& response)
 {
 	_response = response;
 	_bytesSent = 0;
-	_responseStatus = true; //TODO: check
+	_responseStatus = true;
 }
 
 void Client::setResponseStatus(bool response)

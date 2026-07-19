@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/19 23:19:17 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/20 00:30:51 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,13 +98,6 @@ eServerError Server::_initPollEvent()
 			std::cerr << "poll() failed: " << std::strerror(errno) << std::endl;
 			return SERVER_POLL_ERR;
 		}
-		if (pollFdCount == 0) // 1 sec poll timeout
-		{
-			// TODO: check inactive client timeouts here
-			continue;
-		}
-		// call function _handlePollEvents();
-
 		if (pollFdCount > 0)
 		{
 			eServerError err;
@@ -121,16 +114,21 @@ eServerError Server::_initPollEvent()
 
 void Server::_checkClientTimeouts()
 {
-	for (auto client : _clients)
+	std::map<int, Client>::iterator it = _clients.begin();
+
+	while (it != _clients.end())
 	{
-		time_point<system_clock> lastActivity = client.second.getLastActivity();
+		const int clientFd = it->first;
+		const time_point<system_clock> lastActivity = it->second.getLastActivity();
+		
+		it++;
 		if (checkTimeOut(lastActivity, DEFAULT_TIMEOUT_S))
 		{
 			std::cout << "Client with fd "
-					  << client.first
-					  << " timed out"
-					  << std::endl;
-			_closeClientFd(client.first);
+						<< clientFd
+						<< " timed out"
+						<< std::endl;
+			_closeClientFd(clientFd);
 		}
 	}
 }
@@ -210,11 +208,6 @@ eClientEventResult Server::_handleClientEvent(int i)
 		if (_clients.at(fd).getResponseStatus())
 		{
 			_pollFds[i].events = POLLOUT;
-			_clients.at(fd).setResponseStatus(false);
-			std::cout
-				<< "Client " << fd
-				<< " will be monitored for POLLOUT"
-				<< std::endl;
 		}
 	}
 	if (_pollFds[i].revents & POLLOUT)

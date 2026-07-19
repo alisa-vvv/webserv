@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:35:04 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/17 12:51:42 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/19 23:57:24 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,7 @@ enum eListenerError
 	LISTENER_BIND_ERR,
 	LISTENER_LISTEN_ERR,
 	LISTENER_ACCEPT_ERR,
-	LISTENER_POLL_ERR,
-	SIGACTION_ERR	// TODO: check if needed in here
+	LISTENER_POLL_ERR
 };
 
 class Listener
