@@ -14,6 +14,15 @@
 
 NAME =	webserv
 
+PURPLE = \033[35m
+CYAN = \033[36m
+BLUE = \033[34m
+PINK = \033[95m
+RED = \033[31m
+GREEN = \033[1;32m
+YELLOW = \033[33m
+RESET = \033[0m
+
 CXXFILES	=	$(CXXFILES_PARSER)\
 				$(CXXFILES_CGI)\
 				$(CXXFILES_TIMER)\
@@ -105,22 +114,30 @@ MAKEFLAGS += -j --no-print-directory
 # builds .d files, then builds .o files based on .d.
 # skips files that weren't changed (see CPPFLAGS)
 $(BUILDDIR)%.o: %.cpp $(INCLUDE) | $(BUILDDIR)
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	@echo "$(PURPLE)Compiling $<... $(RESET)"
+
 
 $(NAME): $(OFILES)
-	$(CC) $(CFLAGS) -o $@ $(OFILES) $(LDFLAGS) $(INCFLAGS)
+	@$(CC) $(CFLAGS) -o $@ $(OFILES) $(LDFLAGS) $(INCFLAGS)
+	@echo "$(GREEN)Compilation successful! Run program with:$(RESET) $(CYAN)./$(NAME) $(RESET)+ config_file_name"
 
 #Base/project requirements
 all: $(NAME)
 #libs_clean:
 #	$(MAKE) fclean -C $(LIBFT_DIR)
 clean:
-	$(RM) $(OFILES)
+	@$(RM) $(OFILES)
+	@echo "$(RED)Object files removed $(RESET)"
+
 fclean:	clean #libs_clean
-	$(RM) $(NAME) $(DEPFILES)
+	@$(RM) $(NAME) $(DEPFILES)
+	@echo "$(RED)Executable file removed $(RESET)"
+
 re:
-	+$(MAKE) fclean
-	+$(MAKE) all
+	+@$(MAKE) fclean
+	+@$(MAKE) all
+
 
 #LSP connection for neovim
 clangd:

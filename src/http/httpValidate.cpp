@@ -142,7 +142,7 @@ void	Http::validateLayer()
 		return;
 	else
 		validateFile();
-} //ticket 11
+}
 
 
 

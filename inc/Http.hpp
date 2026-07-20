@@ -111,6 +111,7 @@ class Http {
 		/*===========DEBUGGER===================*/
 		void			debugPrintRequest();
 		void			debugPrintRequestConfig();
+		void			debugPrintHttpClassAttributes();
 };
 
 std::string	clientHandler(const Listener *listener, std::string recvStr);

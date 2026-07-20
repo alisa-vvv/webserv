@@ -61,7 +61,7 @@ void Http::parseHeaders(const std::string &headers)
 	{
 		newLine = headers.find("\r\n", start);
 		if (newLine == std::string::npos)
-			return setResponseCode(HTTP_BAD_REQUEST); //bad request //ticket02 
+			return setResponseCode(HTTP_BAD_REQUEST);
 		colon = headers.find(":", start);
 		if (colon == std::string::npos || colon > newLine)
 			return setResponseCode(HTTP_BAD_REQUEST); //bad request
@@ -90,7 +90,7 @@ void Http::parseHeaders(const std::string &headers)
 		start = newLine + 2;
 	}
 }
-/// @brief After receiving the rawstring, it gets parsed here. ticket10
+/// @brief After receiving the rawstring, it gets parsed here. 
 /// @param rawString 
 // can use this for cgi requests, need to pass parseRequestLine by adding
 // maybe add a bool called "is_cgi" and auto pass parseReqeuestLine?
