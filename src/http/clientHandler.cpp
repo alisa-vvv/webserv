@@ -1,30 +1,49 @@
 #include "../../inc/Http.hpp"
 
-#define CHECK_STATE(client) if (client.getState() == CLIENT_ERROR) {client.buildResponse(); return 0;}
-#define CHECK_CGI(client) if (client.getState() == HANDLING_CGI_EXTENSION) { return 0;}
+static int checkState(Http client)
+{
+	if (client.getState() == CLIENT_ERROR)
+	{
+		client.buildResponse();
+		return 0;
+	}
+	return 1;
+}
 
-//Call recv and http buffer
-
+static int checkCgi(Http client)
+{
+	if (client.getState() == HANDLING_CGI_EXTENSION)
+	{
+		//call CGI
+		//call build response?
+		return 0;
+	}
+	return 1;
+}
 /// @brief 
 /// @param listener feed the listener struct
 /// @param recvStr feed the str from recv
 /// @return response string ready for accept
 
-//std::string	clientHandler(Listener *listener, std::string recvStr)
-//{
-//	Http client;
-//	
-//	client.parseRequest(recvStr);
-//	CHECK_STATE(client);
-//
-//	client.setRequestConfig(listener); //ticket04
-//	CHECK_STATE(client);
-//
-//	client.validateLayer();
-//	CHECK_STATE(client);
-//
-//	client.buildResponse();
-//	CHECK_CGI(client);
-//
-//	return client.getResponseString();
-//}
+std::string	clientHandler(const Listener *listener, std::string recvStr)
+{
+	Http client;
+	
+	client.parseRequest(recvStr);
+	if (!checkState(client))
+		return 0;
+
+	client.setRequestConfig(listener);
+	if (!checkState(client))
+		return 0;
+
+	client.validateLayer();
+	if (!checkState(client))
+		return 0;
+
+	client.buildResponse();
+	if (!checkCgi(client))
+		return 0;
+
+	return client.getResponseString();
+}

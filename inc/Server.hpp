@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/03 16:39:49 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 13:25:23 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,17 @@ enum eServerError
 	SERVER_CONFIG_ERR,
 	SERVER_LISTENER_SETUP_ERR,
 	SERVER_POLL_ERR,
-	SERVER_ACCEPT_ERR
+	SERVER_ACCEPT_ERR,
+	SERVER_SETNONBLOCKING_ERR,
+	SERVER_RECV_ERR,
+	SERVER_CLIENT_CLOSED,
+	SERVER_TIMEOUT_ERR
+};
+
+enum eClientEventResult
+{
+	CLIENT_KEPT,
+	CLIENT_REMOVED
 };
 
 class Server
@@ -39,27 +49,30 @@ private:
 	std::map<int, Client>		_clients;	// client state, found by client fd
 	std::vector<struct pollfd>	_pollFds;	// the list poll() watches
 
-	void			_buildListener(void);
-	void			_addFdToPoll(int fd);
-	void			_addListenerFdsToPoll();
-
-	int				_isListenerFd(int fd) const;
-
+	void				_buildListener(void);
+	void				_addFdToPoll(int fd);
+	void				_addListenerFdsToPoll();
+	
+	int					_isListenerFd(int fd) const;
+	const Listener*		_findListenerByFd(int fd);
+	
 	Server(const Server &other);
-	Server			&operator=(const Server &other);
-	eServerError	_initPollEvent();
+	Server				&operator=(const Server &other);
+	eServerError		_initPollEvent();
+	
+	eServerError		_pollEvents();
+	eServerError		_handleListenerEvent(int i);
+	eClientEventResult	_handleClientEvent(int i);
+	eServerError		_handleRecv(int fd);
+	eServerError		_handleSend(Client client, std::string response);
 
-	eServerError	_pollEvents();
-	eServerError	_handleListenerEvent(int i);
-	int				_handleClientEvent(int i);
+	eServerError		_acceptClients(int serverListenFd);
+	eServerError		_setNonBlocking(int fd);
+	void				_checkTimeouts(); //TODO:finish
 
-	eServerError	_acceptClients(int serverListenFd);
-	eServerError	_setNonBlocking(int fd);
-	void			_checkTimeouts(); //TODO:finish
-
-	void			_closeClientFd(int fd);
-	void			_closeClients();
-	void			_closeAll();
+	void				_closeClientFd(int fd);
+	void				_closeClients();
+	void				_closeAll();
 	
 	public:
 	Server(const Config &config);
@@ -67,7 +80,7 @@ private:
 	
 	eServerError	setup(void);
 	eServerError	run();
-	int				matchConfig(uint32_t ip, int port, cfg_server_t serverConfig);
+	int				matchConfig(uint32_t ip, int port, const cfg_server_t &serverConfig);
 	
 	void			closeListeners();
 
@@ -77,7 +90,6 @@ private:
 };
 
 int					setupSignal();
-
 
 #endif
 

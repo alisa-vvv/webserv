@@ -1,28 +1,37 @@
 # **************************************************************************** #
 #                                                                              #
-#                                                        ::::::::              #
-#    Makefile                                          :+:    :+:              #
-#                                                     +:+                      #
-#    By: avaliull <avaliull@student.codam.nl>        +#+                       #
-#                                                   +#+                        #
-#    Created: 2025/07/22 19:01:25 by avaliull     #+#    #+#                   #
-#    Updated: 2025/08/06 15:25:10 by avaliull     ########   odam.nl           #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/07/22 19:01:25 by avaliull          #+#    #+#              #
+#    Updated: 2026/07/17 13:02:18 by tcakir-y         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 .DEFAULT_GOAL := all
 
-NAME =	config_parser
+NAME =	webserv
+
+PURPLE = \033[35m
+CYAN = \033[36m
+BLUE = \033[34m
+PINK = \033[95m
+RED = \033[31m
+GREEN = \033[1;32m
+YELLOW = \033[33m
+RESET = \033[0m
 
 CXXFILES	=	$(CXXFILES_PARSER)\
 				$(CXXFILES_CGI)\
 				$(CXXFILES_TIMER)\
 				$(HTTP_PARSER)\
 				$(RESPONSE_BUILDER)\
-				$(CXXFILES_SOCKET)
+				$(CXXFILES_SOCKET)\
+				$(MAIN)
 
-CXXFILES_PARSER	=	config_parser_main.cpp\
-					configParser.cpp\
+CXXFILES_PARSER	=	configParser.cpp\
 					configParserTEST.cpp\
 					configParserTokenize.cpp\
 					serverBlockParsers.cpp\
@@ -33,13 +42,11 @@ CXXFILES_CGI =		cgi_exec.cpp
 
 CXXFILES_TIMER =	timer.cpp
 
-HTTP_PARSER =	clientHandler.cpp\
-				Http.cpp\
-				httpBuffer.cpp\
-				clientHandler.cpp\
-				httpParsers.cpp\
-				httpValidate.cpp\
-				setRequestConfig.cpp
+HTTP_PARSER =		clientHandler.cpp\
+					Http.cpp\
+					httpParsers.cpp\
+					httpValidate.cpp\
+					setRequestConfig.cpp
 
 RESPONSE_BUILDER =	buildResponse.cpp\
 					buildResponseAutoIndexReturn.cpp\
@@ -47,9 +54,18 @@ RESPONSE_BUILDER =	buildResponse.cpp\
 					buildResponseError.cpp\
 					buildResponseGet.cpp\
 					buildResponsePost.cpp\
-					buildResponseUtils.cpp
+					buildResponseUtils.cpp				
 
-CXXFILES_SOCKET =	Listener.cpp
+CXXFILES_SOCKET =	Server.cpp\
+					Signal.cpp\
+					Client.cpp\
+					ServerUtils.cpp\
+					Listener.cpp\
+					ListenerDebug.cpp\
+					RcvUtils.cpp\
+					RcvBuffer.cpp
+		
+MAIN =				main.cpp
 
 OFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.o))
 DEPFILES	= $(addprefix $(BUILDDIR),$(CXXFILES:.cpp=.d))
@@ -86,7 +102,7 @@ CPPFLAGS	= $(INCFLAGS) -MMD -MP
 
 INCFLAGS	= $(addprefix -I,$(INCLUDE))
 #CFLAGS	= -Wall -Wextra -Werror
-CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined -std=c++20
+CFLAGS	= -Wall -Wextra -Werror -std=c++20
 DEBUG_FLAGS	= -g
 LDFLAGS	=
 INPUT	= config/test.conf
@@ -98,22 +114,30 @@ MAKEFLAGS += -j --no-print-directory
 # builds .d files, then builds .o files based on .d.
 # skips files that weren't changed (see CPPFLAGS)
 $(BUILDDIR)%.o: %.cpp $(INCLUDE) | $(BUILDDIR)
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	@echo "$(PURPLE)Compiling $<... $(RESET)"
+
 
 $(NAME): $(OFILES)
-	$(CC) $(CFLAGS) -o $@ $(OFILES) $(LDFLAGS) $(INCFLAGS)
+	@$(CC) $(CFLAGS) -o $@ $(OFILES) $(LDFLAGS) $(INCFLAGS)
+	@echo "$(GREEN)Compilation successful! Run program with:$(RESET) $(CYAN)./$(NAME) $(RESET)+ config_file_name"
 
 #Base/project requirements
 all: $(NAME)
 #libs_clean:
 #	$(MAKE) fclean -C $(LIBFT_DIR)
 clean:
-	$(RM) $(OFILES)
+	@$(RM) $(OFILES)
+	@echo "$(RED)Object files removed $(RESET)"
+
 fclean:	clean #libs_clean
-	$(RM) $(NAME) $(DEPFILES)
+	@$(RM) $(NAME) $(DEPFILES)
+	@echo "$(RED)Executable file removed $(RESET)"
+
 re:
-	+$(MAKE) fclean
-	+$(MAKE) all
+	+@$(MAKE) fclean
+	+@$(MAKE) all
+
 
 #LSP connection for neovim
 clangd:

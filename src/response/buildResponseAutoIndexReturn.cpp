@@ -1,7 +1,7 @@
 #include "../../inc/Http.hpp"
 
 
-void Http::handleAutoIndexResponse() //ticket18 
+void Http::handleAutoIndexResponse() 
 {
 	try
 	{
@@ -15,7 +15,7 @@ void Http::handleAutoIndexResponse() //ticket18
 		body += "</ul></body></html>";
 		setBody(body);
 		setResponseCode(HTTP_OK);
-		setResponseHeader("Content-Type", "test/html");
+		setResponseHeader("Content-Type", "text/html");
 		setState(READY_TO_SEND);
 	}
 	catch(const std::exception& e)
@@ -25,9 +25,9 @@ void Http::handleAutoIndexResponse() //ticket18
 }
 
 void Http::handleReturnResponse()
-{ //ticket15
+{
 	setResponseCode(HTTP_MOVED_PERMANENTLY);
-	setResponseHeader("Location:", requestConfig->location->returns.target);
+	setResponseHeader("Location:", requestConfig.location->returns.target);
 	setBody("");
 	setState(READY_TO_SEND);
 }

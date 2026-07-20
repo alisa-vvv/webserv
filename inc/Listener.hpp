@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:35:04 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/08 15:43:51 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/17 12:51:42 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,10 @@
 #include <stdint.h>
 #include <map>
 #include <csignal>
+
+#include "cgi_exec.hpp"
+#include <sys/types.h>
+#include <netdb.h>
 
 #include "configParser.hpp"
 
@@ -76,9 +80,9 @@ class Listener
 		int					getListenerFd() const;
 		void				setListenerFd(int fd);
 
-		const cfg_server_t	*getServerConfig(int i);
+		const cfg_server_t	*getServerConfig(int i) const;
 		void				addServerConfig(const cfg_server_t *config);
-		int					getConfigCount() { return _serverConfigs.size(); };
+		size_t				getConfigCount() const { return _serverConfigs.size(); };
 		
 		void				closeSocket();
 

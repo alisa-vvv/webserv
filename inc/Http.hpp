@@ -25,6 +25,7 @@ enum clientState {
 
 enum httpVersion {
 	HTTP_1_0,
+	HTTP_1_1,
 	INVALID //we will not handle http versions other than 1.0 and 1.1, so we set INVALID for unsupported versions
 };
 
@@ -48,12 +49,12 @@ class Http {
 		std::string							_builtUri; //uri built with root etc
 		std::string							_body;
 		std::string							_responseString;
-		std::map<std::string, std::string>	_requestHeaders;
-		std::map<std::string, std::string>	_responseHeaders;
+		std::multimap<std::string, std::string>	_requestHeaders;
+		std::multimap<std::string, std::string>	_responseHeaders;
 
 	public:
 		Http();
-		requestConfig	*requestConfig;
+		requestConfig	requestConfig;
 
 		/*==========PARSING===========*/
 		void			parseRequest(const std::string &rawString);
@@ -90,8 +91,8 @@ class Http {
 		void			setContentType();
 		
 		/*=======REQUEST Config===================*/
-		int				findRequestConfig(Listener *listener);
-		void 			setRequestConfig(Listener *listener);
+		int				findRequestConfig(const Listener *listener);
+		void 			setRequestConfig(const Listener *listener);
 
 		/*==========GETTERS============*/
 		clientState		getState() const;
@@ -105,12 +106,14 @@ class Http {
 		bool			getExtension() const;
 		std::string		getBuiltUri() const;
 		std::string		getReceivedUri() const;
+		std::string		getContentTypeExtension(const std::string &contentType) const;
 
 		/*===========DEBUGGER===================*/
 		void			debugPrintRequest();
 		void			debugPrintRequestConfig();
+		void			debugPrintHttpClassAttributes();
 };
 
-void	handleHttpRequest(Http &httpObject);
+std::string	clientHandler(const Listener *listener, std::string recvStr);
 
 #endif

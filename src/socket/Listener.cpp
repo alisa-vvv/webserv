@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:34:57 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/06 19:01:06 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/17 13:44:56 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,8 @@ eListenerError Listener::_setAddress()
 
 	_address.sin_family = AF_INET;
 	_address.sin_port = htons(_port);
-	_address.sin_addr.s_addr = htonl(_ip_addr);
+	_address.sin_addr.s_addr = _ip_addr;
+	std::cout << htonl(_ip_addr) << std::endl;
 	return LISTENER_OK;
 }
 
@@ -138,7 +139,7 @@ eListenerError Listener::_bindSocket()
 {
 	if (bind(_listenerFd, reinterpret_cast<const struct sockaddr *>(&_address), sizeof(_address)) == ERROR)
 	{
-		std::cerr << "Couldn't bind the port!: " << std::strerror(errno) << std::endl;
+		std::cerr << "Couldn't bind!: " << std::strerror(errno) << std::endl;
 		return LISTENER_BIND_ERR;
 	}
 	std::cout << "Bind successful" << std::endl;
@@ -193,7 +194,7 @@ void Listener::setListenerFd(int fd)
 }
 
 
-const cfg_server_t *Listener::getServerConfig(int i)
+const cfg_server_t *Listener::getServerConfig(int i) const
 {
 	return _serverConfigs.at(i);
 }
