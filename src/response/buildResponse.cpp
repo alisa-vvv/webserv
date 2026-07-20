@@ -62,7 +62,7 @@ void Http::buildResponse()
 	if (getState() == CLIENT_ERROR)
 		handleErrorResponse();
 	setResponseHeader("Content-Length", std::to_string(this->_body.size()));
-	setResponseHeader("Connection:", "keep-alive");
+	setResponseHeader("Connection", "keep-alive");
 	// setResponseHeader("Date", time(nullptr)); need to add date and not time. probably need to make a httpdatefucntion
 	buildResponseString();
 }
