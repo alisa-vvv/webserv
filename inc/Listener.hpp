@@ -26,7 +26,6 @@
 #include <map>
 #include <csignal>
 
-#include "cgi_exec.hpp"
 #include <sys/types.h>
 #include <netdb.h>
 

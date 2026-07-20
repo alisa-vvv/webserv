@@ -23,6 +23,7 @@
 #include <limits.h>
 #include <vector>
 #include <sstream>
+#include "Http.hpp"
 
 #define PYTHON_EXEC "python"
 #define PATH_TO_SCRIPT "/home/avaliull/Projects/lvl5/webserv/server/cgi-bin/hello_world.py"
@@ -249,7 +250,9 @@ static cgi_t	handle_parent(
 // parent writes to input pipe and reads from output pipe
 // child reads from input pipe and writes to out pipe (dup2 that shit)
 std::optional<cgi_t>	executeCGI(
-	const cfg_server_t& server_config
+	const cfg_server_t& server_config, // this is not needed, it's gonna be in http
+	// this was a dummy
+	[[maybe_unused]] std::vector<cgi_t>&	bacgkround_cgis
 ) {
 	int	in_pipe[2];
 	int	out_pipe[2];
@@ -266,6 +269,11 @@ std::optional<cgi_t>	executeCGI(
 	}
 
 	std::vector<cgi_t>		background_cgis;
+
+	//cgi_t					newly_created_cgi_request;
+	//newly_created_cgi_request.request_data = &http_instance;
+	//background_cgis.push_back(newly_created_cgi_request);
+
 	std::tuple<int, size_t>	cgi_response;
 	cgi_t	cgi;
 	cgi_t	cgi_response_data;

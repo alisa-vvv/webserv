@@ -10,6 +10,10 @@
 #include "configParser.hpp"
 #include "HttpError.hpp"
 
+#include "Timer.hpp"
+#include <optional>
+
+
 //success defined in listener
 static const int FAILURE = -1;
 
@@ -115,5 +119,15 @@ class Http {
 };
 
 std::string	clientHandler(const Listener *listener, std::string recvStr);
+
+typedef struct	cgi_t {
+	int							child_pid = -1;
+	int							input = -1;
+	int							output = -1;
+	std::string					input_string = "";
+	std::string					output_string = "";
+	time_point<system_clock>	timer;
+	Http						request_data;
+}	cgi_t;
 
 #endif
