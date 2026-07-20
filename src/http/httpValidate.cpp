@@ -2,7 +2,6 @@
 #include <filesystem>
 #include <sys/stat.h>
 #include "../../inc/Http.hpp"
-#include "Colors.hpp"
 
 /// @brief Validate the file for permissions, file traversal, readable, deletable etc.
 void Http::validateFile()
@@ -76,7 +75,11 @@ int Http::validateURI(std::string uri)
 	
 	std::string prefix = requestConfig.location->prefix;
 	std::string root = requestConfig.location->root;
-	
+
+// Convert relative paths to absolute paths
+	if (root[0] != '/')
+		root = std::filesystem::absolute(root).string();
+
 	// remove prefix and add root
 	std::string remaining = this->_receivedUri.substr(prefix.length());
 

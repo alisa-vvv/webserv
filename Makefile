@@ -31,7 +31,8 @@ CXXFILES	=	$(CXXFILES_PARSER)\
 				$(CXXFILES_SOCKET)\
 				$(MAIN)
 
-CXXFILES_PARSER	=	configParser.cpp\
+CXXFILES_PARSER	=	#configParser.cpp\
+
 					configParserTEST.cpp\
 					configParserTokenize.cpp\
 					serverBlockParsers.cpp\

@@ -140,7 +140,7 @@ void Http::debugPrintRequestConfig()
 	const cfg_server_t *server = requestConfig.server;
 	const t_location *location = requestConfig.location;
 	size_t serverNameCount = server->server_names.size();
-	std::cout << "=== Context Request Config ====" << std::endl;
+	std::cout << GREEN << "=== START Context Request Config ====" << RESET << std::endl;
 	std::cout << "============ SERVER ===========" << std::endl;
 	std::cout << std::endl << "===============================" << std::endl;
 	for (size_t i = 0; i < serverNameCount; i++)
@@ -153,8 +153,7 @@ void Http::debugPrintRequestConfig()
 	std::cout << "Autoindex: " << server->autoindex << std::endl;
 	for (const auto& [code, link] : server->error_pages)
 		std::cout << "Error page status: " << code << std::endl << "Error page link: " << link << std::endl;
-	std::cout << std::endl << "===============================" << std::endl << std::endl;
-
+		
 	std::cout << "============ LOCATION ===========" << std::endl;
 
 	std::cout << "Prefix: " << location->prefix << std::endl;
@@ -171,6 +170,8 @@ void Http::debugPrintRequestConfig()
 	std::cout << "Return code: " << location->returns.code << std::endl;
 	if (location->returns.code)
 		std::cout << "Return target: " << location->returns.target << std::endl;
+	std::cout << GREEN << "=== FINISH Context Request Config ====" << RESET << std::endl;
+
 }
 
 

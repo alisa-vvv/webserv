@@ -7,6 +7,7 @@
 #include <tuple>
 #include <fstream>
 #include "Listener.hpp"
+#include "Colors.hpp"
 #include "configParser.hpp"
 #include "HttpError.hpp"
 
