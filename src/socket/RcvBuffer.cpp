@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RcvBuffer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/08 12:57:21 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/17 11:22:37 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/20 23:02:40 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,10 +48,13 @@ receiveStatus RcvBuffer::checkStatus()
 	if (contentLenPos != std::string::npos)
 	{
 		hasContentLen = true;
-		int result = sscanf(headers.c_str() + contentLenPos, "Content-Length: %zd", &contLenCnt);
+		long long parsedContentLength = -1;
 
-		if (result != 1 || contLenCnt < 0)
+		int result = sscanf(headers.c_str() + contentLenPos, "Content-Length: %lld", &parsedContentLength);
+
+		if (result != 1 || parsedContentLength < 0)
 			return RECV_ERROR;
+		contLenCnt = static_cast<size_t>(parsedContentLength);
 	}
 	if (!hasContentLen)
 	{
