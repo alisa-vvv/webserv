@@ -1,43 +1,53 @@
 Todo
 
 
-ticket04:
+ticket14:
+item: client_max_body_size defaults to -1 -> if it is not initialized, is that ok? or will cnfig validation throw an error 
+
+ticket18
+item: do i need to check that the user has permission to show the index files?
+
+ticket 21
+item: 
+
+
+
+=========================
+
+ticket13: done
+item: what if there is no matching server config
+desc: do we just use the first server as default?
+answer: using first server as default
+
+ticket16 - done
+item: connection keep alive
+description: 	//should i set header for connection keep alive? - if http1.0 - no. if http 1.1. yes
+
+
+ticket12:
+item: what if there are mutiple response header keys - stop using map for response header as some headers are multi valued
+answer: i used multimap
+
+
+ticket15: done
+item: return alisa
+description: does she already block if status is >300 <400- others only handle 301....
+answer: yes
+
+ticket17: done
+item: uploadstore
+description: idk
+
+ticket20: done
+item: NEED TO GET THE FILE CONTENT 
+
+ticket04: done
 item: create a setRequestConfig
 description: Response handler must match the server and location block and serve specific paths etc
 Description: If there are multiple ports, with 8080 inly allowing get and 8034 allowing all -> we need
 to validate server/port
 
-ticket12:
-item: what if there are mutiple response header keys - stop using map for response header as some headers are multi valued
-
-ticket13: 
-item: what if there is no matching server config
-desc: do we just use the first server as default?
-
-
-ticket14:
-item: client_max_body_size defaults to -1 -> if it is not initialized, is that ok? or will cnfig validation throw an error 
-
-ticket15
-item: return alisa
-description: does she already block if status is >300 <400- others only handle 301....
-
-ticket16
-item: connection keep alive
-description: 	//should i set header for connection keep alive?
-
-ticket17
-item: uploadstore
-description: idk
-
-ticket18
-item: do i need to check that the user has permission to show the index files?
-
-ticket20:
-item: NEED TO GET THE FILE CONTENT 
-=========================
-
-ticket19
+ticket19: done
 item: change errorpages to map again
 
 ticket06: done
