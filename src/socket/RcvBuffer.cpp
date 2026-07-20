@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/08 12:57:21 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/20 23:02:40 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/20 23:48:29 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,13 @@ receiveStatus RcvBuffer::checkStatus()
 	size_t headerEnd = this->recvStr.find("\r\n\r\n");
 	if (headerEnd == std::string::npos)
 	{
-		// if (recvStr.size() > ) // add define MAX HEADER SIZE
-		// 	return RECV_ERROR;
+		if (recvStr.size() > MAX_REQUEST) //reject large headers
+			return RECV_ERROR;
 		return (INCOMPLETE);
 	}
-
+	if (headerEnd > MAX_REQUEST)
+		return RECV_ERROR;
+		
 	std::string headers = this->recvStr.substr(0, headerEnd);
 	size_t contentLenPos = headers.find("Content-Length:");
 
@@ -58,15 +60,15 @@ receiveStatus RcvBuffer::checkStatus()
 	}
 	if (!hasContentLen)
 	{
-		// if (bodyReceived > 0)
-		// 	return RECV_ERROR;
+		if (bodyReceived > 0)
+			return RECV_ERROR;
 		return COMPLETE;
 	}
 	if (bodyReceived == contLenCnt)
 		return COMPLETE;
 
 	if (bodyReceived < contLenCnt)
-	return (INCOMPLETE);
+		return (INCOMPLETE);
 	
 	return RECV_ERROR;
 }
