@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <sys/stat.h>
 #include "../../inc/Http.hpp"
+#include "Colors.hpp"
 
 /// @brief Validate the file for permissions, file traversal, readable, deletable etc.
 void Http::validateFile()
@@ -10,15 +11,22 @@ void Http::validateFile()
 	try
 	{
 		if (!std::filesystem::exists(path))
+		{
+			std::cout << RED << "Fails here Exists" << RESET << std::endl;
 			return setResponseCode(HTTP_NOT_FOUND); //it dont exist
+		}
 		if (std::filesystem::is_directory(path))
 		{
 			if (this->_method == GET) //if its a directory, its ok for get but not for other methods
 				return;
+			std::cout << RED << "Fails here is directory" << RESET << std::endl;
 			return setResponseCode(HTTP_NOT_FOUND);
 		}
 		if (!std::filesystem::is_regular_file(path))
+		{
+			std::cout << RED << "Fails here regular file path" << RESET << std::endl;
 			return setResponseCode(HTTP_NOT_FOUND); //not a regular file aka dir/link
+		}
 
 		struct stat fileStat;
 		if (stat(path.c_str(), &fileStat) == -1)
