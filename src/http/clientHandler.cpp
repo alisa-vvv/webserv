@@ -11,7 +11,7 @@ static int checkState(Http client)
 	return 1;
 }
 
-static int checkCgi(Http client)
+static int checkCgi(Http &client)
 {
 	if (client.getState() == HANDLING_CGI_EXTENSION)
 	{
@@ -46,39 +46,22 @@ std::string	clientHandler(const Listener *listener, std::string recvStr)
 	if (!checkState(client))
 		return client.getResponseString();
 
+	
 	client.buildResponse();
 
-	if (!checkState(client))
+	if (checkCgi(client))
 	{
-		std::cout << RED << "Parse request fail" << RESET << std::endl;
-		return client.getResponseString();
+		sendToCgi(client);
+		
 	}
-
-	client.setRequestConfig(listener);
-
-	if (!checkState(client))
-	{
-		std::cout << RED << "Request config fail" << RESET << std::endl;
 		return client.getResponseString();
-	}
 
+	
 	client.debugPrintHttpClassAttributes();
 	client.debugPrintRequestConfig();
 
-	client.validateLayer();
-
-	if (!checkState(client))
-	{
-		std::cout << RED << "Validate layer fail" << RESET << std::endl;
-		return client.getResponseString();
-	}
-	
-	client.buildResponse();
-	// if (checkCgi(client))
-	// 	return client.getResponseString();
 
 	return client.getResponseString();
 
 	std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
-
 }

@@ -7,6 +7,8 @@ void Http::handleGetResponse()
 	try {
 		// long size = std::filesystem::file_size(file);
 		// int maxBodySize = requestConfig.server->client_max_body_size;
+		// //check how to convert maxbodysize to mb
+
 		// if (maxBodySize >= 0 && size > maxBodySize)
 		// 	return setResponseCode(HTTP_PAYLOAD_TOO_LARGE);
 		setBody();

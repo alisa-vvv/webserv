@@ -1,6 +1,13 @@
 #include "../../inc/Http.hpp"
 #include <filesystem>
 
+void Http::buildCGIResponseString(std::string cgiResponse)
+{
+	int start = 0;
+	size_t newLine = cgiResponse.find("\r\n", start);
+	if 
+}
+
 /// @brief After building the response, build the response string ready for send()
 /// @return response string 
 void Http::buildResponseString()
@@ -13,7 +20,8 @@ void Http::buildResponseString()
 	this->_responseString.clear();
 	this->_responseString += httpVer + std::to_string(this->_statusCode) + " "
 		+ std::get<0>(HTTP_STATUS_MESSAGE.at(this->_statusCode)) + "\r\n";
-
+	
+	// if (has)
 	for (std::map<std::string, std::string>::iterator it = this->_responseHeaders.begin(); it != this->_responseHeaders.end(); ++it)
 		this->_responseString += it->first + ": " + it->second + "\r\n";
 	this->_responseString += "\r\n";

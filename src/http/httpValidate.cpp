@@ -11,7 +11,8 @@ void Http::validateFile()
 	{
 		if (!std::filesystem::exists(path))
 		{
-			std::cout << RED << "Fails here Exists" << RESET << std::endl;
+			std::cout << RED << "Built uri" << RESET << std::endl;
+			std::cout << RED << "Fails here EXISTS" << RESET << std::endl;
 			return setResponseCode(HTTP_NOT_FOUND); //it dont exist
 		}
 		if (std::filesystem::is_directory(path))
@@ -64,7 +65,7 @@ int Http::validateURI(std::string uri)
 		setResponseCode(URI_TOO_LONG);
 		return FAILURE;
 	}
-	
+
 	// check CGI extensions
 	if (uri.find(".py") != std::string::npos || uri.find(".php") != std::string::npos || uri.find(".cgi") != std::string::npos)
 		setExtension(true);

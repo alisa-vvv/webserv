@@ -31,12 +31,21 @@ eServerError Server::_handleRecv(int clientFd)
 
 		if (status == COMPLETE)
 		{
+			Http clientHttp;
+			// if (state == READY_TO_SEND)
+				//call this and that
+			//call Http class here, if 
+			std::cout << "DEBUG enters status complete " << std::endl;
+
 			std::string response = clientHandler(client.getListenerClass(), bufferObj.getRecvStr());
-
-			std::cout << "respnse string: " << response << std::endl;
+			// if (state == HANDLING_CGI_EXTENSION){
+				
+			// }
+			//
+			std::cout << "DEBUG response string: " << response << std::endl;
 			std::cout << "fuck yeah " << std::endl;
-			_handleSend(client, response);
-
+			//if(state == READY_TO_SEND)
+				_handleSend(client, response);
 		}
 		return SERVER_OK;
 	}
