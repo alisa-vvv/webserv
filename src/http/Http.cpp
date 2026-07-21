@@ -5,8 +5,7 @@
 /*======CONSTRUCTOR======*/
 
 Http::Http()
-	: _state(PARSING)
-	, _method(UNKNOWN)
+	: _method(UNKNOWN)
 	, _version(INVALID)
 	, _statusCode(0)
 	, _contentLen(0)
