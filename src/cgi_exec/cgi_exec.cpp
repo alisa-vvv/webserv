@@ -27,6 +27,7 @@
 
 #define PYTHON_EXEC "python"
 #define PATH_TO_SCRIPT "/home/avaliull/Projects/lvl5/webserv/server/cgi-bin/hello_world.py"
+// root of location + cgi_pass
 
 static void	cgi_bzero(
 	char* path,
@@ -105,6 +106,20 @@ std::tuple<int, size_t>	checkBackgroundCGIs(
 	return (std::tuple<int, size_t> { 0, 0 });
 }
 
+static const std::string match_method_to_string(
+	httpMethod	method
+) {
+	switch (method) {
+		case GET:
+			return ("GET");
+		case POST:
+			return ("POST");
+		case DELETE:
+			return ("DELETE");
+		case UNKNOWN:
+			return ("UNKNOWN");
+	}
+}
 	/*	These are things we're most likely not going to have. Putting them here in case */
 //"HTTP_COOKIE=", we don't have cookies
 //"HTTP_HOST=", // all these http related ones seem to be out of scope for us
@@ -118,18 +133,30 @@ std::tuple<int, size_t>	checkBackgroundCGIs(
 //"REQUEST_URI=", not sure what this is, we might need it?
 //"SCRIPT_FILENAME=", same as above
 
-static char**	constructEnvironment(const cfg_server_t& server_config) {
+static char**	constructEnvironment(
+	const Http& request_data
+) {
+	const cfg_server_t&	server_config = *request_data.requestConfig.server;
+	//const t_location&	cgi_location = *request_data.requestConfig.location;
+	std::string	request_uri = request_data.getReceivedUri();
+	std::string	query_string;
+	size_t		query_string_start = query_string.find_first_of('?') + 1;
+	if (query_string_start != std::string::npos) {
+		query_string = request_uri.substr(query_string_start + 1, request_uri.back());
+	}
 	std::vector<std::string>	vars = {
 		"DOCUMENT_ROOT=" + server_config.root, // root directory of the server
 		"PATH=" + (std::string) getenv("PATH"),
-		"QUERY_STRING=", // if method is GET, here we put the query (where is that from?)
+		"QUERY_STRING=" + query_string,
 		"REMOTE_ADDR=", // ip of the visitor
 		"REMOTE_HOST=", // host of visitor
 		"REMOTE_PORT=", // port of visitor
-		"REQUEST_METHOD=", // GET or POST
-		"SCRIPT_NAME=", // path to the script we're executing
+		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
+		"REQUEST_URI=" + request_data.getReceivedUri(),
+		"SCRIPT_FILENAME=",  // path to the script (absolute)
+		"SCRIPT_NAME=", // path to the script we're executing relative to root
 		"SERVER_NAME=" + server_config.server_names[0],
-		"SERVER_PORT=", // since we have virtual servers, that one comes from ally's part
+		"SERVER_PORT=" + std::to_string(server_config.ports.at(0)),
 		"SERVER_SOFTWARE=webserv",
 	};
 
@@ -147,7 +174,7 @@ static char**	constructEnvironment(const cfg_server_t& server_config) {
 }
 
 static int	findAndExecuteScript(
-	const cfg_server_t& server_config,
+	const Http&	request_data,
 	const std::string binary_name,
 	char *const argv[],
 	std::vector<std::string> paths
@@ -155,7 +182,7 @@ static int	findAndExecuteScript(
 {
 	std::string 	slash_arg;
 	char			path[PATH_MAX];	
-	char**			env = constructEnvironment(server_config);
+	char**			env = constructEnvironment(request_data);
 
 	cgi_bzero(path, PATH_MAX);
 	for (size_t i = 0; i < paths.size(); i++) {
@@ -189,7 +216,7 @@ static std::vector<std::string>	splitPathVar(
 }
 
 static int	tryExecveScript(
-	const cfg_server_t& server_config,
+	const Http&	request_data,
 	const std::string binary_name,
 	char *const argv[]
 )
@@ -200,7 +227,7 @@ static int	tryExecveScript(
 	path = splitPathVar();
 	if (path.size() == 0)
 		return (1);
-	err_check = findAndExecuteScript(server_config, binary_name, argv, path);
+	err_check = findAndExecuteScript(request_data, binary_name, argv, path);
 	return (err_check);
 }
 
@@ -209,7 +236,7 @@ static int	tryExecveScript(
 // 3. when ready, read until EOF or death of child process
 // 4. prepare response
 static void	handle_child(
-	const cfg_server_t& server_config,
+	const Http&	request_data,
 	const std::string binary_name,
 	char *const argv[],
 	int in_pipe[2],
@@ -222,7 +249,7 @@ static void	handle_child(
 	close(in_pipe[0]);
 	close(out_pipe[1]);
 	std::cout << "executing cgi in child...\n\n";
-	tryExecveScript(server_config, binary_name, argv);
+	tryExecveScript(request_data, binary_name, argv);
 	std::cout << "if you see this, there's an error\n"; // delete this
 	exit(1);
 }
@@ -250,9 +277,8 @@ static cgi_t	handle_parent(
 // parent writes to input pipe and reads from output pipe
 // child reads from input pipe and writes to out pipe (dup2 that shit)
 std::optional<cgi_t>	executeCGI(
-	const cfg_server_t& server_config, // this is not needed, it's gonna be in http
-	// this was a dummy
-	[[maybe_unused]] std::vector<cgi_t>&	bacgkround_cgis
+	[[maybe_unused]] const Listener& listener,
+	std::vector<cgi_t>&	background_cgis
 ) {
 	int	in_pipe[2];
 	int	out_pipe[2];
@@ -267,8 +293,6 @@ std::optional<cgi_t>	executeCGI(
 		// brr brr errorr
 		return (std::nullopt);
 	}
-
-	std::vector<cgi_t>		background_cgis;
 
 	//cgi_t					newly_created_cgi_request;
 	//newly_created_cgi_request.request_data = &http_instance;
@@ -288,7 +312,8 @@ std::optional<cgi_t>	executeCGI(
 		return (std::nullopt);
 	}
 	else if (fork_ret == 0) {
-		handle_child(server_config, PYTHON_EXEC, argv, in_pipe, out_pipe);
+		handle_child(background_cgis.end()->request_data,
+			   PYTHON_EXEC, argv, in_pipe, out_pipe);
 	}
 	else if (fork_ret > 0) {
 		cgi = handle_parent(in_pipe, out_pipe, fork_ret);

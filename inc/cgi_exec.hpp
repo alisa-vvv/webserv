@@ -16,8 +16,9 @@
 #include "Http.hpp"
 
 std::optional<cgi_t>	executeCGI(
-	const cfg_server_t& server_config
+	[[maybe_unused]] std::vector<cgi_t>&	bacgkround_cgis
 );
 std::tuple<int, size_t>	checkBackgroundCGIs(
+	const Listener& listener,
 	std::vector<cgi_t>&	background_cgis
 );
