@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:25 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/20 22:57:50 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/21 16:19:42 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,17 @@ using std::chrono::time_point;
 using std::chrono::system_clock;
 class Listener;
 
+enum clientState {
+	RECEIVING,
+	PARSING,
+	VALIDATING,
+	HANDLING_CGI_EXTENSION,
+	HANDLING_CGI_STATIC,
+	READY_TO_SEND,
+	CLIENT_ERROR,
+};
+
+
 class Client
 {
 	private:
@@ -35,6 +46,7 @@ class Client
 		std::string					_response;
 		bool						_responseStatus;
 		size_t						_bytesSent;
+		clientState					_clientState;
 
 	public:
 		/* ============================ CONSTRUCTORS ============================ */
@@ -52,12 +64,14 @@ class Client
 		RcvBuffer					&getRcvBuffer();
 		const Listener*				getListenerClass() const;
 		int 						getClientFd() const;
+		clientState					getClientState() const;
 
 		/* ============================== SETTERS ============================== */
-		void setLastActivity(time_point<system_clock> lastActivity);
+		void						setLastActivity(time_point<system_clock> lastActivity);
 		void						setRecvStatus(receiveStatus recvStatus);
 		void						setResponse(const std::string& response);
 		void						setResponseStatus(bool response);
+		void						setClientState(clientState clientState);
 		
 		/* ======================== RESPONSE HANDLING ========================= */
 		void						updateBytesSent(size_t bytes);

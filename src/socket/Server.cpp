@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/21 10:16:21 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/21 17:13:55 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,6 +197,11 @@ eClientEventResult Server::_handleClientEvent(int i)
 		_closeClientFd(fd);
 		return CLIENT_REMOVED;
 	}
+	//TODO: add cgi
+	if (_clients.at(fd).getClientState() == HANDLING_CGI_EXTENSION) //waiting for cgi
+	{
+		
+	}
 	if (_pollFds[i].revents & POLLIN)
 	{
 		eServerError err = _handleRecv(fd);
@@ -205,7 +210,7 @@ eClientEventResult Server::_handleClientEvent(int i)
 			_closeClientFd(fd);
 			return CLIENT_REMOVED;
 		}
-		if (_clients.at(fd).getResponseStatus())
+		if (_clients.at(fd).getResponseStatus() && _clients.at(fd).getClientState() == READY_TO_SEND) //TODO:check
 		{
 			_pollFds[i].events = POLLOUT;
 		}
