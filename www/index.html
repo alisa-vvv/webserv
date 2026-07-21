@@ -16,14 +16,23 @@
 		<br>
 		<button id="confetti-button" class="button"> Confetti! </button>
 		<br>
+
 		<button id="regular-button"class="button">
 			This button also does confetti, 
 			but JS does not ask to "execute a script first"
 		</button>
-		<script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js">
-		</script>
-		<script src="confetti.js">
-		</script>
+
+		<br>
+		<script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
+		<script src="confetti.js"></script>
+
+		<!-- UPLOAD BUTTON IMPLEMENTATION -->
+		<label for="fileUpload" class="uploadButton">Choose File</label>
+		<p id="fileName">No file selected</p>
+		<input type="file" id="fileUpload" class="hideClass" name="fileUpload">
+		<input type="submit" id="submitButton" value="Upload" hidden> 
+
+	<script src="upload.js"></script>
 	</body>
 
 </html>

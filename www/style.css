@@ -72,4 +72,25 @@ body {
 	scale: 105%;
 	cursor: pointer;
 }
+.uploadButton {
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: blueviolet;
+	color: wheat;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
 
+.uploadButton:hover {
+	transform: scale(1.05);
+	background-color: blue;
+}
+
+.showClass {
+	display: block;
+}
+
+.hideClass {
+	display: none;
+}

@@ -74,3 +74,13 @@ https://www.geeksforgeeks.org/cpp/static_cast-in-cpp/
 https://beej.us/guide/bgnet/html/split/system-calls-or-bust.html#connect
 https://medium.com/@ahmadesekak/setting-up-a-server-using-c-sockets-124e404593c9
 https://oneuptime.com/blog/post/2026-03-20-non-blocking-tcp-socket-c/view#:~:text=Switch%20a%20socket%20to%20non,a%20signal%20to%20retry%20later.
+
+how to add an upload button
+https://www.geeksforgeeks.org/html/how-to-create-a-file-upload-button-in-html/
+https://www.w3schools.com/jsref/met_document_addeventlistener.asp
+https://www.w3schools.com/howto/howto_html_file_upload_button.asp
+https://www.youtube.com/watch?v=60HBT2BJRhE
+https://www.w3schools.com/jsref/prop_style_display.asp
+
+how to upload a file to the server
+https://www.youtube.com/watch?v=iAxUpo0aJSk

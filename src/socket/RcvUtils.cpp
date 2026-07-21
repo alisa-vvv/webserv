@@ -47,19 +47,21 @@ eServerError Server::_handleRecv(int clientFd)
 		if (status == COMPLETE)
 		{
 			Http clientHttp;
-			// if (state == READY_TO_SEND)
-				//call this and that
-			//call Http class here, if 
-			std::cout << "DEBUG enters status complete " << std::endl;
 
-			std::string response = clientHandler(client.getListenerClass(), bufferObj.getRecvStr());
-			std::cout << "clientHandler returned "
-			  << response.size()
-			  << " bytes" << std::endl;
-			client.setResponse(response.c_str());
+			clientHandler(this->client, bufferObj.getRecvStr());
+			if (client.getClientState() == HANDLING_CGI_EXTENSION)
+			{
+				//call alisa's part
+			}
+
+			std::cout << "clientHandler returned " << client.getResponse().size() << " bytes" << std::endl;
+			//client.setResponse(client.getResponse()); //ally will take this part
+
 			std::cout << "Client response now contains "
 			  << client.getResponse().size()
 			  << " bytes" << std::endl;
+
+			//
 		}
 		return SERVER_OK;
 	}

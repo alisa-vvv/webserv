@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:18 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/20 00:42:32 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/21 16:19:29 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,11 @@ int Client::getClientFd() const
 	return _clientFd;
 }
 
+clientState Client::getClientState() const
+{
+	return _clientState;
+}
+
 /* ============================== SETTERS ============================== */
 
 void Client::setLastActivity(time_point<system_clock> lastActivity)
@@ -117,6 +122,11 @@ void  Client::setResponse(const std::string& response)
 void Client::setResponseStatus(bool response)
 {
 	_responseStatus = response;
+}
+
+void Client::setClientState(clientState clientState)
+{
+	_clientState = clientState;
 }
 
 /* ======================== RESPONSE HANDLING ========================= */
