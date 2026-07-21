@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/20 00:30:51 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/21 10:16:21 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,6 +212,12 @@ eClientEventResult Server::_handleClientEvent(int i)
 	}
 	if (_pollFds[i].revents & POLLOUT)
 	{
+		std::cout << "Calling send for client " << fd << std::endl;
+
+		std::cout << "Generated response:\n"
+				<< _clients.at(fd).getResponse()
+				<< "\n--- response end ---\n";
+
 		eServerError err = _handleSend(_clients.at(fd));
 		if (err != SERVER_OK)
 		{
@@ -220,6 +226,8 @@ eClientEventResult Server::_handleClientEvent(int i)
 		}
 		if (_clients.at(fd).isResponseComplete())
 		{
+			std::cout << "Response completely sent to client "
+					<< fd << std::endl;
 			_closeClientFd(fd);
 			return CLIENT_REMOVED;
 		}

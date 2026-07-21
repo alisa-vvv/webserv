@@ -47,7 +47,13 @@ eServerError Server::_handleRecv(int clientFd)
 		if (status == COMPLETE)
 		{
 			std::string response = clientHandler(client.getListenerClass(), bufferObj.getRecvStr());
+			std::cout << "clientHandler returned "
+			  << response.size()
+			  << " bytes" << std::endl;
 			client.setResponse(response.c_str());
+			std::cout << "Client response now contains "
+			  << client.getResponse().size()
+			  << " bytes" << std::endl;
 		}
 		return SERVER_OK;
 	}
@@ -85,27 +91,45 @@ eServerError Server::_handleSend(Client& client)
 
 	if (client.getBytesSent() > response.size())
 		return SERVER_SEND_ERR;
-	if (client.getBytesSent() == response.size())
+	if (client.isResponseComplete())
 	{
 		client.setResponseStatus(false);
 		return SERVER_OK;
 	}
 
 	const char *responseStart = response.c_str() + client.getBytesSent();
-	size_t sendSize = response.size() - client.getBytesSent();
+	size_t remaining = response.size() - client.getBytesSent();
 
-	ssize_t result = send(clientFd, responseStart, sendSize, 0);
+	std::cout << "Trying to send " << client.getBytesSent()
+			  << " bytes to client " << clientFd << std::endl;
+	ssize_t result = send(clientFd, responseStart, remaining, 0);
 
 	if (result == ERROR)
 	{
-		std::cerr << "send() failed" << std::endl;
+		std::cerr << "send() failed: "
+				  << std::strerror(errno) << std::endl;
+		return SERVER_SEND_ERR;
+	}
+	else if (result == 0)
+	{
+		std::cerr << "send() returned 0 for client "
+				  << clientFd << std::endl;
 		return SERVER_SEND_ERR;
 	}
 	else if (result > 0)
 	{
+		std::cout << "send returned: " << result
+		  << ", bytes before: " << client.getBytesSent()
+		  << std::endl;
+
 		client.updateBytesSent(static_cast<size_t>(result));
 		client.updateLastActivity();
-		if (client.getBytesSent() == response.size())
+
+		std::cout << "Sent\nbytes after: " << client.getBytesSent()
+		  << ", response size: " << response.size()
+		  << std::endl;
+		  
+		if (client.isResponseComplete())
 			client.setResponseStatus(false);
 	}
 	std::cout << "finisHED SEND" << std::endl; //test
