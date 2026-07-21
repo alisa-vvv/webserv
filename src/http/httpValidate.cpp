@@ -3,6 +3,22 @@
 #include <sys/stat.h>
 #include "../../inc/Http.hpp"
 
+static std::string resolveRoot(const std::string &root)
+{
+	std::filesystem::path rootPath(root);
+	
+	try
+	{
+		std::filesystem::path rootPath(root);
+		std::filesystem::path relativePath = std::filesystem::current_path() / rootPath.relative_path();
+		return relativePath;
+	}
+	catch (const std::filesystem::filesystem_error &)
+	{
+	}
+	return std::filesystem::path(root).lexically_normal().string();
+}
+
 /// @brief Validate the file for permissions, file traversal, readable, deletable etc.
 void Http::validateFile()
 {
@@ -11,7 +27,7 @@ void Http::validateFile()
 	{
 		if (!std::filesystem::exists(path))
 		{
-			printError("file exists", "validateFile", NOT_VAR);
+			printError("file does not exist", "validateFile", NOT_VAR);
 			return setResponseCode(HTTP_NOT_FOUND); //it dont exist
 		}
 		if (std::filesystem::is_directory(path)){
@@ -56,14 +72,15 @@ void Http::buildAbsoluteUri()
 	std::string prefix = requestConfig.location->prefix;
 	std::string root = requestConfig.location->root;
 
-	// Convert relative paths to absolute paths
-	root = std::filesystem::absolute(root).string();
+	// allow config roots like /www to resolve inside the project when no real filesystem root exists.
+	root = resolveRoot(root);
 
 	printError("root", root, IS_VAR);
 	
 	// remove prefix and add root
-	std::string remaining = this->_receivedUri.substr(prefix.length());
+	std::string remaining = "/" + this->_receivedUri.substr(prefix.length());
 
+	printError("remaining", remaining, IS_VAR);
 	// only serve index if request ends with / or is exactly /
 	bool isDirectoryRequest = (this->_receivedUri == "/") || (this->_receivedUri.length() > 0 && this->_receivedUri.back() == '/');
 
@@ -72,17 +89,29 @@ void Http::buildAbsoluteUri()
 		if (!requestConfig.location->index.empty())
 		{
 			if (remaining.empty())
-				this->_builtUri = root + "./" + requestConfig.location->index;
-			else if (remaining.back() == '/')
+			{
+				this->_builtUri = root + "/" + requestConfig.location->index;
+				printError("builturi1", getBuiltUri(), IS_VAR);
+			}
+			else if (remaining.back() == '/') {
 				this->_builtUri = root + remaining + requestConfig.location->index;
-			else
+				printError("builturi2", getBuiltUri(), IS_VAR);
+			}
+			else {
 				this->_builtUri = root + remaining + "/" + requestConfig.location->index;
+				printError("builturi3", getBuiltUri(), IS_VAR);		
+			}
 		}
-		else
+		else {
 			this->_builtUri = root + (remaining.empty() ? "/" : remaining);
+			printError("builturi4", getBuiltUri(), IS_VAR);
+		}
 	}
 	else
+	{
 		this->_builtUri = root + remaining;
+		printError("builturi5", getBuiltUri(), IS_VAR);
+	}
 }
 
 int Http::validateURI(std::string uri)
