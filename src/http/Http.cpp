@@ -65,6 +65,10 @@ bool Http::getExtension() const {
 	return (_hasExtension);
 }
 
+std::uintmax_t	Http::getClientMaxBodySize(){
+	return _clientMaxBodySize;
+}
+
 /*======SETTERS======*/
 
 /// @brief Set the status code to given status. Also sets client state to error
@@ -117,6 +121,10 @@ void Http::setState(clientState state) {
 
 void Http::setExtension(bool status) {
 	this->_hasExtension = status;
+}
+
+void			Http::setClientMaxBodySize(){
+	this->_clientMaxBodySize = static_cast<std::uintmax_t>(requestConfig.server->client_max_body_size) * 1024u * 1024u;
 }
 
 /*======UTILS======*/
@@ -191,3 +199,16 @@ void Http::debugPrintHttpClassAttributes()
 	std::cout << "BuiltUri: " << getBuiltUri() << std::endl;
 	std::cout << "Content type: " << getContentTypeExtension(getHeader("Content-Type")) << std::endl;
 }
+
+/// @brief print errors, which we do not have in this bea
+/// @param error or the variable name in string
+/// @param functName or the variable
+/// @param isVar 
+void Http::printError(std::string error, std::string functName, bool isVar)
+{
+	if (isVar)
+		std::cout << RED << "Printing variable " << error << ": " << RESET << functName << std::endl;
+	else 
+		std::cout << RED << "Error: " << error << " on function " << RESET << functName << std::endl;
+}
+

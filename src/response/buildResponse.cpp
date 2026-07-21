@@ -1,12 +1,11 @@
 #include "../../inc/Http.hpp"
 #include <filesystem>
 
-void Http::buildCGIResponseString(std::string cgiResponse)
-{
-	int start = 0;
-	size_t newLine = cgiResponse.find("\r\n", start);
-	if 
-}
+// void Http::buildCGIResponseString(std::string cgiResponse)
+// {
+// 	int start = 0;
+// 	size_t newLine = cgiResponse.find("\r\n", start);
+// }
 
 /// @brief After building the response, build the response string ready for send()
 /// @return response string 

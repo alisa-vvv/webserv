@@ -37,21 +37,24 @@ std::string	clientHandler(const Listener *listener, std::string recvStr)
 
 	if (!checkState(client))
 	{
-		std::cout << RED << "Failed on parseRequest" << RESET << std::endl;
+		client.printError("parseRequest", "clientHandler", NOT_VAR);
+		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return client.getResponseString();
 	}
 
 	client.setRequestConfig(listener);
 
 	if (!checkState(client)) {
-		std::cout << RED << "Failed on setrequestConfig" << RESET << std::endl;
+		client.printError("Set Request Config", "clientHandler", NOT_VAR);
+		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return client.getResponseString();
 	}
 
 	client.validateLayer();
 
 	if (!checkState(client)){
-		std::cout << RED << "Failed on validateLayer" << RESET << std::endl;
+		client.printError("validateLayer", "clientHandler", NOT_VAR);
+		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return client.getResponseString();
 	}
 
@@ -62,9 +65,12 @@ std::string	clientHandler(const Listener *listener, std::string recvStr)
 
 	client.buildResponse();
 	{
-		std::cout << RED << "Failed on buildResponse" << RESET << std::endl;
+		client.printError("buildResponse", "clientHandler", NOT_VAR);
+		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
+
 		return client.getResponseString();
 	}
+
 	client.debugPrintHttpClassAttributes();
 	client.debugPrintRequestConfig();
 

@@ -4,7 +4,10 @@
 void Http::handleDeleteResponse()
 {
 	if (this->_builtUri.empty())
+	{
+		printError("Empty build URi", "handleDeleteResponse", NOT_VAR);
 		return setResponseCode(HTTP_BAD_REQUEST);
+	}
 	try
 	{
 		std::filesystem::remove(this->_builtUri);
@@ -14,6 +17,7 @@ void Http::handleDeleteResponse()
 	}
 	catch(const std::exception& e)
 	{
+		printError("Exception found", "handleDeleteResponse", NOT_VAR);
 		setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	}
 }
