@@ -77,7 +77,7 @@ class Http {
 		
 		/*===========RESPONSE BUILDER===========*/
 		void			buildResponse(); //check statuscode, set header, set body
-		// std::string		buidCGIResponseString();
+		std::string		buildCGIResponseString(std::string cgiResponse);
 		void			buildResponseString(); //build to raw string ready to send to client
 
 		/*==========METHOD HANDLERS==========*/
