@@ -84,3 +84,6 @@ https://www.w3schools.com/jsref/prop_style_display.asp
 
 how to upload a file to the server
 https://www.youtube.com/watch?v=iAxUpo0aJSk
+
+buttons
+https://github.com/youneslaaroussi/ui-buttons

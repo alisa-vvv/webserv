@@ -1,15 +1,17 @@
-document.getElementById('fileUpload').addEventListener('change', function()
+const fileUploader = document.getElementById("fileUpload");
+const submitButton = document.getElementById("submitButton");
+const fileNameElement = document.getElementById("fileName");
+
+fileUploader.addEventListener("change", function ()
 {
-	const submitButton = document.getElementById("submitButton");
 	const file = this.files[0];
-	var fileName = document.getElementById("fileName");
-
 	submitButton.hidden = !file;
-
-	if (file.textContent == file)
+	
+	if (fileNameElement.textContent = file) {
 		fileNameElement.textContent = "Selected file: " + file.name;
-	else
+		submitButton.hidden = false;
+	} else {
 		fileNameElement.textContent = "No file selected";
-
-	document.getElementById('fileName').textContent = 'Selected file: ' + fileName;
+		submitButton.hidden = true;
+	}
 });

@@ -8,7 +8,7 @@ h1 {
 }
 
 #title {
-	color: antiquewhite;
+	color: #D46D25;
 	text-decoration: none;
 }
 
@@ -45,7 +45,7 @@ h2 {
 }
 
 body {
-	background-color: rgb(49, 49, 49);
+	background-color: #A4B885;
 	color: antiquewhite;
 	display: flex;
 	flex-direction: column;
@@ -55,36 +55,16 @@ body {
 	margin: 0;
 }
 
-.button {
-	height: 10vh;
-	width: 60vh;
-	border-radius: 5px;
-	padding: 2px;
-	margin: 0;
-	background-color: cornflowerblue;
-	font-size: small;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.button:hover {
-	scale: 105%;
-	cursor: pointer;
-}
 .uploadButton {
 	display: inline-block;
-	padding: 10px 20px;
-	background-color: blueviolet;
-	color: wheat;
-	border: none;
-	border-radius: 5px;
+	width: fit-content;
 	cursor: pointer;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .uploadButton:hover {
 	transform: scale(1.05);
-	background-color: blue;
+	cursor: pointer;
 }
 
 .showClass {
@@ -93,4 +73,68 @@ body {
 
 .hideClass {
 	display: none;
+}
+
+
+/* button */
+.btn-55,
+.btn-55 *,
+.btn-55 :after,
+.btn-55 :before,
+.btn-55:after,
+.btn-55:before {
+	border: 0 solid;
+	box-sizing: border-box;
+}
+
+.btn-55:disabled {
+	cursor: default;
+}
+
+.btn-55:-moz-focusring {
+	outline: auto;
+}
+
+.btn-55 svg {
+	display: block;
+	vertical-align: middle;
+}
+
+.btn-55 [hidden] {
+	display: none;
+}
+
+.btn-55 {
+	background: linear-gradient(90deg, #FDC086, #FFF6A1);
+	border-radius: 999px;
+	box-sizing: border-box;
+	color: #D46D25;
+	display: block;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	font-weight: 900;
+	overflow: hidden;
+	padding: 1.8rem 5rem;
+	position: relative;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+
+.btn-55 span {
+	background: #1e293b;
+	border-radius: 999px;
+	color: #fff;
+	display: grid;
+	inset: 5px;
+	place-items: center;
+	position: absolute;
+	transition: background 0.3s;
+}
+
+.btn-55:hover span {
+	background: none;
+}
+
+.btn-55:hover  {
+	scale: 105%;
+	cursor: pointer;
 }
