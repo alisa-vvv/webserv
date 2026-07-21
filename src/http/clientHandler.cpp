@@ -1,11 +1,12 @@
 #include "../../inc/Http.hpp"
 #include "Colors.hpp"
 
-static int checkState(Http client)
+static int checkState(Http &client)
 {
 	if (client.getState() == CLIENT_ERROR)
 	{
 		client.buildResponse();
+		client.printError("Built response in check state", client.getResponseString(), IS_VAR);
 		return 0;
 	}
 	return 1;
@@ -46,14 +47,15 @@ std::string	clientHandler(const Listener *listener, std::string recvStr)
 
 	if (!checkState(client)) {
 		client.printError("Set Request Config", "clientHandler", NOT_VAR);
-		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return client.getResponseString();
+		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 	}
 
 	client.validateLayer();
 
 	if (!checkState(client)){
 		client.printError("validateLayer", "clientHandler", NOT_VAR);
+		client.printError("response string", client.getResponseString(), IS_VAR);
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return client.getResponseString();
 	}
@@ -67,13 +69,8 @@ std::string	clientHandler(const Listener *listener, std::string recvStr)
 	{
 		client.printError("buildResponse", "clientHandler", NOT_VAR);
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
-
 		return client.getResponseString();
 	}
-
-	client.debugPrintHttpClassAttributes();
-	client.debugPrintRequestConfig();
-
 	return client.getResponseString();
 	std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 }

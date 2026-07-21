@@ -20,7 +20,6 @@ void Http::buildResponseString()
 	this->_responseString += httpVer + std::to_string(this->_statusCode) + " "
 		+ std::get<0>(HTTP_STATUS_MESSAGE.at(this->_statusCode)) + "\r\n";
 	
-	// if (has)
 	for (std::map<std::string, std::string>::iterator it = this->_responseHeaders.begin(); it != this->_responseHeaders.end(); ++it)
 		this->_responseString += it->first + ": " + it->second + "\r\n";
 	this->_responseString += "\r\n";
@@ -66,10 +65,14 @@ void Http::buildResponse()
 				handleErrorResponse(); //defensive fallcase->getstate should already handle it
 		}
 	}
-	if (getState() == CLIENT_ERROR)
+	if (getState() == CLIENT_ERROR) {
+		printError("getStateError", "buildResponse", NOT_VAR);
 		handleErrorResponse();
+	}
 	setResponseHeader("Content-Length", std::to_string(this->_body.size()));
 	setResponseHeader("Connection", "keep-alive");
 	// setResponseHeader("Date", time(nullptr)); need to add date and not time. probably need to make a httpdatefucntion
+	if (getState() == READY_TO_SEND)
+		return ;
 	buildResponseString();
 }

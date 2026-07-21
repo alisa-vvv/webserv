@@ -3,20 +3,20 @@
 #include <sys/stat.h>
 #include "../../inc/Http.hpp"
 
-static std::string resolveRoot(const std::string &root)
+std::string Http::resolveUri(const std::string &uri)
 {
-	std::filesystem::path rootPath(root);
+	std::filesystem::path rootPath(uri);
 	
 	try
 	{
-		std::filesystem::path rootPath(root);
+		std::filesystem::path rootPath(uri);
 		std::filesystem::path relativePath = std::filesystem::current_path() / rootPath.relative_path();
 		return relativePath;
 	}
 	catch (const std::filesystem::filesystem_error &)
 	{
 	}
-	return std::filesystem::path(root).lexically_normal().string();
+	return std::filesystem::path(uri).lexically_normal().string();
 }
 
 /// @brief Validate the file for permissions, file traversal, readable, deletable etc.
@@ -73,7 +73,7 @@ void Http::buildAbsoluteUri()
 	std::string root = requestConfig.location->root;
 
 	// allow config roots like /www to resolve inside the project when no real filesystem root exists.
-	root = resolveRoot(root);
+	root = resolveUri(root);
 
 	printError("root", root, IS_VAR);
 	

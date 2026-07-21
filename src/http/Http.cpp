@@ -99,13 +99,19 @@ void Http::setBody() {
 }
 
 void Http::setBody(const std::string uri) {
-	if (uri.empty())
+
+	std::string resolvedUri = resolveUri(uri);
+	if (resolvedUri.empty())
+	{
+		printError("resolvedUri Empty", "setBody", NOT_VAR);
 		this->_body = "";
+	}
 	else
 	{
-		std::ifstream fileStream(uri, std::ios::binary);
+		std::ifstream fileStream(resolvedUri, std::ios::binary);
 		if (!fileStream.is_open())
 		{
+			printError("Cannot open", "setBody", NOT_VAR);
 			this->_body = "";
 			return;
 		}

@@ -70,6 +70,7 @@ class Http {
 		void			validateLayer();
 		void			validateFile();
 		void			buildAbsoluteUri();
+	std::string resolveUri(const std::string &uri);
 
 		/*==========ERROR LOADER================*/
 		void			handleErrorResponse(); //load error page content into body based on status
