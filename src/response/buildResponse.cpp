@@ -48,11 +48,6 @@ void Http::buildResponse()
 			handleReturnResponse();
 		else
 		{
-			if (getExtension() == true)
-			{
-				setState(HANDLING_CGI_EXTENSION);
-				return;
-			}
 			setState(HANDLING_CGI_STATIC);
 			if (this->_method == GET)
 			{
@@ -83,7 +78,7 @@ void Http::buildResponse()
 	setResponseHeader("Content-Length", std::to_string(this->_body.size()));
 	setResponseHeader("Connection", "keep-alive");
 	// setResponseHeader("Date", time(nullptr)); need to add date and not time. probably need to make a httpdatefucntion
+	buildResponseString();
 	if (getState() == READY_TO_SEND)
 		return ;
-	buildResponseString();
 }

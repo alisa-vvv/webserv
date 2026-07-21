@@ -46,9 +46,9 @@ eServerError Server::_handleRecv(int clientFd)
 
 		if (status == COMPLETE)
 		{
-			Http clientHttp;
+			Http http;
 
-			clientHandler(this->client, bufferObj.getRecvStr());
+			clientHandler(client, http, bufferObj.getRecvStr());
 			if (client.getClientState() == HANDLING_CGI_EXTENSION)
 			{
 				//call alisa's part

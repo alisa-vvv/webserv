@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <tuple>
 #include <fstream>
-#include "Listener.hpp"
+#include "Client.hpp"
 #include "Colors.hpp"
 #include "configParser.hpp"
 #include "HttpError.hpp"
@@ -15,16 +15,6 @@
 static const int FAILURE = -1;
 static const int NOT_VAR = 0;
 static const int IS_VAR = 1;
-
-enum clientState {
-	RECEIVING,
-	PARSING,
-	VALIDATING,
-	HANDLING_CGI_EXTENSION,
-	HANDLING_CGI_STATIC,
-	READY_TO_SEND,
-	CLIENT_ERROR,
-};
 
 enum httpVersion {
 	HTTP_1_0,
@@ -127,6 +117,6 @@ class Http {
 		void			printError(std::string error, std::string functName, bool isVar);
 };
 
-std::string	clientHandler(const Listener *listener, std::string recvStr);
+void	clientHandler(Client &client, Http &http, std::string recvStr);
 
 #endif
