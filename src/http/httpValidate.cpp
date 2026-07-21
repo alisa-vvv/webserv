@@ -11,19 +11,16 @@ void Http::validateFile()
 	{
 		if (!std::filesystem::exists(path))
 		{
-			std::cout << RED << "Built uri" << RESET << std::endl;
 			std::cout << RED << "Fails here EXISTS" << RESET << std::endl;
 			return setResponseCode(HTTP_NOT_FOUND); //it dont exist
 		}
-		if (std::filesystem::is_directory(path))
-		{
+		if (std::filesystem::is_directory(path)){
 			if (this->_method == GET) //if its a directory, its ok for get but not for other methods
 				return;
 			std::cout << RED << "Fails here is directory" << RESET << std::endl;
 			return setResponseCode(HTTP_NOT_FOUND);
 		}
-		if (!std::filesystem::is_regular_file(path))
-		{
+		if (!std::filesystem::is_regular_file(path)) {
 			std::cout << RED << "Fails here regular file path" << RESET << std::endl;
 			return setResponseCode(HTTP_NOT_FOUND); //not a regular file aka dir/link
 		}
