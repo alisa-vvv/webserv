@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 13:25:23 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/20 01:19:59 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 
 #define SUCCESS 0
 #define ERROR -1
+#define POLL_TIMEOUT_MS 1000
 
 extern volatile sig_atomic_t	gStop;
 
@@ -27,12 +28,15 @@ enum eServerError
 	SERVER_OK = 0,
 	SERVER_CONFIG_ERR,
 	SERVER_LISTENER_SETUP_ERR,
+	SERVER_LISTENER_NOT_FOUND_ERR,
 	SERVER_POLL_ERR,
 	SERVER_ACCEPT_ERR,
 	SERVER_SETNONBLOCKING_ERR,
 	SERVER_RECV_ERR,
 	SERVER_CLIENT_CLOSED,
-	SERVER_TIMEOUT_ERR
+	SERVER_TIMEOUT_ERR,
+	SERVER_SEND_ERR,
+	SIGACTION_ERR
 };
 
 enum eClientEventResult
@@ -64,11 +68,11 @@ private:
 	eServerError		_handleListenerEvent(int i);
 	eClientEventResult	_handleClientEvent(int i);
 	eServerError		_handleRecv(int fd);
-	eServerError		_handleSend(Client client, std::string response);
+	eServerError		_handleSend(Client& client);
 
 	eServerError		_acceptClients(int serverListenFd);
 	eServerError		_setNonBlocking(int fd);
-	void				_checkTimeouts(); //TODO:finish
+	void				_checkClientTimeouts();
 
 	void				_closeClientFd(int fd);
 	void				_closeClients();

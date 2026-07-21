@@ -5,7 +5,7 @@ eServerError Server::_handleRecv(int clientFd)
 {
 	Client &client = _clients.at(clientFd);
 	RcvBuffer &bufferObj = client.getRcvBuffer();
-
+	
 	char buffer[BUFFER_MAX];
 	ssize_t bytesRead = recv(clientFd, buffer, sizeof(buffer), 0);
 
@@ -14,18 +14,33 @@ eServerError Server::_handleRecv(int clientFd)
 		client.updateLastActivity();
 		std::cout << "Received "
 					<< bytesRead
-					<< " bytes from client" << std::endl; // test
+					<< " bytes from client "
+					<< clientFd
+					<< std::endl;
 
 		bufferObj.totalBytesReceived += bytesRead;
-		// TODO: check for total bytes?
 
 		bufferObj.append(buffer, bytesRead);
+
+		const std::string &requestStr = bufferObj.getRecvStr();
+		if (requestStr.size() > MAX_REQUEST) //request too large
+		{
+			client.setRecvStatus(RECV_ERROR);
+			//TODO: 413 err?
+			return SERVER_OK;
+		}
+
 		receiveStatus status = bufferObj.checkStatus();
 		if (status == INCOMPLETE)
+		{
+			client.setRecvStatus(status);
 			return SERVER_OK;
+		}
 		if (status == RECV_ERROR)
 		{
-			//400 err?
+			//TODO: 400 err?
+			// client.setResponse();
+			client.setRecvStatus(status);
 			return SERVER_OK;
 		}
 
@@ -38,41 +53,93 @@ eServerError Server::_handleRecv(int clientFd)
 			std::cout << "DEBUG enters status complete " << std::endl;
 
 			std::string response = clientHandler(client.getListenerClass(), bufferObj.getRecvStr());
-			// if (state == HANDLING_CGI_EXTENSION){
-				
-			// }
-			//
-			std::cout << "DEBUG response string: " << response << std::endl;
-			std::cout << "fuck yeah " << std::endl;
-			//if(state == READY_TO_SEND)
-				_handleSend(client, response);
+			std::cout << "clientHandler returned "
+			  << response.size()
+			  << " bytes" << std::endl;
+			client.setResponse(response.c_str());
+			std::cout << "Client response now contains "
+			  << client.getResponse().size()
+			  << " bytes" << std::endl;
 		}
 		return SERVER_OK;
 	}
 	else if (bytesRead == 0) // the remote side has closed the connection on you
 	{
-		std::cout << "Client " << clientFd
-					<< " closed the connection" << std::endl;
+		std::cout << "Client "
+				 << clientFd
+				 << " closed the connection"
+				 << std::endl;
+
 		return SERVER_CLIENT_CLOSED;
 	}
-	std::cerr << "recv() failed for client " << clientFd
-				<< ": " << std::strerror(errno) << std::endl;
-	// TODO: decide how to consider
+	std::cerr << "recv() failed for client "
+			 << clientFd
+			 << ": "
+			 << std::strerror(errno)
+			 << std::endl;
 	return SERVER_RECV_ERR;
 }
 
-eServerError Server::_handleSend(Client client, std::string response)
+/*
+send(
+	socketFd,       // which socket
+	dataPointer,    // where the data starts
+	dataSize,       // how many bytes to try sending
+	flags
+);
+_responseStatus == true  -> there is a response waiting to be sent
+_responseStatus == false -> no response is currently waiting
+*/
+eServerError Server::_handleSend(Client& client)
 {
-	//int socketFd = client.getListenerFd();
+	int clientFd = client.getClientFd();
+	const std::string &response = client.getResponse();
 
-	//int len = response.length();
-	//const char *responseChar = response.c_str();
+	if (client.getBytesSent() > response.size())
+		return SERVER_SEND_ERR;
+	if (client.isResponseComplete())
+	{
+		client.setResponseStatus(false);
+		return SERVER_OK;
+	}
 
-	//strcpy(responseChar, response.c_str());
+	const char *responseStart = response.c_str() + client.getBytesSent();
+	size_t remaining = response.size() - client.getBytesSent();
 
-	//send(socketFd, responseChar, response.size(), MSG_OOB);
-	(void) response;
-	(void)client;
+	std::cout << "Trying to send " << client.getBytesSent()
+			  << " bytes to client " << clientFd << std::endl;
+	ssize_t result = send(clientFd, responseStart, remaining, 0);
+
+	if (result == ERROR)
+	{
+		std::cerr << "send() failed: "
+				  << std::strerror(errno) << std::endl;
+		return SERVER_SEND_ERR;
+	}
+	else if (result == 0)
+	{
+		std::cerr << "send() returned 0 for client "
+				  << clientFd << std::endl;
+		return SERVER_SEND_ERR;
+	}
+	else if (result > 0)
+	{
+		std::cout << "send returned: " << result
+		  << ", bytes before: " << client.getBytesSent()
+		  << std::endl;
+
+		client.updateBytesSent(static_cast<size_t>(result));
+		client.updateLastActivity();
+
+		std::cout << "Sent\nbytes after: " << client.getBytesSent()
+		  << ", response size: " << response.size()
+		  << std::endl;
+		  
+		if (client.isResponseComplete())
+			client.setResponseStatus(false);
+	}
+	std::cout << "finisHED SEND" << std::endl; //test
+
 	return SERVER_OK;
 }
 

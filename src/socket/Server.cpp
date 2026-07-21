@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 11:15:22 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/21 10:16:21 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ eServerError Server::setup(void)
 		if (errListenerSetup != LISTENER_OK)
 		{
 			closeListeners();
-			//TODO: also close the socket for according port
 			return SERVER_LISTENER_SETUP_ERR;
 		}
 	}
@@ -86,7 +85,7 @@ eServerError Server::_initPollEvent()
 
 	while (gStop == 0)
 	{
-		pollFdCount = poll(_pollFds.data(), _pollFds.size(), 1000);
+		pollFdCount = poll(_pollFds.data(), _pollFds.size(), POLL_TIMEOUT_MS);
 
 		if (pollFdCount == ERROR)
 		{
@@ -99,13 +98,6 @@ eServerError Server::_initPollEvent()
 			std::cerr << "poll() failed: " << std::strerror(errno) << std::endl;
 			return SERVER_POLL_ERR;
 		}
-		if (pollFdCount == 0) // 1 sec poll timeout
-		{
-			// TODO: check inactive client timeouts here
-			continue;
-		}
-		// call function _handlePollEvents();
-
 		if (pollFdCount > 0)
 		{
 			eServerError err;
@@ -114,9 +106,31 @@ eServerError Server::_initPollEvent()
 			if (err != SERVER_OK)
 				return err;
 		}
-		//_checkTimeouts();
+		_checkClientTimeouts();
+		//add CGI timeout stuff
 	}
 	return SERVER_OK;
+}
+
+void Server::_checkClientTimeouts()
+{
+	std::map<int, Client>::iterator it = _clients.begin();
+
+	while (it != _clients.end())
+	{
+		const int clientFd = it->first;
+		const time_point<system_clock> lastActivity = it->second.getLastActivity();
+		
+		it++;
+		if (checkTimeOut(lastActivity, DEFAULT_TIMEOUT_S))
+		{
+			std::cout << "Client with fd "
+						<< clientFd
+						<< " timed out"
+						<< std::endl;
+			_closeClientFd(clientFd);
+		}
+	}
 }
 
 eServerError Server::_pollEvents()
@@ -149,7 +163,6 @@ eServerError Server::_pollEvents()
 			if (clientClosed == CLIENT_KEPT)
 				i++;
 		}
-		//_checkTimeouts(); //TODO
 	}
 	return SERVER_OK;
 }
@@ -190,17 +203,34 @@ eClientEventResult Server::_handleClientEvent(int i)
 		if (err != SERVER_OK)
 		{
 			_closeClientFd(fd);
-			return CLIENT_REMOVED; //client removed
+			return CLIENT_REMOVED;
+		}
+		if (_clients.at(fd).getResponseStatus())
+		{
+			_pollFds[i].events = POLLOUT;
 		}
 	}
 	if (_pollFds[i].revents & POLLOUT)
 	{
-		return CLIENT_KEPT;
-		// eServerError err = _handleSend(fd);
-		// if (err != SERVER_OK)
-		// {
-		// 	//TODO:finish
-		// }
+		std::cout << "Calling send for client " << fd << std::endl;
+
+		std::cout << "Generated response:\n"
+				<< _clients.at(fd).getResponse()
+				<< "\n--- response end ---\n";
+
+		eServerError err = _handleSend(_clients.at(fd));
+		if (err != SERVER_OK)
+		{
+			_closeClientFd(fd);
+			return CLIENT_REMOVED;
+		}
+		if (_clients.at(fd).isResponseComplete())
+		{
+			std::cout << "Response completely sent to client "
+					<< fd << std::endl;
+			_closeClientFd(fd);
+			return CLIENT_REMOVED;
+		}
 	}
 	return CLIENT_KEPT;
 }

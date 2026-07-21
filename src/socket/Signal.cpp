@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signal.cpp                                         :+:      :+:    :+:   */
+/*   Signal.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/11 00:04:59 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 11:14:13 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/20 01:14:09 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,21 @@ int setupSignal()
 		std::cerr << "Error sigaction failed" << std::endl;
 		return SIGACTION_ERR;
 	}
-	/*
-	TODO: handle SIGPIPE
-	server tries to send() to a client that already disconnected. 
-	Ignoring it prevents the whole server from dying because one client disappeared.
-	*/
 
+	// server tries to send() to a client that already disconnected.
+	// Ignoring it prevents the whole server from dying 
+	// because one client disappeared.
+	struct sigaction sigpipe;
+
+	std::memset(&sigpipe, 0, sizeof(sigpipe));
+	sigemptyset(&sigpipe.sa_mask);
+	sigpipe.sa_flags = 0;
+	sigpipe.sa_handler = SIG_IGN;
+	
+	if (sigaction(SIGPIPE, &sigpipe, NULL) == -1)
+	{
+		std::cerr << "Error: sigaction failed for SIGPIPE" << std::endl;
+		return SIGACTION_ERR;
+	}
 	return SERVER_OK;
 }

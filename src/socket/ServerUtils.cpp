@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 20:52:11 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 12:40:46 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/20 01:23:36 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,9 +107,17 @@ eServerError Server::_setNonBlocking(int fd)
 	return SERVER_OK;
 }
 
-//TODO:fix and finish
 eServerError Server::_acceptClients(int serverListenFd)
 {
+	const Listener *listener = _findListenerByFd(serverListenFd);
+
+	if (listener == NULL)
+	{
+		std::cerr << "Listener not found for fd "
+				  << serverListenFd << std::endl;
+		return SERVER_LISTENER_NOT_FOUND_ERR;
+	}
+
 	while (1)
 	{
 		int clientFd = accept(serverListenFd, NULL, NULL);
@@ -118,20 +126,34 @@ eServerError Server::_acceptClients(int serverListenFd)
 		{
 			if (_setNonBlocking(clientFd) != SERVER_OK)
 			{
+				std::cerr << "Failed to set client "
+						  << clientFd
+						  << " to non-blocking mode"
+						  << std::endl;
 				close(clientFd);
 				continue;
 			}
-			_addFdToPoll(clientFd);
 
 			Client newClient(_findListenerByFd(serverListenFd), clientFd);
 			_clients[clientFd] = newClient;
+			
+			_addFdToPoll(clientFd);
+			std::cout << "Accepted client "
+					  << clientFd
+					  << " on listener "
+					  << serverListenFd
+					  << std::endl;
 			continue;
 		}
 		else if (errno == EWOULDBLOCK || errno == EAGAIN)
 			break;
-		if (errno == EINTR || errno == ECONNABORTED) // check accept() man
+		if (errno == EINTR || errno == ECONNABORTED)
 			continue;
-		std::cerr << "Error accept(): " << std::strerror(errno) << std::endl;
+		std::cerr << "accept() failed on listener "
+				  << serverListenFd
+				  << ": "
+				  << std::strerror(errno)
+				  << std::endl;
 		return SERVER_ACCEPT_ERR;
 	}
 	return SERVER_OK;

@@ -55,6 +55,8 @@ map
 	https://www.w3schools.com/cpp/cpp_maps.asp
 how to delete from a map
 	https://www.geeksforgeeks.org/cpp/map-erase-function-in-c-stl/
+how to iterate in a map
+	https://stackoverflow.com/questions/26281979/how-do-you-loop-through-a-stdmap
 
 enums for error handling
 https://www.w3schools.com/cpp/cpp_enum.asp
@@ -66,6 +68,8 @@ https://www.geeksforgeeks.org/cpp/vector-erase-in-cpp-stl/
 signals
 https://pubs.opengroup.org/onlinepubs/009695399/functions/sigaction.html
 
+static cast
+https://www.geeksforgeeks.org/cpp/static_cast-in-cpp/
 
 https://beej.us/guide/bgnet/html/split/system-calls-or-bust.html#connect
 https://medium.com/@ahmadesekak/setting-up-a-server-using-c-sockets-124e404593c9

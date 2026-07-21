@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RcvBuffer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/08 12:57:21 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/17 11:22:37 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/20 23:48:29 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,13 @@ receiveStatus RcvBuffer::checkStatus()
 	size_t headerEnd = this->recvStr.find("\r\n\r\n");
 	if (headerEnd == std::string::npos)
 	{
-		// if (recvStr.size() > ) // add define MAX HEADER SIZE
-		// 	return RECV_ERROR;
+		if (recvStr.size() > MAX_REQUEST) //reject large headers
+			return RECV_ERROR;
 		return (INCOMPLETE);
 	}
-
+	if (headerEnd > MAX_REQUEST)
+		return RECV_ERROR;
+		
 	std::string headers = this->recvStr.substr(0, headerEnd);
 	size_t contentLenPos = headers.find("Content-Length:");
 
@@ -48,22 +50,25 @@ receiveStatus RcvBuffer::checkStatus()
 	if (contentLenPos != std::string::npos)
 	{
 		hasContentLen = true;
-		int result = sscanf(headers.c_str() + contentLenPos, "Content-Length: %zd", &contLenCnt);
+		long long parsedContentLength = -1;
 
-		if (result != 1 || contLenCnt < 0)
+		int result = sscanf(headers.c_str() + contentLenPos, "Content-Length: %lld", &parsedContentLength);
+
+		if (result != 1 || parsedContentLength < 0)
 			return RECV_ERROR;
+		contLenCnt = static_cast<size_t>(parsedContentLength);
 	}
 	if (!hasContentLen)
 	{
-		// if (bodyReceived > 0)
-		// 	return RECV_ERROR;
+		if (bodyReceived > 0)
+			return RECV_ERROR;
 		return COMPLETE;
 	}
 	if (bodyReceived == contLenCnt)
 		return COMPLETE;
 
 	if (bodyReceived < contLenCnt)
-	return (INCOMPLETE);
+		return (INCOMPLETE);
 	
 	return RECV_ERROR;
 }

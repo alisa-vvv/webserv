@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:34:57 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/17 13:44:56 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/20 01:25:09 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,43 +17,25 @@ eListenerError Listener::setup(void)
 	eListenerError err;
 
 	err = this->_createSocket();
+	if (err == LISTENER_OK)
+		err = this->_setSocketOptions();
+
+	if (err == LISTENER_OK)
+		err = this->_setNonBlocking(_listenerFd);
+
+	if (err == LISTENER_OK)
+		err = this->_setAddress();
+
+	if (err == LISTENER_OK)
+		err = this->_bindSocket();
+
+	if (err == LISTENER_OK)
+		err = this->_listenSocket();
+
 	if (err != LISTENER_OK)
-	{
 		closeSocket();
-		return err;
-	}
-	err = this->_setSocketOptions();
-	if (err != LISTENER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	err = this->_setNonBlocking(_listenerFd);
-	if (err != LISTENER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	err = this->_setAddress();
-	if (err != LISTENER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	err = this->_bindSocket();
-	if (err != LISTENER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	//this->_printSocketName(); //test
-	err = this->_listenSocket();
-	if (err != LISTENER_OK)
-	{
-		closeSocket();
-		return err;
-	}
-	return LISTENER_OK;
+
+	return err;
 }
 
 /*
@@ -132,7 +114,7 @@ eListenerError Listener::_setAddress()
 	return LISTENER_OK;
 }
 
-// https://www.linuxhowtos.org/C_C++/socket.htm //TODO: remove later
+// https://www.linuxhowtos.org/C_C++/socket.htm
 // reinterpret casting-> Keep the same memory address, 
 //    but treat the pointer as a different pointer type.
 eListenerError Listener::_bindSocket()
@@ -154,12 +136,18 @@ backlog is the max num of connections
 */
 eListenerError Listener::_listenSocket()
 {
-	if (listen(this->_listenerFd, BACKLOG) == ERROR) //TODO: change fd variable
+	if (listen(this->_listenerFd, BACKLOG) == ERROR)
 	{
-		std::cerr << "Couldn't listen socket!: " << std::strerror(errno) << std::endl;
+		std::cerr << "listen() failed on fd "
+				  << _listenerFd
+				  << ": "
+				  << std::strerror(errno)
+				  << std::endl;
 		return LISTENER_LISTEN_ERR;
 	}
-	std::cout << "Listen successful" << std::endl;
+	std::cout << "Socket " << _listenerFd
+			  << " is now listening"
+			  << std::endl;
 	return LISTENER_OK;
 }
 
