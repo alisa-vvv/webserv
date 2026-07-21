@@ -14,11 +14,13 @@
 
 #include <optional>
 #include "Http.hpp"
+#include "Client.hpp"
 
 std::optional<cgi_t>	executeCGI(
-	[[maybe_unused]] std::vector<cgi_t>&	bacgkround_cgis
+	const Client& client,
+	std::vector<cgi_t>&	bacgkround_cgis
 );
 std::tuple<int, size_t>	checkBackgroundCGIs(
-	const Listener& listener,
+	const Client& client,
 	std::vector<cgi_t>&	background_cgis
 );

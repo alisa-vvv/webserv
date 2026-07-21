@@ -13,6 +13,8 @@
 #include "cgi_exec.hpp"
 #include "configParser.hpp"
 #include "Timer.hpp"
+#include "Http.hpp"
+#include "Client.hpp"
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstdlib>
@@ -23,7 +25,6 @@
 #include <limits.h>
 #include <vector>
 #include <sstream>
-#include "Http.hpp"
 
 #define PYTHON_EXEC "python"
 #define PATH_TO_SCRIPT "/home/avaliull/Projects/lvl5/webserv/server/cgi-bin/hello_world.py"
@@ -50,21 +51,20 @@ static int	gotCGIOutput(
 		kill(cgi.child_pid, SIGTERM);
 		close(cgi.input);
 		close(cgi.output);
-		return (1);
+		return (-1);
 	}
 
 	#define CGI_RECV_BUF 512
 	if (int wait_res = waitpid(cgi.child_pid, p_status, WNOHANG) != 0) {
 		if (wait_res > 0) {
 			char buffer[CGI_RECV_BUF];
-			cgi_bzero(buffer, CGI_RECV_BUF);
 			int	recv_ret;
 			do {
+				cgi_bzero(buffer, CGI_RECV_BUF);
 				recv_ret = read(cgi.output, buffer, CGI_RECV_BUF);
 				for (int i = 0; buffer[i] != '\0'; i++) {
 					cgi.output_string.push_back(buffer[i]);
 				}
-				cgi_bzero(buffer, CGI_RECV_BUF);
 			} while (recv_ret > 0);
 			std::cout << CLR_YEL << "[cgi output start]\n";
 			std::cout << CLR_NON;
@@ -134,10 +134,11 @@ static const std::string match_method_to_string(
 //"SCRIPT_FILENAME=", same as above
 
 static char**	constructEnvironment(
+	const Client& client,
 	const Http& request_data
 ) {
 	const cfg_server_t&	server_config = *request_data.requestConfig.server;
-	//const t_location&	cgi_location = *request_data.requestConfig.location;
+	const t_location&	location = *request_data.requestConfig.location;
 	std::string	request_uri = request_data.getReceivedUri();
 	std::string	query_string;
 	size_t		query_string_start = query_string.find_first_of('?') + 1;
@@ -146,22 +147,26 @@ static char**	constructEnvironment(
 	}
 	std::vector<std::string>	vars = {
 		"DOCUMENT_ROOT=" + server_config.root, // root directory of the server
-		"PATH=" + (std::string) getenv("PATH"),
+		"PATH=" + (std::string) (getenv("PATH")), // CHECK THIS
 		"QUERY_STRING=" + query_string,
-		"REMOTE_ADDR=", // ip of the visitor
-		"REMOTE_HOST=", // host of visitor
-		"REMOTE_PORT=", // port of visitor
+		/// THESE ARE NOT CORRECT I THINK - we might not need them
+		"REMOTE_ADDR=" + std::to_string(client.getListenerClass()->getIpAddr()), // ip of the visitor
+		"REMOTE_HOST=" + std::to_string(client.getListenerClass()->getIpAddr()), // same as above in our case
+		"REMOTE_PORT=" + std::to_string(client.getListenerClass()->getPort()), // port of visitor
 		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
 		"REQUEST_URI=" + request_data.getReceivedUri(),
-		"SCRIPT_FILENAME=",  // path to the script (absolute)
-		"SCRIPT_NAME=", // path to the script we're executing relative to root
+		"SCRIPT_FILENAME=" + location.cgi_pass.path,  // path to the script (absolute)
+		// FIX THAT ONE!!!
+		"SCRIPT_NAME=" + location.cgi_pass.path, // path to the script we're executing relative to root
 		"SERVER_NAME=" + server_config.server_names[0],
 		"SERVER_PORT=" + std::to_string(server_config.ports.at(0)),
 		"SERVER_SOFTWARE=webserv",
 	};
 
 	char**	env = new char*[vars.size() + 1];
+	std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
 	for (size_t i = 0; i < vars.size(); i++) {
+		std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
 		const std::string&	cur_string = vars.at(i);
 		env[i] = new char[cur_string.size() + 1];
 		for (size_t j = 0; j < cur_string.size(); j++) {
@@ -174,6 +179,7 @@ static char**	constructEnvironment(
 }
 
 static int	findAndExecuteScript(
+	const Client& client,
 	const Http&	request_data,
 	const std::string binary_name,
 	char *const argv[],
@@ -182,7 +188,7 @@ static int	findAndExecuteScript(
 {
 	std::string 	slash_arg;
 	char			path[PATH_MAX];	
-	char**			env = constructEnvironment(request_data);
+	char**			env = constructEnvironment(client, request_data);
 
 	cgi_bzero(path, PATH_MAX);
 	for (size_t i = 0; i < paths.size(); i++) {
@@ -216,6 +222,7 @@ static std::vector<std::string>	splitPathVar(
 }
 
 static int	tryExecveScript(
+	const Client& client,
 	const Http&	request_data,
 	const std::string binary_name,
 	char *const argv[]
@@ -227,7 +234,7 @@ static int	tryExecveScript(
 	path = splitPathVar();
 	if (path.size() == 0)
 		return (1);
-	err_check = findAndExecuteScript(request_data, binary_name, argv, path);
+	err_check = findAndExecuteScript(client, request_data, binary_name, argv, path);
 	return (err_check);
 }
 
@@ -236,6 +243,7 @@ static int	tryExecveScript(
 // 3. when ready, read until EOF or death of child process
 // 4. prepare response
 static void	handle_child(
+	const Client& client,
 	const Http&	request_data,
 	const std::string binary_name,
 	char *const argv[],
@@ -249,7 +257,7 @@ static void	handle_child(
 	close(in_pipe[0]);
 	close(out_pipe[1]);
 	std::cout << "executing cgi in child...\n\n";
-	tryExecveScript(request_data, binary_name, argv);
+	tryExecveScript(client, request_data, binary_name, argv);
 	std::cout << "if you see this, there's an error\n"; // delete this
 	exit(1);
 }
@@ -277,7 +285,7 @@ static cgi_t	handle_parent(
 // parent writes to input pipe and reads from output pipe
 // child reads from input pipe and writes to out pipe (dup2 that shit)
 std::optional<cgi_t>	executeCGI(
-	[[maybe_unused]] const Listener& listener,
+	const Client& client,
 	std::vector<cgi_t>&	background_cgis
 ) {
 	int	in_pipe[2];
@@ -312,7 +320,7 @@ std::optional<cgi_t>	executeCGI(
 		return (std::nullopt);
 	}
 	else if (fork_ret == 0) {
-		handle_child(background_cgis.end()->request_data,
+		handle_child(client, background_cgis.end()->request_data,
 			   PYTHON_EXEC, argv, in_pipe, out_pipe);
 	}
 	else if (fork_ret > 0) {
@@ -344,7 +352,7 @@ std::optional<cgi_t>	executeCGI(
 	// otherwise, 200
 	// 
 	// MAKE THESE REASONABLE ->
-	free(argv[0]);
-	free(argv[1]);
+	delete argv[0];
+	delete argv[1];
 	return (cgi);
 }
