@@ -133,7 +133,7 @@ static const std::string match_method_to_string(
 //"REQUEST_URI=", not sure what this is, we might need it?
 //"SCRIPT_FILENAME=", same as above
 
-static char**	constructEnvironment(
+[[maybe_unused]] static char**	constructEnvironment(
 	[[maybe_unused]] const Client& client,
 	const Http& request_data
 ) {
@@ -151,8 +151,8 @@ static char**	constructEnvironment(
 		"QUERY_STRING=" + query_string,
 		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
 		"REQUEST_URI=" + request_data.getReceivedUri(),
+		// FIX BELOW!!!
 		"SCRIPT_FILENAME=" + location.cgi_pass.path,  // path to the script (absolute)
-		// FIX THAT ONE!!!
 		"SCRIPT_NAME=" + location.cgi_pass.path, // path to the script we're executing relative to root
 		"SERVER_NAME=" + server_config.server_names[0],
 		"SERVER_PORT=" + std::to_string(server_config.ports.at(0)),
@@ -234,10 +234,6 @@ static int	tryExecveScript(
 	return (err_check);
 }
 
-// 1. epoll() the pipe both in and out
-// 2. then send it (the body of the CGI request) -- body from http parser
-// 3. when ready, read until EOF or death of child process
-// 4. prepare response
 static void	handle_child(
 	const Client& client,
 	const std::string binary_name,
@@ -318,9 +314,6 @@ static cgi_t	handle_parent(
 	return (new_cgi);
 }
 
-// two pipes
-// parent writes to input pipe and reads from output pipe
-// child reads from input pipe and writes to out pipe (dup2 that shit)
 std::optional<cgi_t>	executeCGI(
 	Client& client,
 	std::map<int, cgi_t>&	background_cgis
@@ -338,10 +331,6 @@ std::optional<cgi_t>	executeCGI(
 		// brr brr errorr
 		return (std::nullopt);
 	}
-
-	//cgi_t					newly_created_cgi_request;
-	//newly_created_cgi_request.request_data = &http_instance;
-	//background_cgis.push_back(newly_created_cgi_request);
 
 	cgi_t	cgi;
 	char*	argv[] { NULL, NULL, NULL };
@@ -382,8 +371,9 @@ std::optional<cgi_t>	executeCGI(
 		//}
 		// at the end of the program, run this for every previously launched cgi
 		// cout message unnecessary
-		while (waitpid(cgi.child_pid, NULL, WNOHANG) == 0);
-		std::cout << "process terminated\n";
+
+		//while (waitpid(cgi.child_pid, NULL, WNOHANG) == 0);
+		//std::cout << "process terminated\n";
 	}
 	// if response has Status (case insensitive) header, than that's the status
 	// otherwise, 200
