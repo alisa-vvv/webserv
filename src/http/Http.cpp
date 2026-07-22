@@ -5,7 +5,7 @@
 /*======CONSTRUCTOR======*/
 
 Http::Http()
-	: _state(PARSING)
+	: _state(START)
 	, _method(UNKNOWN)
 	, _version(INVALID)
 	, _statusCode(0)
@@ -65,6 +65,10 @@ bool Http::getExtension() const {
 	return (_hasExtension);
 }
 
+std::uintmax_t	Http::getClientMaxBodySize(){
+	return _clientMaxBodySize;
+}
+
 /*======SETTERS======*/
 
 /// @brief Set the status code to given status. Also sets client state to error
@@ -84,6 +88,7 @@ void Http::setResponseHeader(const std::string &key, const std::string &value) {
 	this->_responseHeaders.insert({key, value});
 }
 
+//assign from built uri
 void Http::setBody() {
 	std::string file = this->_builtUri;
 	std::ifstream fileStream(file, std::ios::binary);
@@ -94,14 +99,21 @@ void Http::setBody() {
 	this->_body = body;
 }
 
+//assign from filepath
 void Http::setBody(const std::string uri) {
-	if (uri.empty())
+
+	std::string resolvedUri = resolveUri(uri);
+	if (resolvedUri.empty())
+	{
+		printError("resolvedUri Empty", "setBody", NOT_VAR);
 		this->_body = "";
+	}
 	else
 	{
-		std::ifstream fileStream(uri, std::ios::binary);
+		std::ifstream fileStream(resolvedUri, std::ios::binary);
 		if (!fileStream.is_open())
 		{
+			printError("Cannot open", "setBody", NOT_VAR);
 			this->_body = "";
 			return;
 		}
@@ -117,6 +129,16 @@ void Http::setState(clientState state) {
 
 void Http::setExtension(bool status) {
 	this->_hasExtension = status;
+}
+
+void Http::setClientMaxBodySize(){
+	this->_clientMaxBodySize = static_cast<std::uintmax_t>(requestConfig.server->client_max_body_size) * 1024u * 1024u;
+}
+
+/// @brief direct assignment
+/// @param body 
+void Http::setRawBody(const std::string &body) {
+	this->_body = body;
 }
 
 /*======UTILS======*/
@@ -189,5 +211,18 @@ void Http::debugPrintHttpClassAttributes()
 	std::cout << "Extension: " << getExtension() << std::endl;
 	std::cout << "ReceivedUri: " << getReceivedUri() << std::endl;
 	std::cout << "BuiltUri: " << getBuiltUri() << std::endl;
-	std::cout << "Content type: " << getContentTypeExtension(getHeader("Content-Type")) << std::endl;
+	std::cout << "Content type: " << getContentTypeExtension(getHeader("content-type")) << std::endl;
 }
+
+/// @brief print errors, which we do not have in this bea
+/// @param error or the variable name in string
+/// @param functName or the variable
+/// @param isVar 
+void Http::printError(std::string error, std::string functName, bool isVar)
+{
+	if (isVar)
+		std::cout << RED << "Printing variable " << error << ": " << RESET << functName << std::endl;
+	else 
+		std::cout << RED << "Error: " << error << " on function " << RESET << functName << std::endl;
+}
+

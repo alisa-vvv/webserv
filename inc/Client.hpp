@@ -23,7 +23,7 @@ using std::chrono::system_clock;
 class Listener;
 
 enum clientState {
-	RECEIVING,
+	START,
 	PARSING,
 	VALIDATING,
 	HANDLING_CGI_EXTENSION,

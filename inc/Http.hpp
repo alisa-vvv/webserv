@@ -6,23 +6,15 @@
 #include <filesystem>
 #include <tuple>
 #include <fstream>
-#include "Listener.hpp"
+#include "Client.hpp"
 #include "Colors.hpp"
 #include "configParser.hpp"
 #include "HttpError.hpp"
 
 //success defined in listener
 static const int FAILURE = -1;
-
-enum clientState {
-	RECEIVING,
-	PARSING,
-	VALIDATING,
-	HANDLING_CGI_EXTENSION,
-	HANDLING_CGI_STATIC,
-	READY_TO_SEND,
-	CLIENT_ERROR,
-};
+static const int NOT_VAR = 0;
+static const int IS_VAR = 1;
 
 enum httpVersion {
 	HTTP_1_0,
@@ -46,6 +38,7 @@ class Http {
 		int									_contentLen;
 		bool								_hasBody;
 		bool								_hasExtension;
+		size_t								_clientMaxBodySize;
 		std::string							_receivedUri; //uri from original request
 		std::string							_builtUri; //uri built with root etc
 		std::string							_body;
@@ -66,13 +59,15 @@ class Http {
 		int				validateURI(std::string uri);
 		void			validateLayer();
 		void			validateFile();
+		void			buildAbsoluteUri();
+	std::string resolveUri(const std::string &uri);
 
 		/*==========ERROR LOADER================*/
 		void			handleErrorResponse(); //load error page content into body based on status
 		
 		/*===========RESPONSE BUILDER===========*/
 		void			buildResponse(); //check statuscode, set header, set body
-		std::string		buidCGIResponseString();
+		std::string		buildCGIResponseString(std::string cgiResponse);
 		void			buildResponseString(); //build to raw string ready to send to client
 
 		/*==========METHOD HANDLERS==========*/
@@ -81,20 +76,6 @@ class Http {
 		void 			handleDeleteResponse();
 		void			handleAutoIndexResponse();
 		void			handleReturnResponse();
-
-		/*============SETTERS==================*/
-		void			setRequestHeader(const std::string &key, const std::string &value);
-		void			setResponseHeader(const std::string &key, const std::string &value);
-		void 			setResponseCode(int code);
-		void			setExtension(bool status);
-		void			setBody();
-		void			setBody(const std::string uri); //overload
-		void			setState(clientState state);
-		void			setContentType();
-		
-		/*=======REQUEST Config===================*/
-		int				findRequestConfig(const Listener *listener);
-		void 			setRequestConfig(const Listener *listener);
 
 		/*==========GETTERS============*/
 		clientState		getState() const;
@@ -109,13 +90,34 @@ class Http {
 		std::string		getBuiltUri() const;
 		std::string		getReceivedUri() const;
 		std::string		getContentTypeExtension(const std::string &contentType) const;
+		std::uintmax_t	getClientMaxBodySize();
+
+
+		/*============SETTERS==================*/
+		void			setRequestHeader(const std::string &key, const std::string &value);
+		void			setResponseHeader(const std::string &key, const std::string &value);
+		void 			setResponseCode(int code);
+		void			setExtension(bool status);
+		void			setBody(); //built from uri
+		void			setRawBody(const std::string &body); //direct assignment
+		void			setBody(const std::string uri); //assign from filepath
+		void			setState(clientState state);
+		void			setContentType();
+		void			setClientMaxBodySize();
+		
+		/*=======REQUEST Config===================*/
+		int				findRequestConfig(const Listener *listener);
+		void 			setRequestConfig(const Listener *listener);
+
+
 
 		/*===========DEBUGGER===================*/
 		void			debugPrintRequest();
 		void			debugPrintRequestConfig();
 		void			debugPrintHttpClassAttributes();
+		void			printError(std::string error, std::string functName, bool isVar);
 };
 
-std::string	clientHandler(const Listener *listener, std::string recvStr);
+void	clientHandler(Client &client, Http &http, std::string recvStr);
 
 #endif

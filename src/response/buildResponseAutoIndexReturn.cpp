@@ -26,7 +26,10 @@ void Http::handleAutoIndexResponse()
 
 void Http::handleReturnResponse()
 {
-	setResponseCode(HTTP_MOVED_PERMANENTLY);
+	int returnCode = requestConfig.location->returns.code;
+	if (returnCode < 300 || returnCode > 399)
+		returnCode = HTTP_MOVED_PERMANENTLY;
+	setResponseCode(returnCode);
 	setResponseHeader("Location:", requestConfig.location->returns.target);
 	setBody("");
 	setState(READY_TO_SEND);

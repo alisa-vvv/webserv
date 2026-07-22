@@ -27,9 +27,6 @@ const char *stateToString(clientState state)
 {
 	switch(state)
 	{
-		case RECEIVING: return "RECEIVING";
-		case PARSING: return "PARSING";
-		case VALIDATING: return "VALIDATING";
 		case HANDLING_CGI_EXTENSION: return "HANDLING_CGI_EXTENSION";
 		case HANDLING_CGI_STATIC: return "HANDLING_CGI_STATIC";
 		case READY_TO_SEND: return "READY_TO_SEND";

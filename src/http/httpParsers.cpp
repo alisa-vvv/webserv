@@ -18,7 +18,7 @@ void Http::parseRequestLine(const std::string line)
 	std::string uri = line.substr(firstSep + 1, secSep - firstSep - 1);
 	std::string version = line.substr(secSep + 1);
 	
-	this->_state = PARSING; //DEBUG TEST
+	this->_state = PARSING;
 	if (method == "GET")
 		this->_method = GET;
 	else if (method == "POST")
@@ -29,7 +29,6 @@ void Http::parseRequestLine(const std::string line)
 		this->_method = UNKNOWN;
 	
 	this->_receivedUri = uri;
-	this->_builtUri = uri;
 
 	if (version == "HTTP/1.0")
 		this->_version = HTTP_1_0;
@@ -101,6 +100,7 @@ void Http::parseRequest(const std::string &rawString)
 	size_t	separator = rawString.find("\r\n\r\n");
 	if (separator == std::string::npos)
 	{
+		printError("separator NPOS", "parseRequest", NOT_VAR);
 		return setResponseCode(HTTP_BAD_REQUEST);
 	}
 	size_t requestLineEnd = rawString.find("\r\n");
@@ -116,12 +116,16 @@ void Http::parseRequest(const std::string &rawString)
 	if (bodyStart < rawString.size())
 	{
 		std::string body = rawString.substr(bodyStart);
-		if ((unsigned long)this->_contentLen > 0 && body.size() != (unsigned long)this->_contentLen)
+		if ((unsigned long)this->_contentLen > 0 && body.size() != (unsigned long)this->_contentLen) {
+			printError("body_size!=", "parseRequest", NOT_VAR);
 			return setResponseCode(HTTP_BAD_REQUEST);
-		else if (this->_contentLen == 0 && body.size() > 0)
+		}
+		else if (this->_contentLen == 0 && body.size() > 0) {
+			printError("contentlen == 0", "parseRequest", NOT_VAR);
 			return setResponseCode(HTTP_BAD_REQUEST);
+		}
 		this->_hasBody = true;
-		this->setBody(body);
+		this->setRawBody(body);
 	}
 	else
 		this->_hasBody = false;

@@ -5,28 +5,38 @@
 void Http::handlePostResponse()
 {
 	if (!this->_hasBody || this->_body.empty())
+	{
+		printError("Body empty", "handlePostResponse", NOT_VAR);
 		return setResponseCode(HTTP_BAD_REQUEST); //post needs body
+	}
 
 	const std::string &uploadDir = requestConfig.location->upload_store;
 	if (uploadDir.empty())
+	{
+		printError("No upload directory configured", "handlePostResponse", NOT_VAR);
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
+	}
 	try
 	{
 		std::filesystem::path basePath(uploadDir);
 		if (!std::filesystem::exists(basePath) || !std::filesystem::is_directory(basePath))
+		{
+			printError("Filesystem", "handlePostResponse", NOT_VAR);
 			return setResponseCode(HTTP_FORBIDDEN);
+		}
 	}
 	catch (std::exception &e)
 	{
+		printError("Exception found", "handlePostResponse", NOT_VAR);
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	}
-	std::string extension = getContentTypeExtension(getHeader("Content-Type"));
+	std::string extension = getContentTypeExtension(getHeader("content-type"));
 	if (extension.empty())
+	{
+		printError("Extension Empty", "handlePostResponse", NOT_VAR);
 		return setResponseCode(HTTP_UNSUPPORTED_MEDIA);
+	}
 	
-	if (_body.size() > (size_t)requestConfig.server->client_max_body_size)
-		return setResponseCode(HTTP_PAYLOAD_TOO_LARGE);
-
 	try
 	{
 		std::string baseFileName = "upload_" + std::to_string(std::time(nullptr));
@@ -43,7 +53,10 @@ void Http::handlePostResponse()
 
 		std::ofstream outFile(filepath, std::ios::binary);
 		if (!outFile.is_open())
+		{
+			printError("Cannot open", "handlePostResponse", NOT_VAR);
 			return setResponseCode(HTTP_FORBIDDEN);
+		}
 		outFile.write(this->_body.c_str(), this->_body.size());
 		outFile.close();
 		setResponseCode(HTTP_CREATED);
@@ -53,6 +66,7 @@ void Http::handlePostResponse()
 	}
 	catch (const std::exception &e)
 	{
+		printError("Exception found", "handlePostResponse", NOT_VAR);
 		setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	}
 }
