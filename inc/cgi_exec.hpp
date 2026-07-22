@@ -24,3 +24,6 @@ std::tuple<int, size_t>	checkBackgroundCGIs(
 	const Client& client,
 	std::map<int, cgi_t>&	background_cgis
 );
+int	checkCgiDone(
+	cgi_t&	cgi
+);

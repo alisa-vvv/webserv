@@ -89,7 +89,7 @@ int	gotCGIOutput(
 // 	int -1: error when reading cgi response
 // 	size_t 0: whenever int is not 1
 // 	size_t i: index of the cgi instance that returned a response
-eServerError	checkCgiDone(
+int	checkCgiDone(
 	cgi_t&	cgi
 ) {
 	int			p_status = 0;
@@ -97,13 +97,13 @@ eServerError	checkCgiDone(
 
 	got_output = gotCGIOutput(cgi, &p_status);
 	if (got_output == -1) {
-		return (SERVER_CGI_ERR);
+		return (-1);
 	}
 	if (got_output == true) {
 		// set client status to READY_TO_SEND
 		// set response string
 	}
-	return (SERVER_OK);
+	return (0);
 }
 
 static const std::string match_method_to_string(
