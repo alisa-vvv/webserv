@@ -133,10 +133,10 @@ static const std::string match_method_to_string(
 //"REQUEST_URI=", not sure what this is, we might need it?
 //"SCRIPT_FILENAME=", same as above
 
-[[maybe_unused]] static char**	constructEnvironment(
-	[[maybe_unused]] const Client& client,
-	const Http& request_data
+static char**	constructEnvironment(
+	const Client& client,
 ) {
+	const Http&	request_data = client.getHttpClass();
 	const cfg_server_t&	server_config = *request_data.requestConfig.server;
 	const t_location&	location = *request_data.requestConfig.location;
 	std::string	request_uri = request_data.getReceivedUri();
