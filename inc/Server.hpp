@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/20 01:19:59 by tutku            ###   ########.fr       */
+/*   Updated: 2026/07/22 15:19:49 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ private:
 	std::vector<Listener>		_listeners;
 	std::map<int, Client>		_clients;	// client state, found by client fd
 	std::vector<struct pollfd>	_pollFds;	// the list poll() watches
+	std::map<int, cgi_t>		_activeCgis;
 
 	void				_buildListener(void);
 	void				_addFdToPoll(int fd);
@@ -67,6 +68,7 @@ private:
 	eServerError		_pollEvents();
 	eServerError		_handleListenerEvent(int i);
 	eClientEventResult	_handleClientEvent(int i);
+	eClientEventResult	_handleCgiEvent(int i);
 	eServerError		_handleRecv(int fd);
 	eServerError		_handleSend(Client& client);
 
