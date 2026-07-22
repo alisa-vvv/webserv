@@ -26,6 +26,7 @@ void	clientHandler(Client &client, Http &http, std::string recvStr)
 	if (!checkState(http))
 	{
 		client.setClientState(http.getState());
+		client.setResponse(http.getResponseString());
 		http.printError("parseRequest", "clientHandler", NOT_VAR);
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return;
@@ -35,6 +36,7 @@ void	clientHandler(Client &client, Http &http, std::string recvStr)
 
 	if (!checkState(http)) {
 		client.setClientState(http.getState());
+		client.setResponse(http.getResponseString());
 		http.printError("Set Request Config", "clientHandler", NOT_VAR);
 		return;
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
@@ -44,6 +46,7 @@ void	clientHandler(Client &client, Http &http, std::string recvStr)
 
 	if (!checkState(http)){
 		client.setClientState(http.getState());
+		client.setResponse(http.getResponseString());
 		http.printError("validateLayer", "clientHandler", NOT_VAR);
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return;
@@ -53,6 +56,7 @@ void	clientHandler(Client &client, Http &http, std::string recvStr)
 	{
 		http.setState(HANDLING_CGI_EXTENSION);
 		client.setClientState(http.getState());
+		client.setResponse(http.getResponseString());
 		return;
 	}
 
@@ -60,11 +64,14 @@ void	clientHandler(Client &client, Http &http, std::string recvStr)
 	if (!checkState(http))
 	{
 		client.setClientState(http.getState());
+		client.setResponse(http.getResponseString());
 		http.printError("buildResponse", "clientHandler", NOT_VAR);
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return;
 	}
 	client.setClientState(http.getState());
+	client.setResponse(http.getResponseString());
+
 	return;
 	
 }

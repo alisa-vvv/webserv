@@ -3,7 +3,6 @@
 
 std::string Http::buildCGIResponseString(std::string cgiResponse)
 {
-	int start = 0;
 	size_t firstSpace = cgiResponse.find(" ");
 	size_t newLine = cgiResponse.find("\r\n"); 
 	std::string startLine = cgiResponse.substr(0, firstSpace);

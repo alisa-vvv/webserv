@@ -116,14 +116,14 @@ void Http::parseRequest(const std::string &rawString)
 	if (bodyStart < rawString.size())
 	{
 		std::string body = rawString.substr(bodyStart);
-		if ((unsigned long)this->_contentLen > 0 && body.size() != (unsigned long)this->_contentLen) {
-			printError("body_size!=", "parseRequest", NOT_VAR);
-			return setResponseCode(HTTP_BAD_REQUEST);
-		}
-		else if (this->_contentLen == 0 && body.size() > 0) {
-			printError("contentlen == 0", "parseRequest", NOT_VAR);
-			return setResponseCode(HTTP_BAD_REQUEST);
-		}
+		//if ((unsigned long)this->_contentLen > 0 && body.size() != (unsigned long)this->_contentLen) {
+		//	printError("body_size!=", "parseRequest", NOT_VAR);
+		//	return setResponseCode(HTTP_BAD_REQUEST);
+		//}
+		//else if (this->_contentLen == 0 && body.size() > 0) {
+		//	printError("contentlen == 0", "parseRequest", NOT_VAR);
+		//	return setResponseCode(HTTP_BAD_REQUEST);
+		//}
 		this->_hasBody = true;
 		this->setRawBody(body);
 	}
