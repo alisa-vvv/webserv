@@ -55,8 +55,6 @@ int Http::getStatusCode() const {
 	return (_statusCode);
 }
 
-/// @brief get the response string ready for client use
-/// @return 
 std::string Http::getResponseString() const {
 	return _responseString;
 }
@@ -93,7 +91,10 @@ void Http::setBody() {
 	std::string file = this->_builtUri;
 	std::ifstream fileStream(file, std::ios::binary);
 	if (!fileStream.is_open())
+	{
+		printError("setBody fails","setBody", NOT_VAR);
 		return setResponseCode(HTTP_FORBIDDEN);
+	}
 	std::string body((std::istreambuf_iterator<char>(fileStream)),
 			std::istreambuf_iterator<char>());
 	this->_body = body;
@@ -105,7 +106,7 @@ void Http::setBody(const std::string uri) {
 	std::string resolvedUri = resolveUri(uri);
 	if (resolvedUri.empty())
 	{
-		printError("resolvedUri Empty", "setBody", NOT_VAR);
+		printError("resolvedUri Empty", "setBody(std::string)", NOT_VAR);
 		this->_body = "";
 	}
 	else

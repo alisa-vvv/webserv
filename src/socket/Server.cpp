@@ -210,7 +210,7 @@ eClientEventResult Server::_handleClientEvent(int i)
 			_closeClientFd(fd);
 			return CLIENT_REMOVED;
 		}
-		if (_clients.at(fd).getResponseStatus() && _clients.at(fd).getClientState() == READY_TO_SEND) //TODO:check
+		if (_clients.at(fd).getClientState() == READY_TO_SEND) //TODO:check
 		{
 			_pollFds[i].events = POLLOUT;
 		}

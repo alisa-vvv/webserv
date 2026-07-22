@@ -1,5 +1,6 @@
 #include "../../inc/Http.hpp"
 #include <ctime>
+#include <filesystem>
 
 
 void Http::handlePostResponse()
@@ -19,10 +20,10 @@ void Http::handlePostResponse()
 	try
 	{
 		std::filesystem::path basePath(uploadDir);
-		if (!std::filesystem::exists(basePath) || !std::filesystem::is_directory(basePath))
+		if (!std::filesystem::exists(basePath))
 		{
-			printError("Filesystem", "handlePostResponse", NOT_VAR);
-			return setResponseCode(HTTP_FORBIDDEN);
+			if (!std::filesystem::create_directory(uploadDir))
+				return setResponseCode(HTTP_FORBIDDEN);
 		}
 	}
 	catch (std::exception &e)
@@ -66,6 +67,7 @@ void Http::handlePostResponse()
 	}
 	catch (const std::exception &e)
 	{
+		std::cout << e.what() << std::endl;
 		printError("Exception found", "handlePostResponse", NOT_VAR);
 		setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	}
