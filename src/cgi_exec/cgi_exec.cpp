@@ -15,6 +15,7 @@
 #include "Timer.hpp"
 #include "Http.hpp"
 #include "Client.hpp"
+#include "Server.hpp"
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstdlib>
@@ -39,7 +40,7 @@ static void	cgi_bzero(
 	}
 }
 
-static int	gotCGIOutput(
+int	gotCGIOutput(
 	cgi_t&	cgi,
 	int*	p_status
 ) {
@@ -88,18 +89,21 @@ static int	gotCGIOutput(
 // 	int -1: error when reading cgi response
 // 	size_t 0: whenever int is not 1
 // 	size_t i: index of the cgi instance that returned a response
-int	checkCgiDone(
+eServerError	checkCgiDone(
 	cgi_t&	cgi
 ) {
 	int			p_status = 0;
 	int			got_output;
 
 	got_output = gotCGIOutput(cgi, &p_status);
-	if (got_output == true)
-		return (true);
-	else if (got_output == -1) // error
-		return (-1);
-	return (false);
+	if (got_output == -1) {
+		return (SERVER_CGI_ERR);
+	}
+	if (got_output == true) {
+		// set client status to READY_TO_SEND
+		// set response string
+	}
+	return (SERVER_OK);
 }
 
 static const std::string match_method_to_string(
@@ -252,6 +256,48 @@ static void	handle_child(
 	std::cout << "if you see this, there's an error\n"; // delete this
 	exit(1);
 }
+
+//eClientEventResult Server::_handleCgiEvent(int pollFd, int i)
+//{
+//	int clientFd = _activeCgis.at(pollFd).getclientFd();
+//	//eServerError err = callCGI(); // this is wehere we check if it;s finished and construct the resposne string,
+//	1. set client status to READY_TO_SEND
+//	2. set clinet response to whatever
+//	if (err != SERVER_OK)
+//	{
+//		closeForNow(fd); //todo:finish
+//		return CLIENT_REMOVED;
+//	}
+//	if (_clients.at(clientFd).getClientState() == HANDLING_CGI_EXTENSION)
+//	{
+//		return CLIENT_KEPT;
+//	}
+//	if (_pollFds[i].revents & POLLOUT)
+//	{
+//		eServerError err = _handleSend(_clients.at(clientFd)); // change client into _activeCgis.at(fd).getClient()
+//		if (err != SERVER_OK)
+//		{
+//			closeForNow(fd);//todo:finish
+//			return CLIENT_REMOVED;
+//		}
+//		if (_clients.at(clientFd).isResponseComplete()) //check if the response is complete
+//		{
+//			std::cout << "Response completely sent to client "
+//					<< fd << std::endl;//todo:finish
+//			closeForNow(fd);//todo:finish
+//			return CLIENT_REMOVED;
+//		}
+//	}
+//	//todo:finish
+//	if (_clients.at(fd).getResponseStatus() && _clients.at(clientFd).getClientState() == READY_TO_SEND) //TODO:check
+//	{
+//		_pollFds[i].events = POLLOUT;
+//		//call close client
+//		return CLIENT_KEPT;
+//	}
+//	return CLIENT_KEPT; //TODO:check later
+//
+//}
 
 static cgi_t	handle_parent(
 	int in_pipe[2],
