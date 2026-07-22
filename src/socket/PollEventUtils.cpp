@@ -114,7 +114,7 @@ void Server::closeForNow(int fd)
 
 eClientEventResult Server::_handleCgiEvent(int pollFd, int i)
 {
-	int clientFd = _activeCgis.at(pollFd).getclientFd(); // @alisa: I can only finish this funciton after the new new structure of client/http is fixed. Just assume you get the correct fd already
+	int clientFd = _activeCgis.at(pollFd).client.getclientFd(); // @alisa: I can only finish this funciton after the new new structure of client/http is fixed. Just assume you get the correct fd already
 	int err = checkCgiDone(_activeCgis.at(pollFd)); // @alisa: I changed this to int cause I don't want to include the Server header in my stuff just fot the error type.
 	if (err != 0)
 	{
