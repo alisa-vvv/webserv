@@ -119,6 +119,5 @@ class Http {
 		void			printError(std::string error, std::string functName, bool isVar);
 };
 
-void	clientHandler(Client &client, Http &http, std::string recvStr);
 
 #endif

@@ -26,7 +26,6 @@ eServerError Server::_handleRecv(int clientFd)
 		if (requestStr.size() > MAX_REQUEST) //request too large
 		{
 			client.setRecvStatus(RECV_ERROR);
-			//TODO: 413 err?
 			return SERVER_OK;
 		}
 
@@ -38,22 +37,16 @@ eServerError Server::_handleRecv(int clientFd)
 		}
 		if (status == RECV_ERROR)
 		{
-			//TODO: 400 err?
-			// client.setResponse();
 			client.setRecvStatus(status);
 			return SERVER_OK;
 		}
 
 		if (status == COMPLETE)
 		{
-			Http http;
-
-			clientHandler(client, http, bufferObj.getRecvStr());
+			client.clientHandler(bufferObj.getRecvStr());
 			std::cout << "Client response now contains "
 			  << client.getResponse().size()
 			  << " bytes" << std::endl;
-
-			//
 		}
 		return SERVER_OK;
 	}

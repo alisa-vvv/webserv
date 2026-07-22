@@ -24,7 +24,8 @@ Client::Client() :
 	_recvStatus(INCOMPLETE),
 	_response(),
 	_responseStatus(false),
-	_bytesSent(0)
+	_bytesSent(0),
+	_http()
 {
 }
 
@@ -36,7 +37,9 @@ Client::Client(const Listener *listener, int clientFd) :
 	_recvStatus(INCOMPLETE),
 	_response(),
 	_responseStatus(false),
-	_bytesSent(0)
+	_bytesSent(0),
+	_http()
+
 {
 	if (listener != NULL)
 		_listenerFd = listener->getListenerFd();
@@ -100,6 +103,11 @@ clientState Client::getClientState() const
 	return _clientState;
 }
 
+Http &Client::getHttpClass()
+{
+	return _http;
+}
+
 /* ============================== SETTERS ============================== */
 
 void Client::setLastActivity(time_point<system_clock> lastActivity)
@@ -128,6 +136,13 @@ void Client::setClientState(clientState clientState)
 {
 	_clientState = clientState;
 }
+
+
+void Client::setHttpClass(Http http)
+{
+	this->_http = http;
+}
+
 
 /* ======================== RESPONSE HANDLING ========================= */
 void Client::updateBytesSent(size_t bytes)

@@ -17,9 +17,12 @@
 #include <map>
 #include <vector>
 #include "RcvBuffer.hpp"
+#include "Http.hpp"
 #include <chrono>
 using std::chrono::time_point;
 using std::chrono::system_clock;
+
+class Http;
 class Listener;
 
 enum clientState {
@@ -47,6 +50,7 @@ class Client
 		bool						_responseStatus;
 		size_t						_bytesSent;
 		clientState					_clientState;
+		Http						_http;
 
 	public:
 		/* ============================ CONSTRUCTORS ============================ */
@@ -65,6 +69,7 @@ class Client
 		const Listener*				getListenerClass() const;
 		int 						getClientFd() const;
 		clientState					getClientState() const;
+		Http						&getHttpClass();
 
 		/* ============================== SETTERS ============================== */
 		void						setLastActivity(time_point<system_clock> lastActivity);
@@ -72,6 +77,8 @@ class Client
 		void						setResponse(const std::string& response);
 		void						setResponseStatus(bool response);
 		void						setClientState(clientState clientState);
+		void						setHttpClass(Http http);
+
 		
 		/* ======================== RESPONSE HANDLING ========================= */
 		void						updateBytesSent(size_t bytes);
@@ -79,6 +86,11 @@ class Client
 
 		/* ========================== TIMEOUT HANDLING ========================== */
 		void						updateLastActivity();
+
+		/* ========================== HTTP HANDLER ========================== */
+		void						clientHandler(std::string recvStr);
+
 };
+
 
 #endif

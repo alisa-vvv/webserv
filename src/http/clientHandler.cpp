@@ -17,26 +17,27 @@ static int checkState(Http &http)
 /// @param recvStr feed the str from recv
 /// @return response string ready for accept
 
-void	clientHandler(Client &client, Http &http, std::string recvStr)
+void	Client::clientHandler(std::string recvStr)
 {
+	Http &http = getHttpClass();
 	std::cout << GREEN << "==================REQUEST START======================" << RESET << std::endl;
 	
 	http.parseRequest(recvStr);
 
 	if (!checkState(http))
 	{
-		client.setClientState(http.getState());
-		client.setResponse(http.getResponseString());
+		setClientState(http.getState());
+		setResponse(http.getResponseString());
 		http.printError("parseRequest", "clientHandler", NOT_VAR);
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return;
 	}
 
-	http.setRequestConfig(client.getListenerClass());
+	http.setRequestConfig(getListenerClass());
 
 	if (!checkState(http)) {
-		client.setClientState(http.getState());
-		client.setResponse(http.getResponseString());
+		setClientState(http.getState());
+		setResponse(http.getResponseString());
 		http.printError("Set Request Config", "clientHandler", NOT_VAR);
 		return;
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
@@ -45,8 +46,8 @@ void	clientHandler(Client &client, Http &http, std::string recvStr)
 	http.validateLayer();
 
 	if (!checkState(http)){
-		client.setClientState(http.getState());
-		client.setResponse(http.getResponseString());
+		setClientState(http.getState());
+		setResponse(http.getResponseString());
 		http.printError("validateLayer", "clientHandler", NOT_VAR);
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return;
@@ -55,22 +56,22 @@ void	clientHandler(Client &client, Http &http, std::string recvStr)
 	if (http.getState() == HANDLING_CGI_EXTENSION)
 	{
 		http.setState(HANDLING_CGI_EXTENSION);
-		client.setClientState(http.getState());
-		client.setResponse(http.getResponseString());
+		setClientState(http.getState());
+		setResponse(http.getResponseString());
 		return;
 	}
 
 	http.buildResponse();
 	if (!checkState(http))
 	{
-		client.setClientState(http.getState());
-		client.setResponse(http.getResponseString());
+		setClientState(http.getState());
+		setResponse(http.getResponseString());
 		http.printError("buildResponse", "clientHandler", NOT_VAR);
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return;
 	}
-	client.setClientState(http.getState());
-	client.setResponse(http.getResponseString());
+	setClientState(http.getState());
+	setResponse(http.getResponseString());
 
 	return;
 	
