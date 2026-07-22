@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/22 15:19:49 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/22 15:52:14 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,8 @@ private:
 	eServerError		_setNonBlocking(int fd);
 	void				_checkClientTimeouts();
 
+	bool				_isCgiEvent(int fd);
+
 	void				_closeClientFd(int fd);
 	void				_closeClients();
 	void				_closeAll();
@@ -92,7 +94,9 @@ private:
 
 	//test
 	void			printPollInfo(int i);
-	
+	std::map<int, cgi_t>	getActiveCgis() const;
+	eClientEventResult		_handleCgiEvent(int fd, int i);
+	void closeForNow(int fd);
 };
 
 int					setupSignal();

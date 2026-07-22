@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:55:10 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/22 14:09:18 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/22 16:08:45 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,11 @@ int Server::_isListenerFd(int fd) const
 			return 1;
 	}
 	return 0;
+}
+
+bool Server::_isCgiEvent(int fd)
+{
+	return (getActiveCgis().find(fd) != getActiveCgis().end());
 }
 
 eServerError Server::_acceptClients(int serverListenFd)
@@ -93,3 +98,57 @@ void Server::_addListenerFdsToPoll()
 		_addFdToPoll(_listeners[i].getListenerFd());
 	}
 }
+
+void Server::closeForNow(int fd)
+{
+	for (size_t i = 0; i < _pollFds.size(); i++)
+	{
+		if (fd == _pollFds[i].fd)
+		{
+			_pollFds.erase(_pollFds.begin() + i);
+			break;
+		}
+	}
+	close(fd);
+}
+
+eClientEventResult Server::_handleCgiEvent(int pollFd, int i)
+{
+	int clientFd = _activeCgis.at(pollFd).getclientFd();
+	//eServerError err = callCGI();
+	if (err != SERVER_OK)
+	{
+		closeForNow(fd); //todo:finish
+		return CLIENT_REMOVED;
+	}
+	if (_clients.at(clientFd).getClientState() == HANDLING_CGI_EXTENSION)
+	{
+		return CLIENT_KEPT;
+	}
+	if (_pollFds[i].revents & POLLOUT)
+	{
+		eServerError err = _handleSend(_clients.at(clientFd)); // change client into _activeCgis.at(fd).getClient()
+		if (err != SERVER_OK)
+		{
+			closeForNow(fd);//todo:finish
+			return CLIENT_REMOVED;
+		}
+		if (_clients.at(clientFd).isResponseComplete()) //check if the response is complete
+		{
+			std::cout << "Response completely sent to client "
+					<< fd << std::endl;//todo:finish
+			closeForNow(fd);//todo:finish
+			return CLIENT_REMOVED;
+		}
+	}
+	//todo:finish
+	if (_clients.at(fd).getResponseStatus() && _clients.at(clientFd).getClientState() == READY_TO_SEND) //TODO:check
+	{
+		_pollFds[i].events = POLLOUT;
+		//call close client
+		return CLIENT_KEPT;
+	}
+	return CLIENT_KEPT; //TODO:check later
+
+}
+

@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/22 13:54:02 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/22 15:35:19 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,11 @@ void Server::_checkClientTimeouts()
 			_closeClientFd(clientFd);
 		}
 	}
+}
+
+std::map<int, cgi_t> Server::getActiveCgis() const
+{
+	return _activeCgis;
 }
 
 Server::Server(const Config &config) : _config(config)

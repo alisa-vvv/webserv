@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:50:39 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/22 15:21:25 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/22 15:46:25 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,12 +91,12 @@ eServerError Server::_pollEvents()
 				return err;
 			i++;
 		}
-		//else if (_isCgiEvent(fd)) //pass a ref to activeCgis
-		//{
-		//	eClientEventResult clientClosed = _handleCgiEvent(i);
-		//	if (clientClosed == CLIENT_KEPT)
-		//		i++;
-		//}
+		else if (_isCgiEvent(fd)) //pass a ref to activeCgis
+		{
+			eClientEventResult clientClosed = _handleCgiEvent(fd, i);
+			if (clientClosed == CLIENT_KEPT)
+				i++;
+		}
 		else
 		{
 			eClientEventResult clientClosed = _handleClientEvent(i);
@@ -138,11 +138,6 @@ eClientEventResult Server::_handleClientEvent(int i)
 		_closeClientFd(fd);
 		return CLIENT_REMOVED;
 	}
-	//TODO: add cgi
-	if (_clients.at(fd).getClientState() == HANDLING_CGI_EXTENSION) //waiting for cgi
-	{
-		
-	}
 	if (_pollFds[i].revents & POLLIN)
 	{
 		eServerError err = _handleRecv(fd);
@@ -151,7 +146,7 @@ eClientEventResult Server::_handleClientEvent(int i)
 			_closeClientFd(fd);
 			return CLIENT_REMOVED;
 		}
-		if (_clients.at(fd).getResponseStatus() && _clients.at(fd).getClientState() == READY_TO_SEND) //TODO:check
+		if (_clients.at(fd).getResponseStatus() && _clients.at(fd).getClientState() == READY_TO_SEND)
 		{
 			_pollFds[i].events = POLLOUT;
 		}
