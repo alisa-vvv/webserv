@@ -31,6 +31,23 @@
 #define PATH_TO_SCRIPT "/home/avaliull/Projects/lvl5/webserv/server/cgi-bin/hello_world.py"
 // root of location + cgi_pass
 
+// t his maybe remove? if not, remove from http class
+static std::string buildCGIResponseString(std::string cgiResponse)
+{
+	size_t firstSpace = cgiResponse.find(" ");
+	size_t newLine = cgiResponse.find("\r\n"); 
+	std::string startLine = cgiResponse.substr(0, firstSpace);
+	std::string cgiResponseString;
+	if (startLine != "HTTP/1.1" || startLine != "HTTP/1.0")
+		cgiResponseString = cgiResponse;
+	else
+	{
+		cgiResponseString += "HTTP/1.1 200 OK\r\n";
+		cgiResponseString += cgiResponse.substr(newLine + 2);
+	}
+	return cgiResponseString;
+}
+
 static void	cgi_bzero(
 	char* path,
 	size_t size
@@ -100,8 +117,11 @@ int	checkCgiDone(
 		return (-1);
 	}
 	if (got_output == true) {
-		// set client status to READY_TO_SEND
-		// set response string
+		// check if we need to make setResponse take an actual string and not a reference?
+		std::string	response_string = buildCGIResponseString(cgi.output_string);
+		cgi.client.setResponse(response_string);
+		// THIS will probably look different after the Client/Http debaucle is resolved. check
+		cgi.client.setClientState(READY_TO_SEND);
 	}
 	return (0);
 }
