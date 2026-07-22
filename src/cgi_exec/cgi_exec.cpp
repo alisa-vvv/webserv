@@ -255,7 +255,7 @@ static void	handle_child(
 
 //eClientEventResult Server::_handleCgiEvent(int pollFd, int i)
 //{
-//	int clientFd = _activeCgis.at(pollFd).getclientFd();
+//	int clientFd = _activeCgis.at(pollFd).client.getclientFd();
 //	//eServerError err = callCGI(); // this is wehere we check if it;s finished and construct the resposne string,
 //	1. set client status to READY_TO_SEND
 //	2. set clinet response to whatever
