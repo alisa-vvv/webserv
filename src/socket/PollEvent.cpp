@@ -1,83 +1,76 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
+/*   PollEvent.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/22 15:35:19 by tcakir-y         ###   ########.fr       */
+/*   Created: 2026/07/22 13:50:39 by tcakir-y          #+#    #+#             */
+/*   Updated: 2026/07/22 15:46:25 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 /*
-build Listener objs
-setup every listening socket
-every Listener has its own listening fd
+Wait for something to happen on any fd in _pollFds.
+int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+poll() tells you which fd is ready to do something.
+poll() only fills revents inside existing _pollFds
+
+This function does not normally return until:
+	- Ctrl-C (gStop = 1)/ SIGINT
+	- SIGTERM
+	- poll/listener error
+
+_pollFds contains:
+	- all listener FDs
+	- all currently connected client FDs
+
+POLLIN There is data to read -> a new client is trying to connect
+POLLHUP means the socket is no longer connected
+
+listener FDs → new connections
+client FDs   → incoming requests or writable sockets
 */
-eServerError Server::setup(void)
+eServerError Server::_initPollEvent()
 {
-	eListenerError errListenerSetup;
+	int pollFdCount;
 
-	_buildListener();
-
-	for (size_t i = 0; i < _listeners.size(); i++)
+	while (gStop == 0)
 	{
-		errListenerSetup = _listeners[i].setup();
-		if (errListenerSetup != LISTENER_OK)
+		pollFdCount = poll(_pollFds.data(), _pollFds.size(), POLL_TIMEOUT_MS);
+
+		if (pollFdCount == ERROR)
 		{
-			closeListeners();
-			return SERVER_LISTENER_SETUP_ERR;
+			if (errno == EINTR) // if a signal interrupts poll
+			{
+				if (gStop == 1)
+					break;
+				continue; // poll should start again
+			}
+			std::cerr << "poll() failed: " << std::strerror(errno) << std::endl;
+			return SERVER_POLL_ERR;
 		}
+		if (pollFdCount > 0)
+		{
+			eServerError err;
+
+			err = _pollEvents();
+			if (err != SERVER_OK)
+				return err;
+		}
+		_checkClientTimeouts();
+		//add CGI timeout stuff
 	}
 	return SERVER_OK;
 }
 
-eServerError Server::run()
-{
-	eServerError err;
-
-	_addListenerFdsToPoll();
-	if (_pollFds.empty()) //server has nothing to listen on
-		return SERVER_POLL_ERR;
-
-	err = _initPollEvent();
-	if (err != SERVER_OK)
-	{
-		closeListeners();
-		return err;
-	}
-	_closeAll();
-	return SERVER_OK;
-}
-
-void Server::_checkClientTimeouts()
-{
-	std::map<int, Client>::iterator it = _clients.begin();
-
-	while (it != _clients.end())
-	{
-		const int clientFd = it->first;
-		const time_point<system_clock> lastActivity = it->second.getLastActivity();
-		
-		it++;
-		if (checkTimeOut(lastActivity, DEFAULT_TIMEOUT_S))
-		{
-			std::cout << "Client with fd "
-						<< clientFd
-						<< " timed out"
-						<< std::endl;
-			_closeClientFd(clientFd);
-		}
-	}
-}
-
-std::map<int, cgi_t> Server::getActiveCgis() const
+eServerError Server::_pollEvents()
 {
 	eServerError err;
 	size_t i = 0;
+
 
 	while (i < _pollFds.size())
 	{
@@ -98,6 +91,12 @@ std::map<int, cgi_t> Server::getActiveCgis() const
 				return err;
 			i++;
 		}
+		else if (_isCgiEvent(fd)) //pass a ref to activeCgis
+		{
+			eClientEventResult clientClosed = _handleCgiEvent(fd, i);
+			if (clientClosed == CLIENT_KEPT)
+				i++;
+		}
 		else
 		{
 			eClientEventResult clientClosed = _handleClientEvent(i);
@@ -107,6 +106,7 @@ std::map<int, cgi_t> Server::getActiveCgis() const
 	}
 	return SERVER_OK;
 }
+
 
 // this listenerfd can accept new connections
 eServerError Server::_handleListenerEvent(int i)
@@ -138,11 +138,6 @@ eClientEventResult Server::_handleClientEvent(int i)
 		_closeClientFd(fd);
 		return CLIENT_REMOVED;
 	}
-	//TODO: add cgi
-	if (_clients.at(fd).getClientState() == HANDLING_CGI_EXTENSION) //waiting for cgi
-	{
-		
-	}
 	if (_pollFds[i].revents & POLLIN)
 	{
 		eServerError err = _handleRecv(fd);
@@ -151,7 +146,7 @@ eClientEventResult Server::_handleClientEvent(int i)
 			_closeClientFd(fd);
 			return CLIENT_REMOVED;
 		}
-		if (_clients.at(fd).getClientState() == READY_TO_SEND) //TODO:check
+		if (_clients.at(fd).getResponseStatus() && _clients.at(fd).getClientState() == READY_TO_SEND)
 		{
 			_pollFds[i].events = POLLOUT;
 		}
@@ -181,10 +176,3 @@ eClientEventResult Server::_handleClientEvent(int i)
 	return CLIENT_KEPT;
 }
 
-Server::Server(const Config &config) : _config(config)
-{
-}
-
-Server::~Server()
-{
-}

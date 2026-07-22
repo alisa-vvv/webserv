@@ -49,14 +49,6 @@ eServerError Server::_handleRecv(int clientFd)
 			Http http;
 
 			clientHandler(client, http, bufferObj.getRecvStr());
-			if (client.getClientState() == HANDLING_CGI_EXTENSION)
-			{
-				//call alisa's part
-			}
-
-			std::cout << "clientHandler returned " << client.getResponse().size() << " bytes" << std::endl;
-			//client.setResponse(client.getResponse()); //ally will take this part
-
 			std::cout << "Client response now contains "
 			  << client.getResponse().size()
 			  << " bytes" << std::endl;
