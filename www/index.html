@@ -7,19 +7,22 @@
 	</head>
 
 	<body>
+		<div id="header">
 		<h1>
-			<a href="localhost:8080" id="title">webserv</a>
+			<a href="index.html" id="title">webserv</a>
 		</h1>
-
-		<div id="header-info">
 			<h2 id="made-by">
 				made by Alisa, Ally, and Tutku
 			</h2>
-
-			<h2>
-				<a href="../README.md" id="read-me">Read Me</a>
-			</h2>
 		</div>
+		<div id="navigation">
+			<h2> <a href="index.html" id="nav-link">Home</a> </h2>
+			<h2> <a href="../README.md" id="nav-link">Read Me</a> </h2>
+			<h2> <a href="upload-store.html" id="nav-link">Uploads</a></h2>
+		</div>
+
+
+		<!--BUTTONS-->
 
 		<canvas id="confetti-canvas"></canvas>
 		<form action="confetti.py" method="POST" enctype="multipart/form-data"> //check after cgi is handled

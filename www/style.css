@@ -18,29 +18,41 @@ h2 {
 	font-size: large;
 }
 
-#header-info {
+#header {
 	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
+	flex-direction: row;
+	/* align-items: flex-start; */
 	align-self: flex-start;
 	margin-left: 10px;
 }
 
-#made-by {
+#navigation {
+	display: flex;
+	flex-direction: row;
+	align-self: flex-end;
+	padding: 10px;
+}
+
+/* #made-by {
 	margin-top: 0;
 	font-size: medium;
 	margin-left: 0;
-}
+} */
 
-#read-me {
+#nav-link {
 	margin-top: 0;
 	font-size: medium;
 	margin-left: 0;
 	text-decoration: none;
-	color: antiquewhite;
+	color: rgb(0, 0, 0);
+	padding: 10px;
+	border: #6c3005;
+	border-width: 3px;
+	border-style: solid;
+	padding: 10px;
 }
 
-#read-me.button:hover {
+#nav-link.button:hover {
 	cursor: pointer;
 }
 
