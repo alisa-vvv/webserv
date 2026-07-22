@@ -98,8 +98,9 @@ class Http {
 		void			setResponseHeader(const std::string &key, const std::string &value);
 		void 			setResponseCode(int code);
 		void			setExtension(bool status);
-		void			setBody();
-		void			setBody(const std::string uri); //overload
+		void			setBody(); //built from uri
+		void			setRawBody(const std::string &body); //direct assignment
+		void			setBody(const std::string uri); //assign from filepath
 		void			setState(clientState state);
 		void			setContentType();
 		void			setClientMaxBodySize();

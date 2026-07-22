@@ -5,7 +5,8 @@
 /*======CONSTRUCTOR======*/
 
 Http::Http()
-	: _method(UNKNOWN)
+	: _state(START)
+	, _method(UNKNOWN)
 	, _version(INVALID)
 	, _statusCode(0)
 	, _contentLen(0)
@@ -87,6 +88,7 @@ void Http::setResponseHeader(const std::string &key, const std::string &value) {
 	this->_responseHeaders.insert({key, value});
 }
 
+//assign from built uri
 void Http::setBody() {
 	std::string file = this->_builtUri;
 	std::ifstream fileStream(file, std::ios::binary);
@@ -97,6 +99,7 @@ void Http::setBody() {
 	this->_body = body;
 }
 
+//assign from filepath
 void Http::setBody(const std::string uri) {
 
 	std::string resolvedUri = resolveUri(uri);
@@ -128,8 +131,14 @@ void Http::setExtension(bool status) {
 	this->_hasExtension = status;
 }
 
-void			Http::setClientMaxBodySize(){
+void Http::setClientMaxBodySize(){
 	this->_clientMaxBodySize = static_cast<std::uintmax_t>(requestConfig.server->client_max_body_size) * 1024u * 1024u;
+}
+
+/// @brief direct assignment
+/// @param body 
+void Http::setRawBody(const std::string &body) {
+	this->_body = body;
 }
 
 /*======UTILS======*/
@@ -202,7 +211,7 @@ void Http::debugPrintHttpClassAttributes()
 	std::cout << "Extension: " << getExtension() << std::endl;
 	std::cout << "ReceivedUri: " << getReceivedUri() << std::endl;
 	std::cout << "BuiltUri: " << getBuiltUri() << std::endl;
-	std::cout << "Content type: " << getContentTypeExtension(getHeader("Content-Type")) << std::endl;
+	std::cout << "Content type: " << getContentTypeExtension(getHeader("content-type")) << std::endl;
 }
 
 /// @brief print errors, which we do not have in this bea

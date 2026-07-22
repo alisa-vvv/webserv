@@ -198,6 +198,17 @@ void	Http::validateLayer()
 			printError("Post method false", "validateLayer", NOT_VAR);
 			return setResponseCode(HTTP_METHOD_NOT_ALLOWED);
 		}
+		std::string contentLenStr = getHeader("content-length");
+		if (contentLenStr.empty())
+			return setResponseCode(HTTP_LENGTH_REQUIRED);
+		try {
+			int contentLen = std::stoi(contentLenStr);
+			if (contentLen > (int)getClientMaxBodySize())
+				return setResponseCode(HTTP_PAYLOAD_TOO_LARGE);
+		}
+		catch(std::exception &e){
+			return setResponseCode(HTTP_BAD_REQUEST);
+		}
 		std::map<std::string, std::string>::iterator it = this->_requestHeaders.find("content-type");
 		if (it == _requestHeaders.end())
 		{

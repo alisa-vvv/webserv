@@ -30,19 +30,13 @@ void Http::handlePostResponse()
 		printError("Exception found", "handlePostResponse", NOT_VAR);
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	}
-	std::string extension = getContentTypeExtension(getHeader("Content-Type"));
+	std::string extension = getContentTypeExtension(getHeader("content-type"));
 	if (extension.empty())
 	{
 		printError("Extension Empty", "handlePostResponse", NOT_VAR);
 		return setResponseCode(HTTP_UNSUPPORTED_MEDIA);
 	}
 	
-	if (_body.size() > getClientMaxBodySize())
-	{
-		printError("Payload too large", "handlePostResponse", NOT_VAR);
-		return setResponseCode(HTTP_PAYLOAD_TOO_LARGE);
-	}
-
 	try
 	{
 		std::string baseFileName = "upload_" + std::to_string(std::time(nullptr));

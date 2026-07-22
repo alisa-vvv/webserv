@@ -125,7 +125,7 @@ void Http::parseRequest(const std::string &rawString)
 			return setResponseCode(HTTP_BAD_REQUEST);
 		}
 		this->_hasBody = true;
-		this->setBody(body);
+		this->setRawBody(body);
 	}
 	else
 		this->_hasBody = false;

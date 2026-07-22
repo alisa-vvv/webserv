@@ -10,7 +10,11 @@ void Http::handleDeleteResponse()
 	}
 	try
 	{
-		std::filesystem::remove(this->_builtUri);
+		std::filesystem::exists(this->_builtUri);
+			return setResponseCode(HTTP_NOT_FOUND);
+		std::uintmax_t deleted = std::filesystem::remove(this->_builtUri);
+		if (deleted == 0)
+			return setResponseCode(HTTP_NOT_FOUND);
 		setResponseCode(HTTP_OK);
 		setBody("");
 		setState(READY_TO_SEND);
