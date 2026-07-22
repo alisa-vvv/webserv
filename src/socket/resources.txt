@@ -84,6 +84,20 @@ https://www.w3schools.com/jsref/prop_style_display.asp
 
 how to upload a file to the server
 https://www.youtube.com/watch?v=iAxUpo0aJSk
+https://www.w3schools.com/howto/howto_html_file_upload_button.asp
 
 buttons
 https://github.com/youneslaaroussi/ui-buttons
+https://www.geeksforgeeks.org/html/how-to-create-a-file-upload-button-in-html/
+
+submit html form without reloading
+https://www.youtube.com/watch?v=62bpwPC1yjY
+
+css
+https://www.w3schools.com/jsref/prop_style_display.asp
+
+eventListener
+https://www.w3schools.com/jsref/met_document_addeventlistener.asp
+
+getElementById
+https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById
