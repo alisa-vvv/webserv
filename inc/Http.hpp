@@ -9,6 +9,7 @@
 #include "Listener.hpp"
 #include "configParser.hpp"
 #include "HttpError.hpp"
+#include "Client.hpp"
 
 #include "Timer.hpp"
 #include <optional>
@@ -127,7 +128,7 @@ typedef struct	cgi_t {
 	std::string					input_string = "";
 	std::string					output_string = "";
 	time_point<system_clock>	timer;
-	Http						request_data;
+	Client						client; // CHANGE THIS TO REF LATER
 }	cgi_t;
 
 #endif

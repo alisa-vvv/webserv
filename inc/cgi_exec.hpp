@@ -18,9 +18,9 @@
 
 std::optional<cgi_t>	executeCGI(
 	const Client& client,
-	std::vector<cgi_t>&	bacgkround_cgis
+	std::map<int, cgi_t>&	bacgkround_cgis
 );
 std::tuple<int, size_t>	checkBackgroundCGIs(
 	const Client& client,
-	std::vector<cgi_t>&	background_cgis
+	std::map<int, cgi_t>&	background_cgis
 );

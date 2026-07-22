@@ -88,22 +88,18 @@ static int	gotCGIOutput(
 // 	int -1: error when reading cgi response
 // 	size_t 0: whenever int is not 1
 // 	size_t i: index of the cgi instance that returned a response
-std::tuple<int, size_t>	checkBackgroundCGIs(
-	std::vector<cgi_t>&	background_cgis
+int	checkCgiDone(
+	cgi_t&	cgi
 ) {
 	int			p_status = 0;
 	int			got_output;
 
-	for (size_t i = 0; i < background_cgis.size(); i++) {
-		do { // REPLACE THIS do while with a single check in actual code.
-			got_output = gotCGIOutput(background_cgis.at(i), &p_status);
-		} while (got_output == false);
-		if (got_output == true)
-			return (std::tuple<int, size_t> { 1, i });
-		else if (got_output == -1) // error
-			return (std::tuple<int, size_t> { -1, i });
-	}
-	return (std::tuple<int, size_t> { 0, 0 });
+	got_output = gotCGIOutput(cgi, &p_status);
+	if (got_output == true)
+		return (true);
+	else if (got_output == -1) // error
+		return (-1);
+	return (false);
 }
 
 static const std::string match_method_to_string(
@@ -134,7 +130,7 @@ static const std::string match_method_to_string(
 //"SCRIPT_FILENAME=", same as above
 
 static char**	constructEnvironment(
-	const Client& client,
+	[[maybe_unused]] const Client& client,
 	const Http& request_data
 ) {
 	const cfg_server_t&	server_config = *request_data.requestConfig.server;
@@ -149,10 +145,6 @@ static char**	constructEnvironment(
 		"DOCUMENT_ROOT=" + server_config.root, // root directory of the server
 		"PATH=" + (std::string) (getenv("PATH")), // CHECK THIS
 		"QUERY_STRING=" + query_string,
-		/// THESE ARE NOT CORRECT I THINK - we might not need them
-		"REMOTE_ADDR=" + std::to_string(client.getListenerClass()->getIpAddr()), // ip of the visitor
-		"REMOTE_HOST=" + std::to_string(client.getListenerClass()->getIpAddr()), // same as above in our case
-		"REMOTE_PORT=" + std::to_string(client.getListenerClass()->getPort()), // port of visitor
 		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
 		"REQUEST_URI=" + request_data.getReceivedUri(),
 		"SCRIPT_FILENAME=" + location.cgi_pass.path,  // path to the script (absolute)
@@ -180,7 +172,6 @@ static char**	constructEnvironment(
 
 static int	findAndExecuteScript(
 	const Client& client,
-	const Http&	request_data,
 	const std::string binary_name,
 	char *const argv[],
 	std::vector<std::string> paths
@@ -188,7 +179,9 @@ static int	findAndExecuteScript(
 {
 	std::string 	slash_arg;
 	char			path[PATH_MAX];	
-	char**			env = constructEnvironment(client, request_data);
+	(void) client;
+	//char**			env = constructEnvironment(client, client.getHttp());//
+	char ** env = NULL; // TMP TMP TMP
 
 	cgi_bzero(path, PATH_MAX);
 	for (size_t i = 0; i < paths.size(); i++) {
@@ -223,7 +216,6 @@ static std::vector<std::string>	splitPathVar(
 
 static int	tryExecveScript(
 	const Client& client,
-	const Http&	request_data,
 	const std::string binary_name,
 	char *const argv[]
 )
@@ -234,7 +226,7 @@ static int	tryExecveScript(
 	path = splitPathVar();
 	if (path.size() == 0)
 		return (1);
-	err_check = findAndExecuteScript(client, request_data, binary_name, argv, path);
+	err_check = findAndExecuteScript(client, binary_name, argv, path);
 	return (err_check);
 }
 
@@ -244,7 +236,6 @@ static int	tryExecveScript(
 // 4. prepare response
 static void	handle_child(
 	const Client& client,
-	const Http&	request_data,
 	const std::string binary_name,
 	char *const argv[],
 	int in_pipe[2],
@@ -257,7 +248,7 @@ static void	handle_child(
 	close(in_pipe[0]);
 	close(out_pipe[1]);
 	std::cout << "executing cgi in child...\n\n";
-	tryExecveScript(client, request_data, binary_name, argv);
+	tryExecveScript(client, binary_name, argv);
 	std::cout << "if you see this, there's an error\n"; // delete this
 	exit(1);
 }
@@ -267,26 +258,26 @@ static cgi_t	handle_parent(
 	int out_pipe[2],
 	int child_pid
 ) {
-	cgi_t	cgi;
+	cgi_t	new_cgi;
 
 	time_point<system_clock>	cgi_timer = system_clock::now();
 	close(in_pipe[0]);
 	close(out_pipe[1]);
 	fcntl(in_pipe[1], O_NONBLOCK | O_CLOEXEC);
 	fcntl(out_pipe[0], O_NONBLOCK | O_CLOEXEC);
-	cgi.child_pid = child_pid;
-	cgi.input = in_pipe[1];
-	cgi.output = out_pipe[0];
-	cgi.timer = cgi_timer;
-	return (cgi);
+	new_cgi.child_pid = child_pid;
+	new_cgi.input = in_pipe[1];
+	new_cgi.output = out_pipe[0];
+	new_cgi.timer = cgi_timer;
+	return (new_cgi);
 }
 
 // two pipes
 // parent writes to input pipe and reads from output pipe
 // child reads from input pipe and writes to out pipe (dup2 that shit)
 std::optional<cgi_t>	executeCGI(
-	const Client& client,
-	std::vector<cgi_t>&	background_cgis
+	Client& client,
+	std::map<int, cgi_t>&	background_cgis
 ) {
 	int	in_pipe[2];
 	int	out_pipe[2];
@@ -306,9 +297,7 @@ std::optional<cgi_t>	executeCGI(
 	//newly_created_cgi_request.request_data = &http_instance;
 	//background_cgis.push_back(newly_created_cgi_request);
 
-	std::tuple<int, size_t>	cgi_response;
 	cgi_t	cgi;
-	cgi_t	cgi_response_data;
 	char*	argv[] { NULL, NULL, NULL };
 	argv[0] = strdup(PYTHON_EXEC);
 	argv[1] = strdup(PATH_TO_SCRIPT);
@@ -320,29 +309,31 @@ std::optional<cgi_t>	executeCGI(
 		return (std::nullopt);
 	}
 	else if (fork_ret == 0) {
-		handle_child(client, background_cgis.end()->request_data,
+		handle_child(client,
 			   PYTHON_EXEC, argv, in_pipe, out_pipe);
 	}
 	else if (fork_ret > 0) {
 		cgi = handle_parent(in_pipe, out_pipe, fork_ret);
-		background_cgis.push_back(cgi);
+		cgi.client = client;
+		background_cgis.insert( {cgi.output, cgi} );
 	}
 	{	// this block is, essentially, what we need to do in the listen loop.
 		// the while (1) is the stand-in for the listen loop.
-		while (!background_cgis.empty()) {
-			cgi_response = checkBackgroundCGIs(background_cgis);
-			const auto& [cgi_responded, cgi_index] = cgi_response;
-			if (cgi_responded == 1) {
-				cgi_response_data = background_cgis.at(cgi_index);
-				background_cgis.erase(background_cgis.begin() + cgi_index);
-				break ;
-			}
-			else if (cgi_responded == -1) {
-				// brr brr error
-				// we can do an error response and erase the background_cgi that gave error
-				return std::nullopt;
-			}
-		}
+	
+		//while (!background_cgis.empty()) {
+		//	cgi_response = checkBackgroundCGIs(background_cgis);
+		//	const auto& [cgi_responded, cgi_index] = cgi_response;
+		//	if (cgi_responded == 1) {
+		//		cgi_response_data = background_cgis.at(cgi_index);
+		//		background_cgis.erase(background_cgis.begin() + cgi_index);
+		//		break ;
+		//	}
+		//	else if (cgi_responded == -1) {
+		//		// brr brr error
+		//		// we can do an error response and erase the background_cgi that gave error
+		//		return std::nullopt;
+		//	}
+		//}
 		// at the end of the program, run this for every previously launched cgi
 		// cout message unnecessary
 		while (waitpid(cgi.child_pid, NULL, WNOHANG) == 0);
