@@ -168,7 +168,7 @@ static const std::string match_method_to_string(
 //"SCRIPT_FILENAME=", same as above
 
 static char**	constructEnvironment(
-	const Client& client,
+	const Client& client
 ) {
 	const Http&	request_data = client.getHttpClass();
 	const cfg_server_t&	server_config = *request_data.requestConfig.server;
@@ -234,9 +234,7 @@ static int	findAndExecuteScript(
 	return (1);
 }
 
-static std::vector<std::string>	splitPathVar(
-	void
-) {
+static std::vector<std::string>	splitPathVar() {
 	std::vector<std::string>	paths;
 	std::string					path_var = getenv("PATH");
 
