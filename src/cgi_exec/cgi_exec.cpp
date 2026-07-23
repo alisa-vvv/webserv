@@ -352,7 +352,13 @@ std::optional<cgi_t>	executeCGI(
 		return (std::nullopt);
 	}
 
+	//cgi_t					newly_created_cgi_request;
+	//newly_created_cgi_request.request_data = &http_instance;
+	//background_cgis.push_back(newly_created_cgi_request);
+
+	std::tuple<int, size_t>	cgi_response;
 	cgi_t	cgi;
+	cgi_t	cgi_response_data;
 	char*	argv[] { NULL, NULL, NULL };
 	argv[0] = strdup(PYTHON_EXEC);
 	argv[1] = strdup(PATH_TO_SCRIPT);
