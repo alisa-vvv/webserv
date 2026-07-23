@@ -31,6 +31,18 @@
 #define PATH_TO_SCRIPT "/home/avaliull/Projects/lvl5/webserv/server/cgi-bin/hello_world.py"
 // root of location + cgi_pass
 
+// this function is the same as the parser one, maybe make a generic error message func isntead
+static void	displayCgiError(
+	const std::string& message,
+	const std::optional<std::string>& prefix = std::nullopt
+) {
+	std::cout << CLR_RED;
+	if (prefix)
+		std::cout << *prefix << ": ";
+	std::cout << message;
+ 	std::cout << CLR_NON << std::endl;
+}
+
 // t his maybe remove? if not, remove from http class
 static std::string buildCGIResponseString(std::string cgiResponse)
 {
@@ -64,8 +76,7 @@ int	gotCGIOutput(
 	const bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S_CGI);
 
 	if (timed_out) {
-		std::cout << "cgi execution took too long...\n";
-		// we throw timeout error
+		displayCgiError("CGI script error", "CGI request timed out\n");
 		kill(cgi.child_pid, SIGTERM);
 		close(cgi.input);
 		close(cgi.output);
@@ -80,19 +91,22 @@ int	gotCGIOutput(
 			do {
 				cgi_bzero(buffer, CGI_RECV_BUF);
 				recv_ret = read(cgi.output, buffer, CGI_RECV_BUF);
+				if (recv_ret < 0) {
+					displayCgiError("CGI script error", "Read error\n");
+				}
 				for (int i = 0; buffer[i] != '\0'; i++) {
 					cgi.output_string.push_back(buffer[i]);
 				}
 			} while (recv_ret > 0);
-			std::cout << CLR_YEL << "[cgi output start]\n";
-			std::cout << CLR_NON;
-			std::cout << cgi.output_string;
-			std::cout << CLR_YEL << "\n[cgi output end]" << CLR_NON << "\n";
+		//	std::cout << CLR_YEL << "[cgi output start]\n";
+		//	std::cout << CLR_NON;
+		//	std::cout << cgi.output_string;
+		//	std::cout << CLR_YEL << "\n[cgi output end]" << CLR_NON << "\n";
 			close(cgi.input);
-			close(cgi.output);
+			//close(cgi.output); // socket will close it instead
 		}
 		else if (wait_res < 0) {
-			// brr brr error
+			displayCgiError("CGI script error", "Broked child process\n");
 			return (-1);
 		}
 		return (1);
@@ -180,9 +194,9 @@ static char**	constructEnvironment(
 	};
 
 	char**	env = new char*[vars.size() + 1];
-	std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
+	//std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
 	for (size_t i = 0; i < vars.size(); i++) {
-		std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
+		//std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
 		const std::string&	cur_string = vars.at(i);
 		env[i] = new char[cur_string.size() + 1];
 		for (size_t j = 0; j < cur_string.size(); j++) {
@@ -267,53 +281,11 @@ static void	handle_child(
 	dup2(out_pipe[1], STDOUT_FILENO);
 	close(in_pipe[0]);
 	close(out_pipe[1]);
-	std::cout << "executing cgi in child...\n\n";
+	//std::cout << "executing cgi in child...\n\n";
 	tryExecveScript(client, binary_name, argv);
-	std::cout << "if you see this, there's an error\n"; // delete this
+	displayCgiError("CGI script error", "Can't execute script\n");
 	exit(1);
 }
-
-//eClientEventResult Server::_handleCgiEvent(int pollFd, int i)
-//{
-//	int clientFd = _activeCgis.at(pollFd).client.getclientFd();
-//	//eServerError err = callCGI(); // this is wehere we check if it;s finished and construct the resposne string,
-//	1. set client status to READY_TO_SEND
-//	2. set clinet response to whatever
-//	if (err != SERVER_OK)
-//	{
-//		closeForNow(fd); //todo:finish
-//		return CLIENT_REMOVED;
-//	}
-//	if (_clients.at(clientFd).getClientState() == HANDLING_CGI_EXTENSION)
-//	{
-//		return CLIENT_KEPT;
-//	}
-//	if (_pollFds[i].revents & POLLOUT)
-//	{
-//		eServerError err = _handleSend(_clients.at(clientFd)); // change client into _activeCgis.at(fd).getClient()
-//		if (err != SERVER_OK)
-//		{
-//			closeForNow(fd);//todo:finish
-//			return CLIENT_REMOVED;
-//		}
-//		if (_clients.at(clientFd).isResponseComplete()) //check if the response is complete
-//		{
-//			std::cout << "Response completely sent to client "
-//					<< fd << std::endl;//todo:finish
-//			closeForNow(fd);//todo:finish
-//			return CLIENT_REMOVED;
-//		}
-//	}
-//	//todo:finish
-//	if (_clients.at(fd).getResponseStatus() && _clients.at(clientFd).getClientState() == READY_TO_SEND) //TODO:check
-//	{
-//		_pollFds[i].events = POLLOUT;
-//		//call close client
-//		return CLIENT_KEPT;
-//	}
-//	return CLIENT_KEPT; //TODO:check later
-//
-//}
 
 static cgi_t	handle_parent(
 	int in_pipe[2],
@@ -342,13 +314,13 @@ std::optional<cgi_t>	executeCGI(
 	int	out_pipe[2];
 
 	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
-		// brr brr errorr
+		displayCgiError("CGI script error", "Can't create pipe\n");
 		return (std::nullopt);
 	}
 	if (pipe2(out_pipe, O_NONBLOCK) != 0) {
 		close(in_pipe[0]);
 		close(in_pipe[1]);
-		// brr brr errorr
+		displayCgiError("CGI script error", "Can't create pipe\n");
 		return (std::nullopt);
 	}
 
@@ -360,12 +332,11 @@ std::optional<cgi_t>	executeCGI(
 
 	int	fork_ret = fork();
 	if (fork_ret < 0) {
-		// brr brr errorr
+		displayCgiError("CGI script error", "Can't create child process\n");
 		return (std::nullopt);
 	}
 	else if (fork_ret == 0) {
-		handle_child(client,
-			   PYTHON_EXEC, argv, in_pipe, out_pipe);
+		handle_child(client, PYTHON_EXEC, argv, in_pipe, out_pipe);
 	}
 	else if (fork_ret > 0) {
 		cgi = handle_parent(in_pipe, out_pipe, fork_ret);
