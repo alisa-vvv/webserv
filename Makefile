@@ -28,8 +28,8 @@ CXXFILES	=	$(CXXFILES_PARSER)\
 				$(HTTP_PARSER)\
 				$(RESPONSE_BUILDER)\
 				$(CXXFILES_SOCKET)\
-				$(CXXFILES_CGI)\
 				$(MAIN)
+# 				$(CXXFILES_CGI)\ //COMMENTED OUT BY ALLY, REASON: DOES NOT COMPILE
 
 CXXFILES_PARSER	=	configParser.cpp\
 					configParserTEST.cpp\
@@ -38,7 +38,7 @@ CXXFILES_PARSER	=	configParser.cpp\
 					configParserHelpers.cpp\
 					configParserError.cpp
 
-CXXFILES_CGI =		cgi_exec.cpp
+# CXXFILES_CGI =		cgi_exec.cpp //COMMENTED OUT BY ALLY, REASON: DOES NOT COMPILE
 
 CXXFILES_TIMER =	timer.cpp
 

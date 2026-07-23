@@ -1,5 +1,6 @@
 #include "../../inc/Http.hpp"
 #include "Colors.hpp"
+#include "Client.hpp"
 
 static int checkState(Http &http)
 {
@@ -26,7 +27,6 @@ void	Client::clientHandler(std::string recvStr)
 
 	if (!checkState(http))
 	{
-		setClientState(http.getState());
 		setResponse(http.getResponseString());
 		http.printError("parseRequest", "clientHandler", NOT_VAR);
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
@@ -36,7 +36,6 @@ void	Client::clientHandler(std::string recvStr)
 	http.setRequestConfig(getListenerClass());
 
 	if (!checkState(http)) {
-		setClientState(http.getState());
 		setResponse(http.getResponseString());
 		http.printError("Set Request Config", "clientHandler", NOT_VAR);
 		return;
@@ -46,7 +45,6 @@ void	Client::clientHandler(std::string recvStr)
 	http.validateLayer();
 
 	if (!checkState(http)){
-		setClientState(http.getState());
 		setResponse(http.getResponseString());
 		http.printError("validateLayer", "clientHandler", NOT_VAR);
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
@@ -56,7 +54,6 @@ void	Client::clientHandler(std::string recvStr)
 	if (http.getState() == HANDLING_CGI_EXTENSION)
 	{
 		http.setState(HANDLING_CGI_EXTENSION);
-		setClientState(http.getState());
 		setResponse(http.getResponseString());
 		return;
 	}
@@ -64,13 +61,11 @@ void	Client::clientHandler(std::string recvStr)
 	http.buildResponse();
 	if (!checkState(http))
 	{
-		setClientState(http.getState());
 		setResponse(http.getResponseString());
 		http.printError("buildResponse", "clientHandler", NOT_VAR);
 		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return;
 	}
-	setClientState(http.getState());
 	setResponse(http.getResponseString());
 
 	return;

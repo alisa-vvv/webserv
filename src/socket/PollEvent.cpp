@@ -93,9 +93,11 @@ eServerError Server::_pollEvents()
 		}
 		else if (_isCgiEvent(fd)) //pass a ref to activeCgis
 		{
-			eClientEventResult clientClosed = _handleCgiEvent(fd, i);
-			if (clientClosed == CLIENT_KEPT)
-				i++;
+			// eClientEventResult clientClosed = _handleCgiEvent(fd, i);
+			// if (clientClosed == CLIENT_KEPT)
+			// 	i++; 
+			//COMMENTED OUT BY ALLY, REASON: DOES NOT COMPILE
+			i++;
 		}
 		else
 		{
@@ -146,8 +148,8 @@ eClientEventResult Server::_handleClientEvent(int i)
 			_closeClientFd(fd);
 			return CLIENT_REMOVED;
 		}
-		if (_clients.at(fd).getResponseStatus() && _clients.at(fd).getClientState() == READY_TO_SEND)
-		{
+		if (_clients.at(fd).getResponseStatus() && _clients.at(fd).getHttpClass().getState() == READY_TO_SEND)
+		{ //changed
 			_pollFds[i].events = POLLOUT;
 		}
 	}

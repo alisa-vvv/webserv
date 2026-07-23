@@ -69,7 +69,7 @@ private:
 	eServerError		_pollEvents();
 	eServerError		_handleListenerEvent(int i);
 	eClientEventResult	_handleClientEvent(int i);
-	eClientEventResult	_handleCgiEvent(int i);
+	// eClientEventResult	_handleCgiEvent(int i); ////COMMENTED OUT BY ALLY, REASON: NEEDS TO BE FINISHED
 	eServerError		_handleRecv(int fd);
 	eServerError		_handleSend(Client& client);
 
@@ -95,8 +95,8 @@ private:
 
 	//test
 	void			printPollInfo(int i);
-	std::map<int, cgi_t>	getActiveCgis() const;
-	eClientEventResult		_handleCgiEvent(int fd, int i);
+	// std::map<int, cgi_t>	getActiveCgis() const; ////COMMENTED OUT BY ALLY, REASON: NEEDS TO BE FINISHED
+	// eClientEventResult		_handleCgiEvent(int fd, int i); //COMMENTED OUT BY ALLY, REASON: NEEDS TO BE FINISHED
 	void closeForNow(int fd);
 };
 

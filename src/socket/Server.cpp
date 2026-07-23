@@ -74,112 +74,114 @@ void Server::_checkClientTimeouts()
 	}
 }
 
-std::map<int, cgi_t> Server::getActiveCgis() const
-{
-	eServerError err;
-	size_t i = 0;
+// std::map<int, cgi_t> Server::getActiveCgis() const
+// {
+// 	eServerError err;
+// 	size_t i = 0;
 
-	while (i < _pollFds.size())
-	{
-		int fd = _pollFds[i].fd;
+// 	while (i < _pollFds.size())
+// 	{
+// 		int fd = _pollFds[i].fd;
 
-		if (_pollFds[i].revents == 0)
-		{
-			i++;
-			continue;
-		}
+// 		if (_pollFds[i].revents == 0)
+// 		{
+// 			i++;
+// 			continue;
+// 		}
 		
-		printPollInfo(i); // test
+// 		printPollInfo(i); // test
 
-		if (_isListenerFd(fd))
-		{
-			err = _handleListenerEvent(i);
-			if (err != SERVER_OK)
-				return err;
-			i++;
-		}
-		else
-		{
-			eClientEventResult clientClosed = _handleClientEvent(i);
-			if (clientClosed == CLIENT_KEPT)
-				i++;
-		}
-	}
-	return SERVER_OK;
-}
+// 		if (_isListenerFd(fd))
+// 		{
+// 			err = _handleListenerEvent(i);
+// 			if (err != SERVER_OK)
+// 				return err;
+// 			i++;
+// 		}
+// 		else
+// 		{
+// 			eClientEventResult clientClosed = _handleClientEvent(i);
+// 			if (clientClosed == CLIENT_KEPT)
+// 				i++;
+// 		}
+// 	}
+// 	return SERVER_OK;
+// }
 
 // this listenerfd can accept new connections
-eServerError Server::_handleListenerEvent(int i)
-{
-	eServerError err;
-	int fd = _pollFds[i].fd;
+//COMMENTED OUT BY ALLY, REASON: DOUBLE DEFINITION
+// eServerError Server::_handleListenerEvent(int i)
+// {
+// 	eServerError err;
+// 	int fd = _pollFds[i].fd;
 
-	if (_pollFds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
-	{
-		std::cerr << "Listening socket error on fd " << fd << std::endl;
-		return SERVER_POLL_ERR;
-	}
+// 	if (_pollFds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
+// 	{
+// 		std::cerr << "Listening socket error on fd " << fd << std::endl;
+// 		return SERVER_POLL_ERR;
+// 	}
 
-	if (_pollFds[i].revents & POLLIN)
-	{
-		err = _acceptClients(fd);
-		if (err != SERVER_OK)
-			return err;
-	}
-	return SERVER_OK;
-}
+// 	if (_pollFds[i].revents & POLLIN)
+// 	{
+// 		err = _acceptClients(fd);
+// 		if (err != SERVER_OK)
+// 			return err;
+// 	}
+// 	return SERVER_OK;
+// }
 
-eClientEventResult Server::_handleClientEvent(int i)
-{
-	int fd = _pollFds[i].fd;
+//COMMENTED OUT BY ALLY, REASON: DOUBLE DEFINITION
+// eClientEventResult Server::_handleClientEvent(int i)
+// {
+// 	int fd = _pollFds[i].fd;
 
-	if (_pollFds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
-	{
-		_closeClientFd(fd);
-		return CLIENT_REMOVED;
-	}
-	//TODO: add cgi
-	if (_clients.at(fd).getClientState() == HANDLING_CGI_EXTENSION) //waiting for cgi
-	{
+// 	if (_pollFds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
+// 	{
+// 		_closeClientFd(fd);
+// 		return CLIENT_REMOVED;
+// 	}
+// 	//TODO: add cgi
+// 	if (_clients.at(fd).getHttpClass().getState() == HANDLING_CGI_EXTENSION) //waiting for cgi
+// 	{
 		
-	}
-	if (_pollFds[i].revents & POLLIN)
-	{
-		eServerError err = _handleRecv(fd);
-		if (err != SERVER_OK)
-		{
-			_closeClientFd(fd);
-			return CLIENT_REMOVED;
-		}
-		if (_clients.at(fd).getClientState() == READY_TO_SEND) //TODO:check
-		{
-			_pollFds[i].events = POLLOUT;
-		}
-	}
-	if (_pollFds[i].revents & POLLOUT)
-	{
-		std::cout << "Calling send for client " << fd << std::endl;
+// 	}
+// 	if (_pollFds[i].revents & POLLIN)
+// 	{
+// 		eServerError err = _handleRecv(fd);
+// 		if (err != SERVER_OK)
+// 		{
+// 			_closeClientFd(fd);
+// 			return CLIENT_REMOVED;
+// 		}
+// 		if (_clients.at(fd).getHttpClass().getState() == READY_TO_SEND) //TODO:check
+// 		{
+// 			_pollFds[i].events = POLLOUT;
+// 		}
+// 	}
+// 	if (_pollFds[i].revents & POLLOUT)
+// 	{
+// 		std::cout << "Calling send for client " << fd << std::endl;
 
-		std::cout << "Generated response:\n"
-				<< _clients.at(fd).getResponse()
-				<< "\n--- response end ---\n";
+// 		std::cout << "Generated response:\n"
+// 				<< _clients.at(fd).getResponse()
+// 				<< "\n--- response end ---\n";
 
-		eServerError err = _handleSend(_clients.at(fd));
-		if (err != SERVER_OK)
-		{
-			_closeClientFd(fd);
-			return CLIENT_REMOVED;
-		}
-		if (_clients.at(fd).isResponseComplete())
-		{
-			std::cout << "Response completely sent to client "
-					<< fd << std::endl;
-			_closeClientFd(fd);
-			return CLIENT_REMOVED;
-		}
-	}
-	return CLIENT_KEPT;
-}
+// 		eServerError err = _handleSend(_clients.at(fd));
+// 		if (err != SERVER_OK)
+// 		{
+// 			_closeClientFd(fd);
+// 			return CLIENT_REMOVED;
+// 		}
+// 		if (_clients.at(fd).isResponseComplete())
+// 		{
+// 			std::cout << "Response completely sent to client "
+// 					<< fd << std::endl;
+// 			_closeClientFd(fd);
+// 			return CLIENT_REMOVED;
+// 		}
+// 	}
+// 	return CLIENT_KEPT;
+// }
 
 Server::Server(const Config &config) : _config(config)
 {

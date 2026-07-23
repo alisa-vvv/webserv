@@ -98,10 +98,10 @@ int Client::getClientFd() const
 	return _clientFd;
 }
 
-clientState Client::getClientState() const
-{
-	return _clientState;
-}
+// clientState Client::getClientState() const
+// {
+// 	return _clientState;
+// } //COMMENTED OUT BY ALLY, REASON: CLASH WITH HTTP
 
 Http &Client::getHttpClass()
 {
@@ -132,10 +132,10 @@ void Client::setResponseStatus(bool response)
 	_responseStatus = response;
 }
 
-void Client::setClientState(clientState clientState)
-{
-	_clientState = clientState;
-}
+// void Client::setClientState(clientState clientState)
+// {
+// 	_clientState = clientState;
+// } //COMMENTED OUT BY ALLY, REASON: CLASH WITH HTTP
 
 
 void Client::setHttpClass(Http http)

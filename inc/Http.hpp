@@ -6,7 +6,6 @@
 #include <filesystem>
 #include <tuple>
 #include <fstream>
-#include "Client.hpp"
 #include "Colors.hpp"
 #include "configParser.hpp"
 #include "HttpError.hpp"
@@ -14,6 +13,17 @@
 
 #include "Timer.hpp"
 #include <optional>
+
+
+enum clientState {
+	START,
+	PARSING,
+	VALIDATING,
+	HANDLING_CGI_EXTENSION,
+	HANDLING_CGI_STATIC,
+	READY_TO_SEND,
+	CLIENT_ERROR,
+};
 
 
 //success defined in listener

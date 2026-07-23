@@ -25,16 +25,6 @@ using std::chrono::system_clock;
 class Http;
 class Listener;
 
-enum clientState {
-	START,
-	PARSING,
-	VALIDATING,
-	HANDLING_CGI_EXTENSION,
-	HANDLING_CGI_STATIC,
-	READY_TO_SEND,
-	CLIENT_ERROR,
-};
-
 
 class Client
 {
@@ -49,7 +39,7 @@ class Client
 		std::string					_response;
 		bool						_responseStatus;
 		size_t						_bytesSent;
-		clientState					_clientState;
+		// clientState					_clientState; //COMMENTED OUT BY ALLY, REASON: CLASH WITH HTTP
 		Http						_http;
 
 	public:
@@ -68,7 +58,7 @@ class Client
 		RcvBuffer					&getRcvBuffer();
 		const Listener*				getListenerClass() const;
 		int 						getClientFd() const;
-		clientState					getClientState() const;
+		// clientState					getClientState() const; //COMMENTED OUT BY ALLY, REASON: CLASH WITH HTTP
 		Http						&getHttpClass();
 
 		/* ============================== SETTERS ============================== */
@@ -76,7 +66,7 @@ class Client
 		void						setRecvStatus(receiveStatus recvStatus);
 		void						setResponse(const std::string& response);
 		void						setResponseStatus(bool response);
-		void						setClientState(clientState clientState);
+		// void						setClientState(clientState clientState); //COMMENTED OUT BY ALLY, REASON: CLASH WITH HTTP
 		void						setHttpClass(Http http);
 
 		
