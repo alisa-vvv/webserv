@@ -205,7 +205,8 @@ static bool checkConfigCompleteness(Config& config) {
 				displayParserError("Prefix not specified for location block", "Bad config");
 				return (false);
 			}
-			if (cur_loc.index.size() == 0 && cur_loc.cgi_pass.path.size() == 0) {
+			if (cur_loc.index.size() == 0 && cur_loc.cgi_pass.path.size() == 0
+				&& cur_loc.autoindex == false) {
 				displayParserError("Index not specified for location block", "Bad config");
 				return (false);
 			}

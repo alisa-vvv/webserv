@@ -108,7 +108,7 @@ INCFLAGS	= $(addprefix -I,$(INCLUDE))
 CFLAGS	= -Wall -Wextra -Werror -std=c++20
 DEBUG_FLAGS	= -g
 LDFLAGS	=
-INPUT	= config/test.conf
+INPUT	= config/www.conf
 MAKEFLAGS += -j --no-print-directory
 
 

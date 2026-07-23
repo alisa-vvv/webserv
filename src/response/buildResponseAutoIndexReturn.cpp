@@ -29,6 +29,7 @@ void Http::handleReturnResponse()
 	int returnCode = requestConfig.location->returns.code;
 	if (returnCode < 300 || returnCode > 399)
 		returnCode = HTTP_MOVED_PERMANENTLY;
+	std::cout << CLR_YEL << "DOING SHIT" << CLR_NON << "\n";
 	setResponseCode(returnCode);
 	setResponseHeader("Location:", requestConfig.location->returns.target);
 	setBody("");
