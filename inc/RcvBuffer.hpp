@@ -12,7 +12,7 @@
 
 #include <string>
 #include <time.h>
-#define MAX_REQUEST 8192
+#define MAX_REQUEST 16777216  // 16 MB - allow large file uploads
 #define BUFFER_MAX 4096
 #define TIME_OUT_RECV 1000 //make a timeout function that checks the activity
 
@@ -35,5 +35,5 @@ class RcvBuffer {
 		ssize_t					totalBytesReceived;
 		receiveStatus			checkStatus();
 		void					append(char *buffer, ssize_t size);
-		const char*				getRecvStr() const { return this->recvStr.c_str(); }
+		const std::string&		getRecvStr() const { return this->recvStr; }
 };

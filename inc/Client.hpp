@@ -78,7 +78,7 @@ class Client
 		void						updateLastActivity();
 
 		/* ========================== HTTP HANDLER ========================== */
-		void						clientHandler(std::string recvStr);
+		void						clientHandler(const std::string &recvStr);
 
 };
 

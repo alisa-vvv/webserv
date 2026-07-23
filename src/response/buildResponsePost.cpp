@@ -45,13 +45,36 @@ static std::string getDelimiter(std::string contentTypeString)
 
 std::string Http::getPostContentTypeVal(std::string contentTypeString)
 {
-	//contentTypeString = multipart/form-data; boundary=
-
-	std::string delim = getDelimiter(contentTypeString);
-	//delim = ----WebKitFormBoundarySudB14LqAoMOl84V
+	std::string delim = "--" + getDelimiter(contentTypeString);
 	std::string body = getBody();
-	
 
+	size_t start = body.find(delim);
+	if (start == std::string::npos)
+		return "";
+	start += delim.size() + 2;
+	
+	size_t headerEnd = body.find("\r\n\r\n", start);
+	if (headerEnd == std::string::npos)
+		return "";
+	
+	std::string headers = body.substr(start, headerEnd - start);
+
+	std::string key = "Content-Type: ";
+	size_t pos = headers.find(key);
+	if (pos == std::string::npos)
+		return "";
+	pos += key.size();
+	size_t endVal = headers.find("\r\n", pos);
+	std::string val = headers.substr(pos, endVal - pos);
+
+	size_t contentStart = headerEnd + 4; // skip \r\n\r\n
+	size_t contentEnd = body.find("\r\n--", contentStart);
+	if (contentEnd == std::string::npos)
+		contentEnd = body.size();
+	
+	std::string fileContent = body.substr(contentStart, contentEnd - contentStart);
+	setRawBody(fileContent);
+	return val;
 }
 
 std::string Http::resolveExtension()
@@ -62,8 +85,7 @@ std::string Http::resolveExtension()
 		return "";
 	}
 	std::string postContentTypeVal = getPostContentTypeVal(contentTypeVal);
-
-	// std::string extension = getContentTypeExtension(contentTypeVal);
+	std::string extension = getContentTypeExtension(postContentTypeVal);
 
 	if (extension.empty())
 	{
@@ -71,13 +93,13 @@ std::string Http::resolveExtension()
 		setResponseCode(HTTP_UNSUPPORTED_MEDIA);
 		return "";
 	}
-	
+	return extension;
 }
 
 void Http::createUploadFile(std::string uploadDir, std::string extension)
 {
 	try {
-	std::string baseFileName = "upload_" + std::to_string(std::time(nullptr));
+		std::string baseFileName = "upload_" + std::to_string(std::time(nullptr));
 		std::string filename = baseFileName + extension;
 		std::filesystem::path filepath = std::filesystem::path(uploadDir) / filename;
 		
@@ -134,6 +156,4 @@ void Http::handlePostResponse()
 
 	if (getState() == CLIENT_ERROR)
 		return;
-
-	
 }

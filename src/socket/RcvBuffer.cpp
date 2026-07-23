@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "RcvBuffer.hpp"
-
 //*======CONSTRUCTOR======*/
 RcvBuffer::RcvBuffer()
 	:totalBytesReceived(0)
@@ -45,7 +44,7 @@ receiveStatus RcvBuffer::checkStatus()
 	size_t contentLenPos = headers.find("Content-Length:");
 
 	size_t bodyStart = headerEnd + 4;
-	size_t bodyReceived = this->recvStr.size() - bodyStart;
+	size_t bodyReceived = (this->recvStr.size() > bodyStart) ? (this->recvStr.size() - bodyStart) : 0;
 
 	if (contentLenPos != std::string::npos)
 	{
