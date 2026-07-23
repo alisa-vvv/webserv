@@ -87,6 +87,10 @@ class Http {
 
 		/*==========METHOD HANDLERS==========*/
 		void 			handleGetResponse();
+		std::string		resolveUploadDir();
+		std::string		resolveExtension();
+		std::string		getPostContentTypeVal(std::string contentTypeString);
+		void 			createUploadFile(std::string uploadDir, std::string extension);
 		void 			handlePostResponse();
 		void 			handleDeleteResponse();
 		void			handleAutoIndexResponse();

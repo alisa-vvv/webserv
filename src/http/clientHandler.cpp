@@ -19,7 +19,7 @@ static int checkState(Http &http)
 /// @param recvStr feed the str from recv
 /// @return response string ready for accept
 
-void	Client::clientHandler(std::string recvStr)
+void	Client::clientHandler(const std::string &recvStr)
 {
 	Http &http = getHttpClass();
 	std::cout << GREEN << "==================REQUEST START======================" << RESET << std::endl;

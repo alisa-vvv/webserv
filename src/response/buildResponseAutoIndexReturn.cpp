@@ -32,7 +32,7 @@ void Http::handleReturnResponse()
 		returnCode = HTTP_MOVED_PERMANENTLY;
 	std::cout << CLR_YEL << "DOING SHIT" << CLR_NON << "\n";
 	setResponseCode(returnCode);
-	setResponseHeader("Location:", requestConfig.location->returns.target);
+	setResponseHeader("Location", requestConfig.location->returns.target);
 	setBody("");
 	setState(READY_TO_SEND);
 }
