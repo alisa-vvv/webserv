@@ -8,6 +8,7 @@ static int checkState(Http &http)
 	{
 		http.buildResponse();
 		http.printError("Built response in check state", http.getResponseString(), IS_VAR);
+		http.setState(READY_TO_SEND);
 		return 0;
 	}
 	return 1;
