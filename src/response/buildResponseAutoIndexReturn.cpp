@@ -30,7 +30,7 @@ void Http::handleReturnResponse()
 	if (returnCode < 300 || returnCode > 399)
 		returnCode = HTTP_MOVED_PERMANENTLY;
 	setResponseCode(returnCode);
-	setResponseHeader("Location:", requestConfig.location->returns.target);
+	setResponseHeader("Location", requestConfig.location->returns.target);
 	setBody("");
 	setState(READY_TO_SEND);
 }
