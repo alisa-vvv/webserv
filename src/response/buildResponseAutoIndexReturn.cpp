@@ -3,6 +3,7 @@
 
 void Http::handleAutoIndexResponse() 
 {
+	std::cout << "ARE WE HERE CHAT\n";
 	try
 	{
 		std::filesystem::path dir(this->_builtUri);
@@ -13,7 +14,7 @@ void Http::handleAutoIndexResponse()
 			body += "<li><a href=\"" + name + "\">" + name + "</a></li>";
 		}
 		body += "</ul></body></html>";
-		setBody(body);
+		this->_body = body;
 		setResponseCode(HTTP_OK);
 		setResponseHeader("Content-Type", "text/html");
 		setState(READY_TO_SEND);

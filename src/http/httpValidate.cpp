@@ -23,6 +23,17 @@ std::string Http::resolveUri(const std::string &uri)
 void Http::validateFile()
 {
 	std::string path = this->_builtUri;
+	//	case 1: autoindex on && index is set: {
+	//		1. do all regular checks
+	//		2. if they fail, generate autoindex
+	//		3. return ;
+	//	}
+	//	case 2: autoindex on && index is not set {
+	//		1. generate autoindex;
+	//		2. return;
+	//	}
+	//	if path ends with index.html && if autoindex == true
+	//		return ;
 	try
 	{
 		if (!std::filesystem::exists(path))
@@ -234,8 +245,9 @@ void	Http::validateLayer()
 	/*=====URI=====*/
 	if (validateURI(this->_receivedUri) == FAILURE)
 		return;
-	else
+	else {
 		validateFile();
+	}
 }
 
 

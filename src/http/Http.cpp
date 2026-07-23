@@ -102,7 +102,6 @@ void Http::setBody() {
 
 //assign from filepath
 void Http::setBody(const std::string uri) {
-
 	std::string resolvedUri = resolveUri(uri);
 	if (resolvedUri.empty())
 	{
