@@ -6,7 +6,7 @@
 #    By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/22 19:01:25 by avaliull          #+#    #+#              #
-#    Updated: 2026/07/22 15:24:07 by tcakir-y         ###   ########.fr        #
+#    Updated: 2026/07/28 11:14:48 by tcakir-y         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,8 +28,8 @@ CXXFILES	=	$(CXXFILES_PARSER)\
 				$(HTTP_PARSER)\
 				$(RESPONSE_BUILDER)\
 				$(CXXFILES_SOCKET)\
-				$(MAIN)
-# 				$(CXXFILES_CGI)\ //COMMENTED OUT BY ALLY, REASON: DOES NOT COMPILE
+				$(MAIN)\
+ 				$(CXXFILES_CGI)
 
 CXXFILES_PARSER	=	configParser.cpp\
 					configParserTEST.cpp\
@@ -38,7 +38,7 @@ CXXFILES_PARSER	=	configParser.cpp\
 					configParserHelpers.cpp\
 					configParserError.cpp
 
-# CXXFILES_CGI =		cgi_exec.cpp //COMMENTED OUT BY ALLY, REASON: DOES NOT COMPILE
+CXXFILES_CGI =		cgi_exec.cpp
 
 CXXFILES_TIMER =	timer.cpp
 

@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:25 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/21 16:19:42 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/28 12:47:16 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ class Client
 		int							_listenerFd;
 		int							_clientFd;
 		RcvBuffer					_rcvBuffer;
+
 		time_point<system_clock>	_lastActivity;
 		const Listener				*_listener;
 
@@ -39,7 +40,6 @@ class Client
 		std::string					_response;
 		bool						_responseStatus;
 		size_t						_bytesSent;
-		// clientState					_clientState; //COMMENTED OUT BY ALLY, REASON: CLASH WITH HTTP
 		Http						_http;
 
 	public:
@@ -58,7 +58,6 @@ class Client
 		RcvBuffer					&getRcvBuffer();
 		const Listener*				getListenerClass() const;
 		int 						getClientFd() const;
-		// clientState					getClientState() const; //COMMENTED OUT BY ALLY, REASON: CLASH WITH HTTP
 		Http						&getHttpClass();
 
 		/* ============================== SETTERS ============================== */
@@ -66,7 +65,6 @@ class Client
 		void						setRecvStatus(receiveStatus recvStatus);
 		void						setResponse(const std::string& response);
 		void						setResponseStatus(bool response);
-		// void						setClientState(clientState clientState); //COMMENTED OUT BY ALLY, REASON: CLASH WITH HTTP
 		void						setHttpClass(Http http);
 
 		

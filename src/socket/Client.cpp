@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:18 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/21 16:19:29 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/28 11:13:38 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,11 +98,6 @@ int Client::getClientFd() const
 	return _clientFd;
 }
 
-// clientState Client::getClientState() const
-// {
-// 	return _clientState;
-// } //COMMENTED OUT BY ALLY, REASON: CLASH WITH HTTP
-
 Http &Client::getHttpClass()
 {
 	return _http;
@@ -131,12 +126,6 @@ void Client::setResponseStatus(bool response)
 {
 	_responseStatus = response;
 }
-
-// void Client::setClientState(clientState clientState)
-// {
-// 	_clientState = clientState;
-// } //COMMENTED OUT BY ALLY, REASON: CLASH WITH HTTP
-
 
 void Client::setHttpClass(Http http)
 {

@@ -19,36 +19,16 @@ eServerError Server::_handleRecv(int clientFd)
 					<< std::endl;
 
 		bufferObj.totalBytesReceived += bytesRead;
-
+		
 		bufferObj.append(buffer, bytesRead);
 
 		const std::string &requestStr = bufferObj.getRecvStr();
 		if (requestStr.size() > MAX_REQUEST) //request too large
 		{
 			client.setRecvStatus(RECV_ERROR);
-			return SERVER_OK;
+			return SERVER_RECV_ERR;
 		}
-
-		receiveStatus status = bufferObj.checkStatus();
-		if (status == INCOMPLETE)
-		{
-			client.setRecvStatus(status);
-			return SERVER_OK;
-		}
-		if (status == RECV_ERROR)
-		{
-			client.setRecvStatus(status);
-			return SERVER_OK;
-		}
-
-		if (status == COMPLETE)
-		{
-			client.clientHandler(bufferObj.getRecvStr());
-			std::cout << "Client response now contains "
-			  << client.getResponse().size()
-			  << " bytes" << std::endl;
-		}
-		return SERVER_OK;
+		return (_checkRecvBuffer(client));
 	}
 	else if (bytesRead == 0) // the remote side has closed the connection on you
 	{
@@ -65,6 +45,31 @@ eServerError Server::_handleRecv(int clientFd)
 			 << std::strerror(errno)
 			 << std::endl;
 	return SERVER_RECV_ERR;
+}
+
+eServerError	Server::_checkRecvBuffer(Client &client)
+{
+	RcvBuffer &bufferObj = client.getRcvBuffer();
+	receiveStatus status = bufferObj.checkStatus();
+
+	if (status == INCOMPLETE)
+	{
+		client.setRecvStatus(status);
+		return SERVER_OK;
+	}
+	if (status == RECV_ERROR)
+	{
+		client.setRecvStatus(status);
+		return SERVER_RECV_ERR;
+	}
+	if (status == COMPLETE)
+	{
+		client.clientHandler(bufferObj.getRecvStr());
+		std::cout << "Client response now contains "
+			<< client.getResponse().size()
+			<< " bytes" << std::endl;
+	}
+	return SERVER_OK;
 }
 
 /*
@@ -112,16 +117,16 @@ eServerError Server::_handleSend(Client& client)
 	else if (result > 0)
 	{
 		std::cout << "send returned: " << result
-		  << ", bytes before: " << client.getBytesSent()
-		  << std::endl;
+				  << ", bytes before: " << client.getBytesSent()
+				  << std::endl;
 
 		client.updateBytesSent(static_cast<size_t>(result));
 		client.updateLastActivity();
 
 		std::cout << "Sent\nbytes after: " << client.getBytesSent()
-		  << ", response size: " << response.size()
-		  << std::endl;
-		  
+				  << ", response size: " << response.size()
+				  << std::endl;
+
 		if (client.isResponseComplete())
 			client.setResponseStatus(false);
 	}
@@ -129,47 +134,3 @@ eServerError Server::_handleSend(Client& client)
 
 	return SERVER_OK;
 }
-
-
-//recv with the while loop
-// eServerError Server::_handleRecv(int clientFd)
-// {
-	
-// 	Client		&client = _clients.at(clientFd);
-// 	RcvBuffer	&bufferObj = client.getRcvBuffer();
-
-// 	char		buffer[BUFFER_MAX];	
-// 	ssize_t		bytesRead;
-
-// 	while (1)
-// 	{
-// 		bytesRead = recv(clientFd, buffer, sizeof(buffer), 0);
-// 		if (bytesRead > 0)
-// 		{
-// 			client.updateLastActivity();
-// 			std::cout << "Received "
-// 					  << bytesRead 
-// 					  << " bytes from client" << std::endl; //test
-
-// 			bufferObj.totalBytesReceived += bytesRead;
-// 			//TODO: check for total bytes
-
-// 			bufferObj.append(buffer, bytesRead);
-// 			//check status
-// 		}
-// 		else if (bytesRead == 0) //the remote side has closed the connection on you
-// 		{
-// 			std::cout << "Client " << clientFd
-// 					  << " closed the connection" << std::endl;
-// 			return SERVER_CLIENT_CLOSED;
-// 		}
-// 		else
-// 		{
-// 			std::cerr << "recv() failed for client " << clientFd
-// 					  << ": " << std::strerror(errno) << std::endl;
-// 			//TODO: decide how to consider
-// 			return SERVER_RECV_ERR;
-// 		}
-// 	}
-// 	return SERVER_OK;
-// }

@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:50:39 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/22 15:46:25 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/28 16:32:20 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,12 +91,11 @@ eServerError Server::_pollEvents()
 				return err;
 			i++;
 		}
-		else if (_isCgiEvent(fd)) //pass a ref to activeCgis
+		else if (_isCgiFd(fd)) //TODO:finish
 		{
-			// eClientEventResult clientClosed = _handleCgiEvent(fd, i);
-			// if (clientClosed == CLIENT_KEPT)
-			// 	i++; 
-			//COMMENTED OUT BY ALLY, REASON: DOES NOT COMPILE
+			eClientEventResult clientClosed = _handleCgiEvent(fd, i);
+			if (clientClosed == CLIENT_KEPT)
+				i++; 
 			i++;
 		}
 		else
@@ -148,9 +147,20 @@ eClientEventResult Server::_handleClientEvent(int i)
 			_closeClientFd(fd);
 			return CLIENT_REMOVED;
 		}
-		if (_clients.at(fd).getResponseStatus() && _clients.at(fd).getHttpClass().getState() == READY_TO_SEND)
-		{ //changed
-			_pollFds[i].events = POLLOUT;
+		//if (_clients.at(fd).getResponseStatus() && _clients.at(fd).getHttpClass().getState() == READY_TO_SEND)
+		clientState state = _clients.at(fd).getHttpClass().getState();
+		if (state == HANDLING_CGI_EXTENSION || state == HANDLING_CGI_STATIC)
+		{
+			//startCGI;
+			
+		}
+
+		if (_clients.at(fd).getRecvStatus() == COMPLETE)
+		{
+			if (state == READY_TO_SEND)
+				_pollFds[i].events = POLLOUT;
+			if (state == HANDLING_CGI_EXTENSION || state == HANDLING_CGI_STATIC)
+				_pollFds[i].events = 0;	
 		}
 	}
 	if (_pollFds[i].revents & POLLOUT)

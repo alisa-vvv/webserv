@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/22 15:52:14 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/28 15:56:50 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,12 +54,16 @@ private:
 	std::map<int, Client>		_clients;	// client state, found by client fd
 	std::vector<struct pollfd>	_pollFds;	// the list poll() watches
 	std::map<int, cgi_t>		_activeCgis;
+	std::map<int, int>			_cgiFdToClientFd;
 
 	void				_buildListener(void);
 	void				_addFdToPoll(int fd);
 	void				_addListenerFdsToPoll();
 	
-	int					_isListenerFd(int fd) const;
+	bool				_isListenerFd(int fd) const;
+	bool				_isClientFd(int fd) const;
+	bool				_isCgiFd(int fd);
+
 	const Listener*		_findListenerByFd(int fd);
 	
 	Server(const Server &other);
@@ -69,35 +73,38 @@ private:
 	eServerError		_pollEvents();
 	eServerError		_handleListenerEvent(int i);
 	eClientEventResult	_handleClientEvent(int i);
-	// eClientEventResult	_handleCgiEvent(int i); ////COMMENTED OUT BY ALLY, REASON: NEEDS TO BE FINISHED
+	eClientEventResult	_handleCgiEvent(int i);
 	eServerError		_handleRecv(int fd);
+	eServerError		_checkRecvBuffer(Client &client);
 	eServerError		_handleSend(Client& client);
 
 	eServerError		_acceptClients(int serverListenFd);
 	eServerError		_setNonBlocking(int fd);
 	void				_checkClientTimeouts();
 
-	bool				_isCgiEvent(int fd);
 
 	void				_closeClientFd(int fd);
 	void				_closeClients();
 	void				_closeAll();
+	void				_removeFdFromPoll(int fd);
 	
 	public:
 	Server(const Config &config);
 	~Server();
 	
-	eServerError	setup(void);
-	eServerError	run();
-	int				matchConfig(uint32_t ip, int port, const cfg_server_t &serverConfig);
+	eServerError		setup(void);
+	eServerError		run();
+	int					matchConfig(uint32_t ip, int port, const cfg_server_t &serverConfig);
 	
-	void			closeListeners();
+	void				closeListeners();
 
 	//test
-	void			printPollInfo(int i);
-	// std::map<int, cgi_t>	getActiveCgis() const; ////COMMENTED OUT BY ALLY, REASON: NEEDS TO BE FINISHED
-	// eClientEventResult		_handleCgiEvent(int fd, int i); //COMMENTED OUT BY ALLY, REASON: NEEDS TO BE FINISHED
-	void closeForNow(int fd);
+	void					printPollInfo(int i);
+	
+	const std::map<int, cgi_t>&	getActiveCgis() const;
+	void					_removeActiveCgi(int cgiFd);
+	eClientEventResult		_handleCgiEvent(int fd, int i);
+	void					closeForNow(int fd);
 };
 
 int					setupSignal();

@@ -6,27 +6,34 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:55:10 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/22 16:08:45 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/28 15:58:45 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-int Server::_isListenerFd(int fd) const
+bool Server::_isListenerFd(int fd) const
 {
 	for (size_t i = 0; i < _listeners.size(); i++)
 	{
 		if (_listeners[i].getListenerFd() == fd)
-			return 1;
+			return true;
 	}
-	return 0;
+	return false;
 }
 
-bool Server::_isCgiEvent(int fd)
+bool Server::_isClientFd(int fd) const
 {
-	(void)fd;
+	if (_clients.find(fd) != _clients.end())
+		return true;
 	return false;
-	// return (getActiveCgis().find(fd) != getActiveCgis().end());
+}
+
+bool Server::_isCgiFd(int fd)
+{
+	if (_isListenerFd(fd) || _isClientFd(fd))
+		return false;
+	return true;
 }
 
 eServerError Server::_acceptClients(int serverListenFd)
@@ -114,44 +121,35 @@ void Server::closeForNow(int fd)
 	close(fd);
 }
 
-//COMMENTED OUT BY ALLY, REASON: DOES NOT COMPILE
-// eClientEventResult Server::_handleCgiEvent(int pollFd, int i)
-// {
-// 	int clientFd = _activeCgis.at(pollFd).client.getclientFd(); // @alisa: I can only finish this funciton after the new new structure of client/http is fixed. Just assume you get the correct fd already
-// 	int err = checkCgiDone(_activeCgis.at(pollFd)); // @alisa: I changed this to int cause I don't want to include the Server header in my stuff just fot the error type.
-// 	if (err != 0)
-// 	{
-// 		closeForNow(fd); //todo:finish
-// 		return CLIENT_REMOVED;
-// 	}
-// 	if (_clients.at(clientFd).getHttpClass().getState() == HANDLING_CGI_EXTENSION)
-// 	{
-// 		return CLIENT_KEPT;
-// 	}
-// 	if (_pollFds[i].revents & POLLOUT)
-// 	{
-// 		eServerError err = _handleSend(_clients.at(clientFd)); // change client into _activeCgis.at(fd).getClient()
-// 		if (err != SERVER_OK)
-// 		{
-// 			closeForNow(fd);//todo:finish
-// 			return CLIENT_REMOVED;
-// 		}
-// 		if (_clients.at(clientFd).isResponseComplete()) //check if the response is complete
-// 		{
-// 			std::cout << "Response completely sent to client "
-// 					<< fd << std::endl;//todo:finish
-// 			closeForNow(fd);//todo:finish
-// 			return CLIENT_REMOVED;
-// 		}
-// 	}
-// 	//todo:finish
-// 	if (_clients.at(fd).getResponseStatus() && _clients.at(clientFd).getHttpClass().getState() == READY_TO_SEND) //TODO:check
-// 	{
-// 		_pollFds[i].events = POLLOUT;
-// 		//call close client
-// 		return CLIENT_KEPT;
-// 	}
-// 	return CLIENT_KEPT; //TODO:check later
+eClientEventResult Server::_handleCgiEvent(int pollFd, int i)
+{
+	int clientFd = _cgiFdToClientFd[pollFd];
+	int err = checkCgiDone(_activeCgis.at(pollFd)); // @alisa: I changed this to int cause I don't want to include the Server header in my stuff just fot the error type.
 
-// }
+	//cgi_t& cgi = _activeCgis.at(poll);
+	if (err == -1)
+	{
+		_closeClientFd(clientFd);
+		return CLIENT_REMOVED;
+	}
+	if (err == 0 && _clients.at(clientFd).getHttpClass().getState() == READY_TO_SEND)
+	{
+		
+	}
 
+	//if (_clients.at(clientFd).getHttpClass().getState() == READY_TO_SEND)
+	//{
+
+	//}
+
+}
+
+void Server::_removeActiveCgi(int cgiFd)
+{
+	_removeFdFromPoll(cgiFd);
+	close(cgiFd); //is it implemented on alisa's side?
+
+	size_t removed = _activeCgis.erase(cgiFd);
+	if (removed == 0)
+		std::cerr << "CGI fd was not found\n";
+}

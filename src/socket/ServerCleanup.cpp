@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 14:00:29 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/22 14:06:22 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/28 16:00:12 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,14 +54,7 @@ void Server::closeListeners()
  */
 void Server::_closeClientFd(int fd)
 {
-	for (size_t i = 0; i < _pollFds.size(); i++)
-	{
-		if (fd == _pollFds[i].fd)
-		{
-			_pollFds.erase(_pollFds.begin() + i);
-			break;
-		}
-	}
+	_removeFdFromPoll(fd);
 	_clients.erase(fd);
 	close(fd);
 }
@@ -89,9 +82,20 @@ void Server::_closeClients()
 	}
 }
 
+void Server::_removeFdFromPoll(int fd)
+{
+	for (size_t i = 0; i < _pollFds.size(); i++)
+	{
+		if (fd == _pollFds[i].fd)
+		{
+			_pollFds.erase(_pollFds.begin() + i);
+			break;
+		}
+	}
+}
+
 void Server::_closeAll()
 {
 	_closeClients();
 	closeListeners();
-	
 }
