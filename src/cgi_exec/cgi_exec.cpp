@@ -13,9 +13,8 @@
 #include "cgi_exec.hpp"
 #include "configParser.hpp"
 #include "Timer.hpp"
-#include "Http.hpp"
-#include "Client.hpp"
-#include "Server.hpp"
+//#include "Http.hpp"
+//#include "Client.hpp"
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstdlib>
@@ -30,18 +29,6 @@
 #define PYTHON_EXEC "python"
 #define PATH_TO_SCRIPT "/home/avaliull/Projects/lvl5/webserv/server/cgi-bin/hello_world.py"
 // root of location + cgi_pass
-
-// this function is the same as the parser one, maybe make a generic error message func isntead
-static void	displayCgiError(
-	const std::string& message,
-	const std::optional<std::string>& prefix = std::nullopt
-) {
-	std::cout << CLR_RED;
-	if (prefix)
-		std::cout << *prefix << ": ";
-	std::cout << message;
- 	std::cout << CLR_NON << std::endl;
-}
 
 // t his maybe remove? if not, remove from http class
 static std::string buildCGIResponseString(std::string cgiResponse)
@@ -76,7 +63,8 @@ int	gotCGIOutput(
 	const bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S_CGI);
 
 	if (timed_out) {
-		displayCgiError("CGI script error", "CGI request timed out\n");
+		std::cout << "cgi execution took too long...\n";
+		// we throw timeout error
 		kill(cgi.child_pid, SIGTERM);
 		close(cgi.input);
 		close(cgi.output);
@@ -91,22 +79,19 @@ int	gotCGIOutput(
 			do {
 				cgi_bzero(buffer, CGI_RECV_BUF);
 				recv_ret = read(cgi.output, buffer, CGI_RECV_BUF);
-				if (recv_ret < 0) {
-					displayCgiError("CGI script error", "Read error\n");
-				}
 				for (int i = 0; buffer[i] != '\0'; i++) {
 					cgi.output_string.push_back(buffer[i]);
 				}
 			} while (recv_ret > 0);
-		//	std::cout << CLR_YEL << "[cgi output start]\n";
-		//	std::cout << CLR_NON;
-		//	std::cout << cgi.output_string;
-		//	std::cout << CLR_YEL << "\n[cgi output end]" << CLR_NON << "\n";
+			std::cout << CLR_YEL << "[cgi output start]\n";
+			std::cout << CLR_NON;
+			std::cout << cgi.output_string;
+			std::cout << CLR_YEL << "\n[cgi output end]" << CLR_NON << "\n";
 			close(cgi.input);
-			//close(cgi.output); // socket will close it instead
+			close(cgi.output);
 		}
 		else if (wait_res < 0) {
-			displayCgiError("CGI script error", "Broked child process\n");
+			// brr brr error
 			return (-1);
 		}
 		return (1);
@@ -135,7 +120,7 @@ int	checkCgiDone(
 		std::string	response_string = buildCGIResponseString(cgi.output_string);
 		cgi.client.setResponse(response_string);
 		// THIS will probably look different after the Client/Http debaucle is resolved. check
-		cgi.client.setClientState(READY_TO_SEND);
+		cgi.client.getHttpClass().setState(READY_TO_SEND); // this sho
 	}
 	return (0);
 }
@@ -168,7 +153,7 @@ static const std::string match_method_to_string(
 //"SCRIPT_FILENAME=", same as above
 
 static char**	constructEnvironment(
-	const Client& client
+	Client& client
 ) {
 	const Http&	request_data = client.getHttpClass();
 	const cfg_server_t&	server_config = *request_data.requestConfig.server;
@@ -194,9 +179,9 @@ static char**	constructEnvironment(
 	};
 
 	char**	env = new char*[vars.size() + 1];
-	//std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
+	std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
 	for (size_t i = 0; i < vars.size(); i++) {
-		//std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
+		std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
 		const std::string&	cur_string = vars.at(i);
 		env[i] = new char[cur_string.size() + 1];
 		for (size_t j = 0; j < cur_string.size(); j++) {
@@ -209,7 +194,7 @@ static char**	constructEnvironment(
 }
 
 static int	findAndExecuteScript(
-	const Client& client,
+	Client& client,
 	const std::string binary_name,
 	char *const argv[],
 	std::vector<std::string> paths
@@ -218,8 +203,7 @@ static int	findAndExecuteScript(
 	std::string 	slash_arg;
 	char			path[PATH_MAX];	
 	(void) client;
-	//char**			env = constructEnvironment(client, client.getHttp());//
-	char ** env = NULL; // TMP TMP TMP
+	char**			env = constructEnvironment(client);
 
 	cgi_bzero(path, PATH_MAX);
 	for (size_t i = 0; i < paths.size(); i++) {
@@ -234,7 +218,9 @@ static int	findAndExecuteScript(
 	return (1);
 }
 
-static std::vector<std::string>	splitPathVar() {
+static std::vector<std::string>	splitPathVar(
+	void
+) {
 	std::vector<std::string>	paths;
 	std::string					path_var = getenv("PATH");
 
@@ -251,7 +237,7 @@ static std::vector<std::string>	splitPathVar() {
 }
 
 static int	tryExecveScript(
-	const Client& client,
+	Client& client,
 	const std::string binary_name,
 	char *const argv[]
 )
@@ -267,7 +253,7 @@ static int	tryExecveScript(
 }
 
 static void	handle_child(
-	const Client& client,
+	Client& client,
 	const std::string binary_name,
 	char *const argv[],
 	int in_pipe[2],
@@ -279,11 +265,53 @@ static void	handle_child(
 	dup2(out_pipe[1], STDOUT_FILENO);
 	close(in_pipe[0]);
 	close(out_pipe[1]);
-	//std::cout << "executing cgi in child...\n\n";
+	std::cout << "executing cgi in child...\n\n";
 	tryExecveScript(client, binary_name, argv);
-	displayCgiError("CGI script error", "Can't execute script\n");
+	std::cout << "if you see this, there's an error\n"; // delete this
 	exit(1);
 }
+
+//eClientEventResult Server::_handleCgiEvent(int pollFd, int i)
+//{
+//	int clientFd = _activeCgis.at(pollFd).client.getclientFd();
+//	//eServerError err = callCGI(); // this is wehere we check if it;s finished and construct the resposne string,
+//	1. set client status to READY_TO_SEND
+//	2. set clinet response to whatever
+//	if (err != SERVER_OK)
+//	{
+//		closeForNow(fd); //todo:finish
+//		return CLIENT_REMOVED;
+//	}
+//	if (_clients.at(clientFd).getClientState() == HANDLING_CGI_EXTENSION)
+//	{
+//		return CLIENT_KEPT;
+//	}
+//	if (_pollFds[i].revents & POLLOUT)
+//	{
+//		eServerError err = _handleSend(_clients.at(clientFd)); // change client into _activeCgis.at(fd).getClient()
+//		if (err != SERVER_OK)
+//		{
+//			closeForNow(fd);//todo:finish
+//			return CLIENT_REMOVED;
+//		}
+//		if (_clients.at(clientFd).isResponseComplete()) //check if the response is complete
+//		{
+//			std::cout << "Response completely sent to client "
+//					<< fd << std::endl;//todo:finish
+//			closeForNow(fd);//todo:finish
+//			return CLIENT_REMOVED;
+//		}
+//	}
+//	//todo:finish
+//	if (_clients.at(fd).getResponseStatus() && _clients.at(clientFd).getClientState() == READY_TO_SEND) //TODO:check
+//	{
+//		_pollFds[i].events = POLLOUT;
+//		//call close client
+//		return CLIENT_KEPT;
+//	}
+//	return CLIENT_KEPT; //TODO:check later
+//
+//}
 
 static cgi_t	handle_parent(
 	int in_pipe[2],
@@ -312,17 +340,23 @@ std::optional<cgi_t>	executeCGI(
 	int	out_pipe[2];
 
 	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
-		displayCgiError("CGI script error", "Can't create pipe\n");
+		// brr brr errorr
 		return (std::nullopt);
 	}
 	if (pipe2(out_pipe, O_NONBLOCK) != 0) {
 		close(in_pipe[0]);
 		close(in_pipe[1]);
-		displayCgiError("CGI script error", "Can't create pipe\n");
+		// brr brr errorr
 		return (std::nullopt);
 	}
 
+	//cgi_t					newly_created_cgi_request;
+	//newly_created_cgi_request.request_data = &http_instance;
+	//background_cgis.push_back(newly_created_cgi_request);
+
+	//td::tuple<int, size_t>	cgi_response; // @alisa what is this for?
 	cgi_t	cgi;
+	cgi_t	cgi_response_data;
 	char*	argv[] { NULL, NULL, NULL };
 	argv[0] = strdup(PYTHON_EXEC);
 	argv[1] = strdup(PATH_TO_SCRIPT);
@@ -330,11 +364,12 @@ std::optional<cgi_t>	executeCGI(
 
 	int	fork_ret = fork();
 	if (fork_ret < 0) {
-		displayCgiError("CGI script error", "Can't create child process\n");
+		// brr brr errorr
 		return (std::nullopt);
 	}
 	else if (fork_ret == 0) {
-		handle_child(client, PYTHON_EXEC, argv, in_pipe, out_pipe);
+		handle_child(client,
+			   PYTHON_EXEC, argv, in_pipe, out_pipe);
 	}
 	else if (fork_ret > 0) {
 		cgi = handle_parent(in_pipe, out_pipe, fork_ret);
