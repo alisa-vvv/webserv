@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PollEvent.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:50:39 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/28 16:32:20 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/17 22:30:49 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,20 +147,22 @@ eClientEventResult Server::_handleClientEvent(int i)
 			_closeClientFd(fd);
 			return CLIENT_REMOVED;
 		}
-		//if (_clients.at(fd).getResponseStatus() && _clients.at(fd).getHttpClass().getState() == READY_TO_SEND)
-		clientState state = _clients.at(fd).getHttpClass().getState();
-		if (state == HANDLING_CGI_EXTENSION || state == HANDLING_CGI_STATIC)
-		{
-			//startCGI;
-			
-		}
-
 		if (_clients.at(fd).getRecvStatus() == COMPLETE)
 		{
+			clientState state = _clients.at(fd).getHttpClass().getState();
+
 			if (state == READY_TO_SEND)
 				_pollFds[i].events = POLLOUT;
-			if (state == HANDLING_CGI_EXTENSION || state == HANDLING_CGI_STATIC)
-				_pollFds[i].events = 0;	
+			else if (state == HANDLING_CGI_EXTENSION
+				|| state == HANDLING_CGI_STATIC)
+			{
+				if (_startCgi(fd) != SERVER_OK)
+				{
+					_closeClientFd(fd);
+					return CLIENT_REMOVED;
+				}
+				_pollFds[i].events = 0;
+			}
 		}
 	}
 	if (_pollFds[i].revents & POLLOUT)

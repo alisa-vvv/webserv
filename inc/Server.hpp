@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/28 15:56:50 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/17 22:38:39 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ private:
 	std::vector<Listener>		_listeners;
 	std::map<int, Client>		_clients;	// client state, found by client fd
 	std::vector<struct pollfd>	_pollFds;	// the list poll() watches
-	std::map<int, cgi_t>		_activeCgis;
+	std::map<int, cgi_t>		_backgroundCgis;
 	std::map<int, int>			_cgiFdToClientFd;
 
 	void				_buildListener(void);
@@ -74,6 +74,7 @@ private:
 	eServerError		_handleListenerEvent(int i);
 	eClientEventResult	_handleClientEvent(int i);
 	eClientEventResult	_handleCgiEvent(int i);
+	eServerError		_startCgi(int clientFd);
 	eServerError		_handleRecv(int fd);
 	eServerError		_checkRecvBuffer(Client &client);
 	eServerError		_handleSend(Client& client);
@@ -104,7 +105,7 @@ private:
 	const std::map<int, cgi_t>&	getActiveCgis() const;
 	void					_removeActiveCgi(int cgiFd);
 	eClientEventResult		_handleCgiEvent(int fd, int i);
-	void					closeForNow(int fd);
+	void _copyCgiResponse(int cgiFd, int clientFd);
 };
 
 int					setupSignal();

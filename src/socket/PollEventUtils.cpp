@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:55:10 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/17 17:27:13 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/17 23:03:47 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,10 @@ bool Server::_isClientFd(int fd) const
 
 bool Server::_isCgiFd(int fd)
 {
-	if (_isListenerFd(fd) || _isClientFd(fd))
-		return false;
-	return true;
+	// if (_isListenerFd(fd) || _isClientFd(fd))
+	// 	return false;
+	// return true;
+	return _backgroundCgis.find(fd) != _backgroundCgis.end();
 }
 
 eServerError Server::_acceptClients(int serverListenFd)
@@ -108,48 +109,84 @@ void Server::_addListenerFdsToPoll()
 	}
 }
 
-void Server::closeForNow(int fd)
+void Server::_copyCgiResponse(int cgiFd, int clientFd)
 {
-	for (size_t i = 0; i < _pollFds.size(); i++)
-	{
-		if (fd == _pollFds[i].fd)
-		{
-			_pollFds.erase(_pollFds.begin() + i);
-			break;
-		}
-	}
-	close(fd);
+	cgi_t &cgi = _backgroundCgis.at(cgiFd);
+
+	std::string response = buildCGIResponseString(cgi.output_string); // TODO: check if correct with Ally
+
+	_clients.at(clientFd).setResponse(response);
+	_clients.at(clientFd).getHttpClass().setState(READY_TO_SEND);
+	_removeActiveCgi(cgiFd);
 }
+
 
 eClientEventResult Server::_handleCgiEvent(int cgiFd, int i)
 {
-	int clientFd = _cgiFdToClientFd[pollFd];
-	int err = checkCgiDone(_activeCgis.at(pollFd)); // @alisa: I changed this to int cause I don't want to include the Server header in my stuff just fot the error type.
+	int clientFd = _cgiFdToClientFd.at(cgiFd);
 
-	//cgi_t& cgi = _activeCgis.at(poll);
-	if (err == -1)
+	if (_pollFds[i].revents & (POLLERR | POLLNVAL))
 	{
+		std::cerr << "CGI event error! fd: " << cgiFd << std::endl;
+
+		_removeActiveCgi(cgiFd);
 		_closeClientFd(clientFd);
 		return CLIENT_REMOVED;
 	}
-	if (err == 0 && _clients.at(clientFd).getHttpClass().getState() == READY_TO_SEND)
+
+	int isCgiDone = checkCgiDone(_backgroundCgis.at(cgiFd));
+	
+	if (isCgiDone == -1)
 	{
-		
+		_removeActiveCgi(cgiFd);
+		_closeClientFd(clientFd);
+		return CLIENT_REMOVED;
+	}
+	if (isCgiDone == 0) //cgi still running
+	{
+		return CLIENT_KEPT;
 	}
 
-	//if (_clients.at(clientFd).getHttpClass().getState() == READY_TO_SEND)
-	//{
+	//cgi finished and response ready
+	_copyCgiResponse(cgiFd, clientFd);
 
-	//}
-
+	//set client to POLLOUT for sending
+	for (size_t j = 0; j < _pollFds.size(); j++)
+	{
+		if (_pollFds[j].fd == clientFd)
+		{
+			_pollFds[j].events = POLLOUT;
+			break;
+		}
+	}
+	return CLIENT_KEPT;
 }
 
 void Server::_removeActiveCgi(int cgiFd)
 {
 	_removeFdFromPoll(cgiFd);
-	close(cgiFd); //is it implemented on alisa's side?
+	// close(cgiFd); //is it implemented on alisa's side?
 
-	size_t removed = _activeCgis.erase(cgiFd);
+	size_t removed = _backgroundCgis.erase(cgiFd);
 	if (removed == 0)
 		std::cerr << "CGI fd was not found\n";
+	_cgiFdToClientFd.erase(cgiFd);
+}
+
+// std::map<int, cgi_t> _backgroundCgis; // cgiFd -> CGI data
+// std::map<int, int> _cgiFdToClientFd;  // cgiFd -> clientFd
+eServerError Server::_startCgi(int clientFd)
+{
+	Client &client = _clients.at(clientFd);
+
+	std::optional<cgi_t> cgi = executeCGI(client, _backgroundCgis);
+
+	if (!cgi.has_value())
+		return SERVER_CGI_ERR;
+
+	int cgiFd = cgi->output;
+	_cgiFdToClientFd[cgiFd] = clientFd;
+	_addFdToPoll(cgiFd);
+
+	return SERVER_OK;
 }

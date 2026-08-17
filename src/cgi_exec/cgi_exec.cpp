@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                            ::::::::        */
-/*   cgi_exec.cpp                                            :+:    :+:       */
-/*                                                          +:+               */
-/*   By: avaliull <avaliull@student.codam.nl>              +#+                */
-/*                                                        +#+                 */
-/*   Created: 2026/06/25 12:04:11 by avaliull            #+#    #+#           */
-/*   Updated: 2026/07/14 13:00:24 by avaliull            ########   odam.nl   */
+/*                                                        :::      ::::::::   */
+/*   cgi_exec.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/25 12:04:11 by avaliull          #+#    #+#             */
+/*   Updated: 2026/08/17 22:57:54 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ int	gotCGIOutput(
 			close(cgi.input);
 			close(cgi.output);
 		}
-		else if (wait_res < 0) {
+		else if (wait_res < 0) { //Note from Tutku: error here, else never works, if case only returns 1 or 0
 			// brr brr error
 			return (-1);
 		}
@@ -117,11 +117,13 @@ int	checkCgiDone(
 		return (-1);
 	}
 	if (got_output == true) {
-		// check if we need to make setResponse take an actual string and not a reference?
-		std::string	response_string = buildCGIResponseString(cgi.output_string);
-		cgi.client.setResponse(response_string);
-		// THIS will probably look different after the Client/Http debaucle is resolved. check
-		cgi.client.setClientState(READY_TO_SEND);
+		//Note from Tutku: you dont have client in cgi anymore so I commented this part
+		// // check if we need to make setResponse take an actual string and not a reference?
+		// std::string	response_string = buildCGIResponseString(cgi.output_string);
+		// cgi.client.setResponse(response_string);
+		// // THIS will probably look different after the Client/Http debaucle is resolved. check
+		// cgi.client.setClientState(READY_TO_SEND);
+		return 1; //Note from Tutku: it was missing a return
 	}
 	return (0);
 }
@@ -275,7 +277,7 @@ static void	handle_child(
 
 //eClientEventResult Server::_handleCgiEvent(int pollFd, int i)
 //{
-//	int clientFd = _activeCgis.at(pollFd).client.getclientFd();
+//	int clientFd = _backgroundCgis.at(pollFd).client.getclientFd();
 //	//eServerError err = callCGI(); // this is wehere we check if it;s finished and construct the resposne string,
 //	1. set client status to READY_TO_SEND
 //	2. set clinet response to whatever
@@ -290,7 +292,7 @@ static void	handle_child(
 //	}
 //	if (_pollFds[i].revents & POLLOUT)
 //	{
-//		eServerError err = _handleSend(_clients.at(clientFd)); // change client into _activeCgis.at(fd).getClient()
+//		eServerError err = _handleSend(_clients.at(clientFd)); // change client into _backgroundCgis.at(fd).getClient()
 //		if (err != SERVER_OK)
 //		{
 //			closeForNow(fd);//todo:finish

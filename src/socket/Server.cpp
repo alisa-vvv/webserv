@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/28 15:49:09 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/17 21:47:28 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ void Server::_checkClientTimeouts()
 
 const std::map<int, cgi_t>& Server::getActiveCgis() const //TODO:finish
 {
-	return _activeCgis;
+	return _backgroundCgis;
 }
 
 Server::Server(const Config &config) : _config(config)
