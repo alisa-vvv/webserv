@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PollEventUtils.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:55:10 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/28 15:58:45 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/17 17:27:13 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ void Server::closeForNow(int fd)
 	close(fd);
 }
 
-eClientEventResult Server::_handleCgiEvent(int pollFd, int i)
+eClientEventResult Server::_handleCgiEvent(int cgiFd, int i)
 {
 	int clientFd = _cgiFdToClientFd[pollFd];
 	int err = checkCgiDone(_activeCgis.at(pollFd)); // @alisa: I changed this to int cause I don't want to include the Server header in my stuff just fot the error type.
