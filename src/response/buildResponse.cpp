@@ -7,7 +7,7 @@ std::string Http::buildCGIResponseString(std::string cgiResponse)
 	size_t newLine = cgiResponse.find("\r\n"); 
 	std::string startLine = cgiResponse.substr(0, firstSpace);
 	std::string cgiResponseString;
-	if (startLine != "HTTP/1.1" || startLine != "HTTP/1.0")
+	if (startLine != "HTTP/1.1" && startLine != "HTTP/1.0")
 		cgiResponseString = cgiResponse;
 	else
 	{

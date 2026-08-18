@@ -52,16 +52,11 @@ eServerError	Server::_checkRecvBuffer(Client &client)
 	RcvBuffer &bufferObj = client.getRcvBuffer();
 	receiveStatus status = bufferObj.checkStatus();
 
+	client.setRecvStatus(status);
 	if (status == INCOMPLETE)
-	{
-		client.setRecvStatus(status);
 		return SERVER_OK;
-	}
 	if (status == RECV_ERROR)
-	{
-		client.setRecvStatus(status);
 		return SERVER_RECV_ERR;
-	}
 	if (status == COMPLETE)
 	{
 		client.clientHandler(bufferObj.getRecvStr());

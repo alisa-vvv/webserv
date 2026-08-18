@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:04:11 by avaliull          #+#    #+#             */
-/*   Updated: 2026/08/18 10:01:11 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/18 10:31:44 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,21 +32,21 @@
 // root of location + cgi_pass
 
 // t his maybe remove? if not, remove from http class
-std::string buildCGIResponseString(std::string cgiResponse)
-{
-	size_t firstSpace = cgiResponse.find(" ");
-	size_t newLine = cgiResponse.find("\r\n"); 
-	std::string startLine = cgiResponse.substr(0, firstSpace);
-	std::string cgiResponseString;
-	if (startLine != "HTTP/1.1" && startLine != "HTTP/1.0")
-		cgiResponseString = cgiResponse;
-	else
-	{
-		cgiResponseString += "HTTP/1.1 200 OK\r\n";
-		cgiResponseString += cgiResponse.substr(newLine + 2);
-	}
-	return cgiResponseString;
-}
+//static std::string buildCGIResponseString(std::string cgiResponse)
+//{
+//	size_t firstSpace = cgiResponse.find(" ");
+//	size_t newLine = cgiResponse.find("\r\n"); 
+//	std::string startLine = cgiResponse.substr(0, firstSpace);
+//	std::string cgiResponseString;
+//	if (startLine != "HTTP/1.1" && startLine != "HTTP/1.0")
+//		cgiResponseString = cgiResponse;
+//	else
+//	{
+//		cgiResponseString += "HTTP/1.1 200 OK\r\n";
+//		cgiResponseString += cgiResponse.substr(newLine + 2);
+//	}
+//	return cgiResponseString;
+//}
 
 static void	cgi_bzero(
 	char* path,
@@ -128,20 +128,20 @@ int	checkCgiDone(
 	return (0);
 }
 
-static const std::string match_method_to_string(
-	httpMethod	method
-) {
-	switch (method) {
-		case GET:
-			return ("GET");
-		case POST:
-			return ("POST");
-		case DELETE:
-			return ("DELETE");
-		case UNKNOWN:
-			return ("UNKNOWN");
-	}
-}
+//static const std::string match_method_to_string(
+//	httpMethod	method
+//) {
+//	switch (method) {
+//		case GET:
+//			return ("GET");
+//		case POST:
+//			return ("POST");
+//		case DELETE:
+//			return ("DELETE");
+//		case UNKNOWN:
+//			return ("UNKNOWN");
+//	}
+//}
 	/*	These are things we're most likely not going to have. Putting them here in case */
 //"HTTP_COOKIE=", we don't have cookies
 //"HTTP_HOST=", // all these http related ones seem to be out of scope for us
@@ -155,46 +155,46 @@ static const std::string match_method_to_string(
 //"REQUEST_URI=", not sure what this is, we might need it?
 //"SCRIPT_FILENAME=", same as above
 
-static char**	constructEnvironment(
-	const Client& client
-) {
-	const Http&	request_data = client.getHttpClass();
-	const cfg_server_t&	server_config = *request_data.requestConfig.server;
-	const t_location&	location = *request_data.requestConfig.location;
-	std::string	request_uri = request_data.getReceivedUri();
-	std::string	query_string;
-	size_t		query_string_start = query_string.find_first_of('?') + 1;
-	if (query_string_start != std::string::npos) {
-		query_string = request_uri.substr(query_string_start + 1, request_uri.back());
-	}
-	std::vector<std::string>	vars = {
-		"DOCUMENT_ROOT=" + server_config.root, // root directory of the server
-		"PATH=" + (std::string) (getenv("PATH")), // CHECK THIS
-		"QUERY_STRING=" + query_string,
-		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
-		"REQUEST_URI=" + request_data.getReceivedUri(),
-		// FIX BELOW!!!
-		"SCRIPT_FILENAME=" + location.cgi_pass.path,  // path to the script (absolute)
-		"SCRIPT_NAME=" + location.cgi_pass.path, // path to the script we're executing relative to root
-		"SERVER_NAME=" + server_config.server_names[0],
-		"SERVER_PORT=" + std::to_string(server_config.ports.at(0)),
-		"SERVER_SOFTWARE=webserv",
-	};
+//static char**	constructEnvironment(
+//	const Client& client
+//) {
+//	const Http&	request_data = client.getHttpClass();
+//	const cfg_server_t&	server_config = *request_data.requestConfig.server;
+//	const t_location&	location = *request_data.requestConfig.location;
+//	std::string	request_uri = request_data.getReceivedUri();
+//	std::string	query_string;
+//	size_t		query_string_start = query_string.find_first_of('?') + 1;
+//	if (query_string_start != std::string::npos) {
+//		query_string = request_uri.substr(query_string_start + 1, request_uri.back());
+//	}
+//	std::vector<std::string>	vars = {
+//		"DOCUMENT_ROOT=" + server_config.root, // root directory of the server
+//		"PATH=" + (std::string) (getenv("PATH")), // CHECK THIS
+//		"QUERY_STRING=" + query_string,
+//		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
+//		"REQUEST_URI=" + request_data.getReceivedUri(),
+//		// FIX BELOW!!!
+//		"SCRIPT_FILENAME=" + location.cgi_pass.path,  // path to the script (absolute)
+//		"SCRIPT_NAME=" + location.cgi_pass.path, // path to the script we're executing relative to root
+//		"SERVER_NAME=" + server_config.server_names[0],
+//		"SERVER_PORT=" + std::to_string(server_config.ports.at(0)),
+//		"SERVER_SOFTWARE=webserv",
+//	};
 
-	char**	env = new char*[vars.size() + 1];
-	std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
-	for (size_t i = 0; i < vars.size(); i++) {
-		std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
-		const std::string&	cur_string = vars.at(i);
-		env[i] = new char[cur_string.size() + 1];
-		for (size_t j = 0; j < cur_string.size(); j++) {
-			env[i][j] = cur_string.at(j);
-		}
-		env[i][cur_string.size()] = '\0';
-	}
-	env[vars.size()] = NULL;
-	return (env);
-}
+//	char**	env = new char*[vars.size() + 1];
+//	std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
+//	for (size_t i = 0; i < vars.size(); i++) {
+//		std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
+//		const std::string&	cur_string = vars.at(i);
+//		env[i] = new char[cur_string.size() + 1];
+//		for (size_t j = 0; j < cur_string.size(); j++) {
+//			env[i][j] = cur_string.at(j);
+//		}
+//		env[i][cur_string.size()] = '\0';
+//	}
+//	env[vars.size()] = NULL;
+//	return (env);
+//}
 
 static int	findAndExecuteScript(
 	const Client& client,
@@ -358,7 +358,7 @@ std::optional<cgi_t>	executeCGI(
 	//newly_created_cgi_request.request_data = &http_instance;
 	//background_cgis.push_back(newly_created_cgi_request);
 
-	std::tuple<int, size_t>	cgi_response;
+	//std::tuple<int, size_t>	cgi_response;
 	cgi_t	cgi;
 	cgi_t	cgi_response_data;
 	char*	argv[] { NULL, NULL, NULL };

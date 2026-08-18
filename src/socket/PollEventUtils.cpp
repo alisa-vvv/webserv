@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PollEventUtils.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:55:10 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/17 23:03:47 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/18 11:31:56 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,8 @@ void Server::_copyCgiResponse(int cgiFd, int clientFd)
 {
 	cgi_t &cgi = _backgroundCgis.at(cgiFd);
 
-	std::string response = buildCGIResponseString(cgi.output_string); // TODO: check if correct with Ally
+	std::string response = _clients.at(clientFd).getHttpClass().buildCGIResponseString(cgi.output_string);
+
 
 	_clients.at(clientFd).setResponse(response);
 	_clients.at(clientFd).getHttpClass().setState(READY_TO_SEND);

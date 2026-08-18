@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/08/17 22:38:39 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/18 10:29:14 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 #include "Client.hpp"
 #include "Listener.hpp"
 #include "configParser.hpp"
+#include "Http.hpp"
+#include "cgi_exec.hpp"
+
 
 #define SUCCESS 0
 #define ERROR -1
