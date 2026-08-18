@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PollEvent.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:50:39 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/17 22:30:49 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/18 09:38:26 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,6 @@ eServerError Server::_pollEvents()
 			eClientEventResult clientClosed = _handleCgiEvent(fd, i);
 			if (clientClosed == CLIENT_KEPT)
 				i++; 
-			i++;
 		}
 		else
 		{

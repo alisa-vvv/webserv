@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi_exec.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:04:11 by avaliull          #+#    #+#             */
-/*   Updated: 2026/08/17 22:57:54 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/18 10:01:11 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,13 @@
 // root of location + cgi_pass
 
 // t his maybe remove? if not, remove from http class
-static std::string buildCGIResponseString(std::string cgiResponse)
+std::string buildCGIResponseString(std::string cgiResponse)
 {
 	size_t firstSpace = cgiResponse.find(" ");
 	size_t newLine = cgiResponse.find("\r\n"); 
 	std::string startLine = cgiResponse.substr(0, firstSpace);
 	std::string cgiResponseString;
-	if (startLine != "HTTP/1.1" || startLine != "HTTP/1.0")
+	if (startLine != "HTTP/1.1" && startLine != "HTTP/1.0")
 		cgiResponseString = cgiResponse;
 	else
 	{
@@ -156,7 +156,7 @@ static const std::string match_method_to_string(
 //"SCRIPT_FILENAME=", same as above
 
 static char**	constructEnvironment(
-	const Client& client,
+	const Client& client
 ) {
 	const Http&	request_data = client.getHttpClass();
 	const cfg_server_t&	server_config = *request_data.requestConfig.server;
@@ -377,7 +377,7 @@ std::optional<cgi_t>	executeCGI(
 	}
 	else if (fork_ret > 0) {
 		cgi = handle_parent(in_pipe, out_pipe, fork_ret);
-		cgi.client = client;
+		//cgi.client = client; //commented by tutku
 		background_cgis.insert( {cgi.output, cgi} );
 	}
 	{	// this block is, essentially, what we need to do in the listen loop.

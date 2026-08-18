@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:25 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/28 12:47:16 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/18 09:52:16 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ class Client
 		const Listener*				getListenerClass() const;
 		int 						getClientFd() const;
 		Http						&getHttpClass();
+		const Http					&getHttpClass() const;
 
 		/* ============================== SETTERS ============================== */
 		void						setLastActivity(time_point<system_clock> lastActivity);

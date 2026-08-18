@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 15:41:18 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/28 11:13:38 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/18 09:51:29 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,11 @@ int Client::getClientFd() const
 }
 
 Http &Client::getHttpClass()
+{
+	return _http;
+}
+
+const Http &Client::getHttpClass() const
 {
 	return _http;
 }
