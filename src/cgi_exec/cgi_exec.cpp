@@ -294,6 +294,7 @@ std::optional<cgi_t>	executeCGI(
 	int	in_pipe[2];
 	int	out_pipe[2];
 
+	std::cout << GREEN << "Started CGI execution\n" << RESET;
 	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
 		// brr brr errorr
 		return (std::nullopt);
