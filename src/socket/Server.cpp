@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 11:15:22 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/17 21:47:28 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,18 +29,12 @@ eServerError Server::setup(void)
 		if (errListenerSetup != LISTENER_OK)
 		{
 			closeListeners();
-			//TODO: also close the socket for according port
 			return SERVER_LISTENER_SETUP_ERR;
 		}
 	}
 	return SERVER_OK;
 }
 
-/*
-add every listening socket fd to _pollFds
-
-
-*/
 eServerError Server::run()
 {
 	eServerError err;
@@ -59,150 +53,30 @@ eServerError Server::run()
 	return SERVER_OK;
 }
 
-/*
-Wait for something to happen on any fd in _pollFds.
-int poll(struct pollfd *fds, nfds_t nfds, int timeout);
-poll() tells you which fd is ready to do something.
-poll() only fills revents inside existing _pollFds
-
-This function does not normally return until:
-	- Ctrl-C (gStop = 1)/ SIGINT
-	- SIGTERM
-	- poll/listener error
-
-_pollFds contains:
-	- all listener FDs
-	- all currently connected client FDs
-
-POLLIN There is data to read -> a new client is trying to connect
-POLLHUP means the socket is no longer connected
-
-listener FDs → new connections
-client FDs   → incoming requests or writable sockets
-*/
-eServerError Server::_initPollEvent()
+void Server::_checkClientTimeouts()
 {
-	int pollFdCount;
+	std::map<int, Client>::iterator it = _clients.begin();
 
-	while (gStop == 0)
+	while (it != _clients.end())
 	{
-		pollFdCount = poll(_pollFds.data(), _pollFds.size(), 1000);
-
-		if (pollFdCount == ERROR)
-		{
-			if (errno == EINTR) // if a signal interrupts poll
-			{
-				if (gStop == 1)
-					break;
-				continue; // poll should start again
-			}
-			std::cerr << "poll() failed: " << std::strerror(errno) << std::endl;
-			return SERVER_POLL_ERR;
-		}
-		if (pollFdCount == 0) // 1 sec poll timeout
-		{
-			// TODO: check inactive client timeouts here
-			continue;
-		}
-		// call function _handlePollEvents();
-
-		if (pollFdCount > 0)
-		{
-			eServerError err;
-
-			err = _pollEvents();
-			if (err != SERVER_OK)
-				return err;
-		}
-		//_checkTimeouts();
-	}
-	return SERVER_OK;
-}
-
-eServerError Server::_pollEvents()
-{
-	eServerError err;
-	size_t i = 0;
-
-	while (i < _pollFds.size())
-	{
-		int fd = _pollFds[i].fd;
-
-		if (_pollFds[i].revents == 0)
-		{
-			i++;
-			continue;
-		}
+		const int clientFd = it->first;
+		const time_point<system_clock> lastActivity = it->second.getLastActivity();
 		
-		printPollInfo(i); // test
-
-		if (_isListenerFd(fd))
+		it++;
+		if (checkTimeOut(lastActivity, DEFAULT_TIMEOUT_S))
 		{
-			err = _handleListenerEvent(i);
-			if (err != SERVER_OK)
-				return err;
-			i++;
+			std::cout << "Client with fd "
+						<< clientFd
+						<< " timed out"
+						<< std::endl;
+			_closeClientFd(clientFd);
 		}
-		else
-		{
-			eClientEventResult clientClosed = _handleClientEvent(i);
-			if (clientClosed == CLIENT_KEPT)
-				i++;
-		}
-		//_checkTimeouts(); //TODO
 	}
-	return SERVER_OK;
 }
 
-// this listenerfd can accept new connections
-eServerError Server::_handleListenerEvent(int i)
+const std::map<int, cgi_t>& Server::getActiveCgis() const //TODO:finish
 {
-	eServerError err;
-	int fd = _pollFds[i].fd;
-
-	if (_pollFds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
-	{
-		std::cerr << "Listening socket error on fd " << fd << std::endl;
-		return SERVER_POLL_ERR;
-	}
-
-	if (_pollFds[i].revents & POLLIN)
-	{
-		err = _acceptClients(fd);
-		if (err != SERVER_OK)
-			return err;
-	}
-	return SERVER_OK;
-}
-
-eClientEventResult Server::_handleClientEvent(int i)
-{
-	int fd = _pollFds[i].fd;
-
-	if (_pollFds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
-	{
-		_closeClientFd(fd);
-		return CLIENT_REMOVED;
-	}
-	if (_pollFds[i].revents & POLLIN)
-	{
-		eServerError err = _handleRecv(fd);
-		if (err != SERVER_OK)
-		{
-			_closeClientFd(fd);
-			return CLIENT_REMOVED; //client removed
-		}
-	}
-	if (_pollFds[i].revents & POLLOUT)
-	{
-		return CLIENT_KEPT;
-		// eServerError err = _handleSend(fd);
-		// if (err != SERVER_OK)
-		// {
-		// 	//TODO:finish
-		// }
-	}
-	return CLIENT_KEPT;
+	return _backgroundCgis;
 }
 
 Server::Server(const Config &config) : _config(config)
@@ -212,18 +86,3 @@ Server::Server(const Config &config) : _config(config)
 Server::~Server()
 {
 }
-
-// Server &Server::operator= (const Server &other)
-// {
-// 	if (this != &other)
-// 	{
-// 		this->_fd = other._fd;
-// 		this->_address = other._address;
-// 	}
-// 	return (*this);
-// }
-
-// Server::Server(const Server &other)
-// {
-// 	*this = other;
-// }

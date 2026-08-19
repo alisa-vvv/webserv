@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 19:57:27 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 11:08:58 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/07/22 14:58:52 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ int main (int argc, char *argv[])
 		return (1);
 	}
 	server.closeListeners();
-	std::cout << "Socket created, started listening" << std::endl;
 	return (0);
 }
 

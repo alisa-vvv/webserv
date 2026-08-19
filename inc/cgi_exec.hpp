@@ -1,19 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                            ::::::::        */
-/*   cgi_exec.hpp                                            :+:    :+:       */
-/*                                                          +:+               */
-/*   By: avaliull <avaliull@student.codam.nl>              +#+                */
-/*                                                        +#+                 */
-/*   Created: 2026/06/25 13:00:51 by avaliull            #+#    #+#           */
-/*   Updated: 2026/07/14 12:47:59 by avaliull            ########   odam.nl   */
+/*                                                        :::      ::::::::   */
+/*   cgi_exec.hpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/25 13:00:51 by avaliull          #+#    #+#             */
+/*   Updated: 2026/08/18 11:30:41 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <optional>
-#include "Http.hpp"
 #include "Client.hpp"
 
 // might mvoe this declaration elsewhere, still confused about our scturcuture

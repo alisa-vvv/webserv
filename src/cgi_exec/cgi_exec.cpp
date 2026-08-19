@@ -1,20 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                            ::::::::        */
-/*   cgi_exec.cpp                                            :+:    :+:       */
-/*                                                          +:+               */
-/*   By: avaliull <avaliull@student.codam.nl>              +#+                */
-/*                                                        +#+                 */
-/*   Created: 2026/06/25 12:04:11 by avaliull            #+#    #+#           */
-/*   Updated: 2026/07/14 13:00:24 by avaliull            ########   odam.nl   */
+/*                                                        :::      ::::::::   */
+/*   cgi_exec.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/25 12:04:11 by avaliull          #+#    #+#             */
+/*   Updated: 2026/08/18 10:31:44 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cgi_exec.hpp"
 #include "configParser.hpp"
 #include "Timer.hpp"
-//#include "Http.hpp"
-//#include "Client.hpp"
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstdlib>
@@ -90,7 +88,7 @@ int	gotCGIOutput(
 			close(cgi.input);
 			close(cgi.output);
 		}
-		else if (wait_res < 0) {
+		else if (wait_res < 0) { //Note from Tutku: error here, else never works, if case only returns 1 or 0
 			// brr brr error
 			return (-1);
 		}
@@ -198,8 +196,7 @@ static int	findAndExecuteScript(
 	const std::string binary_name,
 	char *const argv[],
 	std::vector<std::string> paths
-)
-{
+) {
 	std::string 	slash_arg;
 	char			path[PATH_MAX];	
 	(void) client;
@@ -270,48 +267,6 @@ static void	handle_child(
 	std::cout << "if you see this, there's an error\n"; // delete this
 	exit(1);
 }
-
-//eClientEventResult Server::_handleCgiEvent(int pollFd, int i)
-//{
-//	int clientFd = _activeCgis.at(pollFd).client.getclientFd();
-//	//eServerError err = callCGI(); // this is wehere we check if it;s finished and construct the resposne string,
-//	1. set client status to READY_TO_SEND
-//	2. set clinet response to whatever
-//	if (err != SERVER_OK)
-//	{
-//		closeForNow(fd); //todo:finish
-//		return CLIENT_REMOVED;
-//	}
-//	if (_clients.at(clientFd).getClientState() == HANDLING_CGI_EXTENSION)
-//	{
-//		return CLIENT_KEPT;
-//	}
-//	if (_pollFds[i].revents & POLLOUT)
-//	{
-//		eServerError err = _handleSend(_clients.at(clientFd)); // change client into _activeCgis.at(fd).getClient()
-//		if (err != SERVER_OK)
-//		{
-//			closeForNow(fd);//todo:finish
-//			return CLIENT_REMOVED;
-//		}
-//		if (_clients.at(clientFd).isResponseComplete()) //check if the response is complete
-//		{
-//			std::cout << "Response completely sent to client "
-//					<< fd << std::endl;//todo:finish
-//			closeForNow(fd);//todo:finish
-//			return CLIENT_REMOVED;
-//		}
-//	}
-//	//todo:finish
-//	if (_clients.at(fd).getResponseStatus() && _clients.at(clientFd).getClientState() == READY_TO_SEND) //TODO:check
-//	{
-//		_pollFds[i].events = POLLOUT;
-//		//call close client
-//		return CLIENT_KEPT;
-//	}
-//	return CLIENT_KEPT; //TODO:check later
-//
-//}
 
 static cgi_t	handle_parent(
 	int in_pipe[2],

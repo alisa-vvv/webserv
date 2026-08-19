@@ -5,7 +5,7 @@
 /*======CONSTRUCTOR======*/
 
 Http::Http()
-	: _state(PARSING)
+	: _state(START)
 	, _method(UNKNOWN)
 	, _version(INVALID)
 	, _statusCode(0)
@@ -55,14 +55,16 @@ int Http::getStatusCode() const {
 	return (_statusCode);
 }
 
-/// @brief get the response string ready for client use
-/// @return 
 std::string Http::getResponseString() const {
 	return _responseString;
 }
 
 bool Http::getExtension() const {
 	return (_hasExtension);
+}
+
+std::uintmax_t	Http::getClientMaxBodySize(){
+	return _clientMaxBodySize;
 }
 
 /*======SETTERS======*/
@@ -84,24 +86,34 @@ void Http::setResponseHeader(const std::string &key, const std::string &value) {
 	this->_responseHeaders.insert({key, value});
 }
 
+//assign from built uri
 void Http::setBody() {
 	std::string file = this->_builtUri;
 	std::ifstream fileStream(file, std::ios::binary);
 	if (!fileStream.is_open())
+	{
+		printError("setBody fails","setBody", NOT_VAR);
 		return setResponseCode(HTTP_FORBIDDEN);
+	}
 	std::string body((std::istreambuf_iterator<char>(fileStream)),
 			std::istreambuf_iterator<char>());
 	this->_body = body;
 }
 
+//assign from filepath
 void Http::setBody(const std::string uri) {
-	if (uri.empty())
+	std::string resolvedUri = resolveUri(uri);
+	if (resolvedUri.empty())
+	{
+		printError("resolvedUri Empty", "setBody(std::string)", NOT_VAR);
 		this->_body = "";
+	}
 	else
 	{
-		std::ifstream fileStream(uri, std::ios::binary);
+		std::ifstream fileStream(resolvedUri, std::ios::binary);
 		if (!fileStream.is_open())
 		{
+			printError("Cannot open", "setBody", NOT_VAR);
 			this->_body = "";
 			return;
 		}
@@ -117,6 +129,16 @@ void Http::setState(clientState state) {
 
 void Http::setExtension(bool status) {
 	this->_hasExtension = status;
+}
+
+void Http::setClientMaxBodySize(){
+	this->_clientMaxBodySize = static_cast<std::uintmax_t>(requestConfig.server->client_max_body_size) * 1024u * 1024u;
+}
+
+/// @brief direct assignment
+/// @param body 
+void Http::setRawBody(const std::string &body) {
+	this->_body = body;
 }
 
 /*======UTILS======*/
@@ -140,7 +162,7 @@ void Http::debugPrintRequestConfig()
 	const cfg_server_t *server = requestConfig.server;
 	const t_location *location = requestConfig.location;
 	size_t serverNameCount = server->server_names.size();
-	std::cout << "=== Context Request Config ====" << std::endl;
+	std::cout << GREEN << "=== START Context Request Config ====" << RESET << std::endl;
 	std::cout << "============ SERVER ===========" << std::endl;
 	std::cout << std::endl << "===============================" << std::endl;
 	for (size_t i = 0; i < serverNameCount; i++)
@@ -153,8 +175,7 @@ void Http::debugPrintRequestConfig()
 	std::cout << "Autoindex: " << server->autoindex << std::endl;
 	for (const auto& [code, link] : server->error_pages)
 		std::cout << "Error page status: " << code << std::endl << "Error page link: " << link << std::endl;
-	std::cout << std::endl << "===============================" << std::endl << std::endl;
-
+		
 	std::cout << "============ LOCATION ===========" << std::endl;
 
 	std::cout << "Prefix: " << location->prefix << std::endl;
@@ -171,6 +192,8 @@ void Http::debugPrintRequestConfig()
 	std::cout << "Return code: " << location->returns.code << std::endl;
 	if (location->returns.code)
 		std::cout << "Return target: " << location->returns.target << std::endl;
+	std::cout << GREEN << "=== FINISH Context Request Config ====" << RESET << std::endl;
+
 }
 
 
@@ -188,5 +211,18 @@ void Http::debugPrintHttpClassAttributes()
 	std::cout << "Extension: " << getExtension() << std::endl;
 	std::cout << "ReceivedUri: " << getReceivedUri() << std::endl;
 	std::cout << "BuiltUri: " << getBuiltUri() << std::endl;
-	std::cout << "Content type: " << getContentTypeExtension(getHeader("Content-Type")) << std::endl;
+	std::cout << "Content type: " << getContentTypeExtension(getHeader("content-type")) << std::endl;
 }
+
+/// @brief print errors, which we do not have in this bea
+/// @param error or the variable name in string
+/// @param functName or the variable
+/// @param isVar 
+void Http::printError(std::string error, std::string functName, bool isVar)
+{
+	if (isVar)
+		std::cout << RED << "Printing variable " << error << ": " << RESET << functName << std::endl;
+	else 
+		std::cout << RED << "Error: " << error << " on function " << RESET << functName << std::endl;
+}
+

@@ -8,7 +8,7 @@ h1 {
 }
 
 #title {
-	color: antiquewhite;
+	color: #D46D25;
 	text-decoration: none;
 }
 
@@ -18,34 +18,46 @@ h2 {
 	font-size: large;
 }
 
-#header-info {
+#header {
 	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
+	flex-direction: row;
+	/* align-items: flex-start; */
 	align-self: flex-start;
 	margin-left: 10px;
 }
 
-#made-by {
+#navigation {
+	display: flex;
+	flex-direction: row;
+	align-self: flex-end;
+	padding: 10px;
+}
+
+/* #made-by {
 	margin-top: 0;
 	font-size: medium;
 	margin-left: 0;
-}
+} */
 
-#read-me {
+#nav-link {
 	margin-top: 0;
 	font-size: medium;
 	margin-left: 0;
 	text-decoration: none;
-	color: antiquewhite;
+	color: rgb(0, 0, 0);
+	padding: 10px;
+	border: #6c3005;
+	border-width: 3px;
+	border-style: solid;
+	padding: 10px;
 }
 
-#read-me.button:hover {
+#nav-link.button:hover {
 	cursor: pointer;
 }
 
 body {
-	background-color: rgb(49, 49, 49);
+	background-color: #A4B885;
 	color: antiquewhite;
 	display: flex;
 	flex-direction: column;
@@ -55,21 +67,86 @@ body {
 	margin: 0;
 }
 
-.button {
-	height: 10vh;
-	width: 60vh;
-	border-radius: 5px;
-	padding: 2px;
-	margin: 0;
-	background-color: cornflowerblue;
-	font-size: small;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+.uploadButton {
+	display: inline-block;
+	width: fit-content;
+	cursor: pointer;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
-.button:hover {
-	scale: 105%;
+.uploadButton:hover {
+	transform: scale(1.05);
 	cursor: pointer;
 }
 
+.showClass {
+	display: block;
+}
+
+.hideClass {
+	display: none;
+}
+
+
+/* button */
+.btn-55,
+.btn-55 *,
+.btn-55 :after,
+.btn-55 :before,
+.btn-55:after,
+.btn-55:before {
+	border: 0 solid;
+	box-sizing: border-box;
+}
+
+.btn-55:disabled {
+	cursor: default;
+}
+
+.btn-55:-moz-focusring {
+	outline: auto;
+}
+
+.btn-55 svg {
+	display: block;
+	vertical-align: middle;
+}
+
+.btn-55 [hidden] {
+	display: none;
+}
+
+.btn-55 {
+	background: linear-gradient(90deg, #FDC086, #FFF6A1);
+	border-radius: 999px;
+	box-sizing: border-box;
+	color: #D46D25;
+	display: block;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	font-weight: 900;
+	overflow: hidden;
+	padding: 1.8rem 5rem;
+	position: relative;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+
+.btn-55 span {
+	background: #1e293b;
+	border-radius: 999px;
+	color: #fff;
+	display: grid;
+	inset: 5px;
+	place-items: center;
+	position: absolute;
+	transition: background 0.3s;
+}
+
+.btn-55:hover span {
+	background: none;
+}
+
+.btn-55:hover  {
+	scale: 105%;
+	cursor: pointer;
+}

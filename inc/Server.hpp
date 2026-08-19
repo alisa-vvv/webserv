@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/17 13:25:23 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/18 10:29:14 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,13 @@
 #include "Client.hpp"
 #include "Listener.hpp"
 #include "configParser.hpp"
+#include "Http.hpp"
+#include "cgi_exec.hpp"
+
 
 #define SUCCESS 0
 #define ERROR -1
+#define POLL_TIMEOUT_MS 1000
 
 extern volatile sig_atomic_t	gStop;
 
@@ -27,12 +31,15 @@ enum eServerError
 	SERVER_OK = 0,
 	SERVER_CONFIG_ERR,
 	SERVER_LISTENER_SETUP_ERR,
+	SERVER_LISTENER_NOT_FOUND_ERR,
 	SERVER_POLL_ERR,
 	SERVER_ACCEPT_ERR,
 	SERVER_SETNONBLOCKING_ERR,
 	SERVER_RECV_ERR,
 	SERVER_CLIENT_CLOSED,
 	SERVER_TIMEOUT_ERR,
+	SERVER_SEND_ERR,
+	SIGACTION_ERR,
 	SERVER_CGI_ERR
 };
 
@@ -49,12 +56,17 @@ private:
 	std::vector<Listener>		_listeners;
 	std::map<int, Client>		_clients;	// client state, found by client fd
 	std::vector<struct pollfd>	_pollFds;	// the list poll() watches
+	std::map<int, cgi_t>		_backgroundCgis;
+	std::map<int, int>			_cgiFdToClientFd;
 
 	void				_buildListener(void);
 	void				_addFdToPoll(int fd);
 	void				_addListenerFdsToPoll();
 	
-	int					_isListenerFd(int fd) const;
+	bool				_isListenerFd(int fd) const;
+	bool				_isClientFd(int fd) const;
+	bool				_isCgiFd(int fd);
+
 	const Listener*		_findListenerByFd(int fd);
 	
 	Server(const Server &other);
@@ -64,30 +76,39 @@ private:
 	eServerError		_pollEvents();
 	eServerError		_handleListenerEvent(int i);
 	eClientEventResult	_handleClientEvent(int i);
+	eClientEventResult	_handleCgiEvent(int i);
+	eServerError		_startCgi(int clientFd);
 	eServerError		_handleRecv(int fd);
-	eServerError		_handleSend(Client client, std::string response);
+	eServerError		_checkRecvBuffer(Client &client);
+	eServerError		_handleSend(Client& client);
 
 	eServerError		_acceptClients(int serverListenFd);
 	eServerError		_setNonBlocking(int fd);
-	void				_checkTimeouts(); //TODO:finish
+	void				_checkClientTimeouts();
+
 
 	void				_closeClientFd(int fd);
 	void				_closeClients();
 	void				_closeAll();
+	void				_removeFdFromPoll(int fd);
 	
 	public:
 	Server(const Config &config);
 	~Server();
 	
-	eServerError	setup(void);
-	eServerError	run();
-	int				matchConfig(uint32_t ip, int port, const cfg_server_t &serverConfig);
+	eServerError		setup(void);
+	eServerError		run();
+	int					matchConfig(uint32_t ip, int port, const cfg_server_t &serverConfig);
 	
-	void			closeListeners();
+	void				closeListeners();
 
 	//test
-	void			printPollInfo(int i);
+	void					printPollInfo(int i);
 	
+	const std::map<int, cgi_t>&	getActiveCgis() const;
+	void					_removeActiveCgi(int cgiFd);
+	eClientEventResult		_handleCgiEvent(int fd, int i);
+	void _copyCgiResponse(int cgiFd, int clientFd);
 };
 
 int					setupSignal();

@@ -6,7 +6,7 @@
 #    By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/22 19:01:25 by avaliull          #+#    #+#              #
-#    Updated: 2026/07/17 13:02:18 by tcakir-y         ###   ########.fr        #
+#    Updated: 2026/07/28 11:14:48 by tcakir-y         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,8 +28,8 @@ CXXFILES	=	$(CXXFILES_PARSER)\
 				$(HTTP_PARSER)\
 				$(RESPONSE_BUILDER)\
 				$(CXXFILES_SOCKET)\
-				$(CXXFILES_CGI)\
-				$(MAIN)
+				$(MAIN)\
+ 				$(CXXFILES_CGI)
 
 CXXFILES_PARSER	=	configParser.cpp\
 					configParserTEST.cpp\
@@ -63,7 +63,10 @@ CXXFILES_SOCKET =	Server.cpp\
 					Listener.cpp\
 					ListenerDebug.cpp\
 					RcvUtils.cpp\
-					RcvBuffer.cpp
+					RcvBuffer.cpp\
+					PollEvent.cpp\
+					PollEventUtils.cpp\
+					ServerCleanup.cpp
 		
 MAIN =				main.cpp
 
@@ -105,7 +108,7 @@ INCFLAGS	= $(addprefix -I,$(INCLUDE))
 CFLAGS	= -Wall -Wextra -Werror -std=c++20
 DEBUG_FLAGS	= -g
 LDFLAGS	=
-INPUT	= config/test.conf
+INPUT	= config/www.conf
 MAKEFLAGS += -j --no-print-directory
 
 

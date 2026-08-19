@@ -1,11 +1,11 @@
 #include "../../inc/Http.hpp"
+#include "../../inc/Listener.hpp"
 #include <map>
 
 /// @brief  looks for the host in given servers
 /// @param listener 
 /// @return returns the index of the config with host match. returns -1 if no match
 
-// commented out by alisa
 int Http::findRequestConfig(const Listener *listener)
 {
 	std::string host = getHeader("host");
@@ -78,4 +78,5 @@ void Http::setRequestConfig(const Listener *listener)
 	if (!bestMatch)
 		bestMatch = &server->locations[0];
 	requestConfig.location = bestMatch;
+	setClientMaxBodySize();
 }

@@ -55,6 +55,8 @@ map
 	https://www.w3schools.com/cpp/cpp_maps.asp
 how to delete from a map
 	https://www.geeksforgeeks.org/cpp/map-erase-function-in-c-stl/
+how to iterate in a map
+	https://stackoverflow.com/questions/26281979/how-do-you-loop-through-a-stdmap
 
 enums for error handling
 https://www.w3schools.com/cpp/cpp_enum.asp
@@ -66,7 +68,36 @@ https://www.geeksforgeeks.org/cpp/vector-erase-in-cpp-stl/
 signals
 https://pubs.opengroup.org/onlinepubs/009695399/functions/sigaction.html
 
+static cast
+https://www.geeksforgeeks.org/cpp/static_cast-in-cpp/
 
 https://beej.us/guide/bgnet/html/split/system-calls-or-bust.html#connect
 https://medium.com/@ahmadesekak/setting-up-a-server-using-c-sockets-124e404593c9
 https://oneuptime.com/blog/post/2026-03-20-non-blocking-tcp-socket-c/view#:~:text=Switch%20a%20socket%20to%20non,a%20signal%20to%20retry%20later.
+
+how to add an upload button
+https://www.geeksforgeeks.org/html/how-to-create-a-file-upload-button-in-html/
+https://www.w3schools.com/jsref/met_document_addeventlistener.asp
+https://www.w3schools.com/howto/howto_html_file_upload_button.asp
+https://www.youtube.com/watch?v=60HBT2BJRhE
+https://www.w3schools.com/jsref/prop_style_display.asp
+
+how to upload a file to the server
+https://www.youtube.com/watch?v=iAxUpo0aJSk
+https://www.w3schools.com/howto/howto_html_file_upload_button.asp
+
+buttons
+https://github.com/youneslaaroussi/ui-buttons
+https://www.geeksforgeeks.org/html/how-to-create-a-file-upload-button-in-html/
+
+submit html form without reloading
+https://www.youtube.com/watch?v=62bpwPC1yjY
+
+css
+https://www.w3schools.com/jsref/prop_style_display.asp
+
+eventListener
+https://www.w3schools.com/jsref/met_document_addeventlistener.asp
+
+getElementById
+https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById

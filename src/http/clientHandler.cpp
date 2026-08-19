@@ -1,49 +1,74 @@
 #include "../../inc/Http.hpp"
+#include "Colors.hpp"
+#include "Client.hpp"
 
-static int checkState(Http client)
+static int checkState(Http &http)
 {
-	if (client.getState() == CLIENT_ERROR)
+	if (http.getState() == CLIENT_ERROR)
 	{
-		client.buildResponse();
+		http.buildResponse();
+		http.printError("Built response in check state", http.getResponseString(), IS_VAR);
+		http.setState(READY_TO_SEND);
 		return 0;
 	}
 	return 1;
 }
 
-static int checkCgi(Http client)
-{
-	if (client.getState() == HANDLING_CGI_EXTENSION)
-	{
-		//call CGI
-		//call build response?
-		return 0;
-	}
-	return 1;
-}
 /// @brief 
 /// @param listener feed the listener struct
 /// @param recvStr feed the str from recv
 /// @return response string ready for accept
 
-std::string	clientHandler(const Listener *listener, std::string recvStr)
+void	Client::clientHandler(const std::string &recvStr)
 {
-	Http client;
+	Http &http = getHttpClass();
+	std::cout << GREEN << "==================REQUEST START======================" << RESET << std::endl;
 	
-	client.parseRequest(recvStr);
-	if (!checkState(client))
-		return 0;
+	http.parseRequest(recvStr);
 
-	client.setRequestConfig(listener);
-	if (!checkState(client))
-		return 0;
+	if (!checkState(http))
+	{
+		setResponse(http.getResponseString());
+		http.printError("parseRequest", "clientHandler", NOT_VAR);
+		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
+		return;
+	}
 
-	client.validateLayer();
-	if (!checkState(client))
-		return 0;
+	http.setRequestConfig(getListenerClass());
 
-	client.buildResponse();
-	if (!checkCgi(client))
-		return 0;
+	if (!checkState(http)) {
+		setResponse(http.getResponseString());
+		http.printError("Set Request Config", "clientHandler", NOT_VAR);
+		return;
+		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
+	}
 
-	return client.getResponseString();
+	http.validateLayer();
+
+	if (!checkState(http)){
+		setResponse(http.getResponseString());
+		http.printError("validateLayer", "clientHandler", NOT_VAR);
+		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
+		return;
+	}
+
+	if (http.getState() == HANDLING_CGI_EXTENSION)
+	{
+		http.setState(HANDLING_CGI_EXTENSION);
+		setResponse(http.getResponseString());
+		return;
+	}
+
+	http.buildResponse();
+	if (!checkState(http))
+	{
+		setResponse(http.getResponseString());
+		http.printError("buildResponse", "clientHandler", NOT_VAR);
+		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
+		return;
+	}
+	setResponse(http.getResponseString());
+
+	return;
+	
 }

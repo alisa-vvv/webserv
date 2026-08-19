@@ -1,20 +1,8 @@
 Todo
 
 
-ticket13: 
-item: what if there is no matching server config
-desc: do we just use the first server as default?
-
-
 ticket14:
 item: client_max_body_size defaults to -1 -> if it is not initialized, is that ok? or will cnfig validation throw an error 
-
-
-ticket16
-item: connection keep alive
-description: 	//should i set header for connection keep alive? - if http1.0 - no. if http 1.1. yes
-
-
 
 ticket18
 item: do i need to check that the user has permission to show the index files?
@@ -25,6 +13,16 @@ item:
 
 
 =========================
+
+ticket13: done
+item: what if there is no matching server config
+desc: do we just use the first server as default?
+answer: using first server as default
+
+ticket16 - done
+item: connection keep alive
+description: 	//should i set header for connection keep alive? - if http1.0 - no. if http 1.1. yes
+
 
 ticket12:
 item: what if there are mutiple response header keys - stop using map for response header as some headers are multi valued

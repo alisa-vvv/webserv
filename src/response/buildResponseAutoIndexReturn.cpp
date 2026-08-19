@@ -3,6 +3,7 @@
 
 void Http::handleAutoIndexResponse() 
 {
+	std::cout << "ARE WE HERE CHAT\n";
 	try
 	{
 		std::filesystem::path dir(this->_builtUri);
@@ -13,7 +14,7 @@ void Http::handleAutoIndexResponse()
 			body += "<li><a href=\"" + name + "\">" + name + "</a></li>";
 		}
 		body += "</ul></body></html>";
-		setBody(body);
+		this->_body = body;
 		setResponseCode(HTTP_OK);
 		setResponseHeader("Content-Type", "text/html");
 		setState(READY_TO_SEND);
@@ -26,8 +27,12 @@ void Http::handleAutoIndexResponse()
 
 void Http::handleReturnResponse()
 {
-	setResponseCode(HTTP_MOVED_PERMANENTLY);
-	setResponseHeader("Location:", requestConfig.location->returns.target);
+	int returnCode = requestConfig.location->returns.code;
+	if (returnCode < 300 || returnCode > 399)
+		returnCode = HTTP_MOVED_PERMANENTLY;
+	std::cout << CLR_YEL << "DOING SHIT" << CLR_NON << "\n";
+	setResponseCode(returnCode);
+	setResponseHeader("Location", requestConfig.location->returns.target);
 	setBody("");
 	setState(READY_TO_SEND);
 }
