@@ -79,18 +79,19 @@ eServerError Server::_setNonBlocking(int fd)
 
 // test
 // https://man7.org/linux/man-pages/man2/poll.2.html
-void Server::printPollInfo(int i)
+void Server::printPollInfo(int i) // @alisa commented this out cause it output
 {
-	std::cout << "fd " << _pollFds[i].fd << " revents: ";
-	if (_pollFds[i].revents & POLLIN) // There is data to read.
-		std::cout << "POLLIN ";
-	if (_pollFds[i].revents & POLLOUT) // Writing is now possible
-		std::cout << "POLLOUT ";
-	if (_pollFds[i].revents & POLLHUP) // Hang up
-		std::cout << "POLLHUP ";
-	if (_pollFds[i].revents & POLLERR) // Error condition
-		std::cout << "POLLERR ";
-	if (_pollFds[i].revents & POLLNVAL) // Invalid request, fd not open
-		std::cout << "POLLNVAL ";
-	std::cout << std::endl;
+	(void) i;
+	//std::cout << "fd " << _pollFds[i].fd << " revents: ";
+	//if (_pollFds[i].revents & POLLIN) // There is data to read.
+	//	std::cout << "POLLIN ";
+	//if (_pollFds[i].revents & POLLOUT) // Writing is now possible
+	//	std::cout << "POLLOUT ";
+	//if (_pollFds[i].revents & POLLHUP) // Hang up
+	//	std::cout << "POLLHUP ";
+	//if (_pollFds[i].revents & POLLERR) // Error condition
+	//	std::cout << "POLLERR ";
+	//if (_pollFds[i].revents & POLLNVAL) // Invalid request, fd not open
+	//	std::cout << "POLLNVAL ";
+	//std::cout << std::endl;
 }

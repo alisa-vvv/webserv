@@ -178,15 +178,15 @@ static char**	constructEnvironment(
 
 	char**	env = new char*[vars.size() + 1];
 	//std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
-	//for (size_t i = 0; i < vars.size(); i++) {
-	//	std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
-	//	const std::string&	cur_string = vars.at(i);
-	//	env[i] = new char[cur_string.size() + 1];
-	//	for (size_t j = 0; j < cur_string.size(); j++) {
-	//		env[i][j] = cur_string.at(j);
-	//	}
-	//	env[i][cur_string.size()] = '\0';
-	//}
+	for (size_t i = 0; i < vars.size(); i++) {
+		//std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
+		const std::string&	cur_string = vars.at(i);
+		env[i] = new char[cur_string.size() + 1];
+		for (size_t j = 0; j < cur_string.size(); j++) {
+			env[i][j] = cur_string.at(j);
+		}
+		env[i][cur_string.size()] = '\0';
+	}
 	env[vars.size()] = NULL;
 	return (env);
 }
@@ -199,15 +199,18 @@ static int	findAndExecuteScript(
 ) {
 	std::string 	slash_arg;
 	char			path[PATH_MAX];	
-	(void) client;
 	char**			env = constructEnvironment(client);
 
 	cgi_bzero(path, PATH_MAX);
+//	std::cout << "trying to exec binary: " << binary_name << '\n';
+//	std::cout << "argv[0]: " << argv[0] << '\n';
+//	std::cout << "argv[1]: " << argv[1] << '\n';
 	for (size_t i = 0; i < paths.size(); i++) {
 		slash_arg = paths.at(i) + "/" + binary_name;
 		for (size_t j = 0; j < slash_arg.size(); j++) {
 			path[j] = slash_arg.at(j);
 		}
+		//std::cout << "trying to exec in path: " << path << '\n';
 		execve(path, argv, env);
 		slash_arg.clear();
 		cgi_bzero(path, PATH_MAX);
@@ -315,11 +318,12 @@ std::optional<cgi_t>	executeCGI(
 	cgi_t	cgi_response_data;
 	char*	argv[] { NULL, NULL, NULL };
 	argv[0] = strdup(PYTHON_EXEC);
-	std::cout << "cgi pass location: " << client.getHttpClass().requestConfig.location->prefix;
-	std::cout << "cgi pass path: " << client.getHttpClass().requestConfig.location->cgi_pass.path;
-	argv[1] = strdup((client.getHttpClass().requestConfig.location->cgi_pass.path).c_str());
+	std::cout << "cgi pass location: (" << client.getHttpClass().requestConfig.location->prefix << ")\n";
+	std::cout << "cgi pass path: (" << client.getHttpClass().requestConfig.location->cgi_pass.path << ")\n";
+	argv[1] = strdup((client.getHttpClass().getBuiltUri().c_str()));
 	argv[2] = NULL;
-	std::cout << "path to script: " << argv[1];
+	std::cout << "path to script: (" << argv[1] << ")\n";
+
 
 	int	fork_ret = fork();
 	if (fork_ret < 0) {
