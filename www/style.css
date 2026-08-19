@@ -150,3 +150,66 @@ body {
 	scale: 105%;
 	cursor: pointer;
 }
+
+.upload-store-content {
+	width: min(90%, 700px);
+	margin: 30px auto;
+	text-align: center;
+}
+
+.upload-refresh {
+	display: inline-block;
+	padding: 0.9rem 2.2rem;
+	font-size: 0.85rem;
+}
+
+#uploadStatus {
+	margin: 20px 0 10px;
+}
+
+#uploadedFiles {
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 0;
+	list-style: none;
+}
+
+.uploaded-file-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin: 8px 0;
+	padding: 10px 14px;
+	border: 2px solid #6c3005;
+	background: rgba(255, 246, 161, 0.35);
+	text-align: left;
+}
+
+.uploaded-file-item a {
+	overflow: hidden;
+	color: #6c3005;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.file-delete-btn {
+	flex: 0 0 auto;
+	padding: 0.7rem 1rem;
+	font-size: 0.75rem;
+}
+
+@media (max-width: 600px) {
+	.upload-store-content {
+		width: 90%;
+	}
+
+	.uploaded-file-item {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.file-delete-btn {
+		align-self: flex-end;
+	}
+}

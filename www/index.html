@@ -25,7 +25,7 @@
 		<!--BUTTONS-->
 
 		<canvas id="confetti-canvas"></canvas>
-		<form action="confetti.py" method="POST" enctype="multipart/form-data"> //check after cgi is handled
+		<form action="confetti.py" method="POST" enctype="multipart/form-data">
 			<br>
 			<button id="confetti-button" class="btn-55"> Confetti! </button>
 			<br>
@@ -50,7 +50,7 @@
 			No file selected 
 		</p>
 
-		<form action="upload.py" id="uploadForm" method="POST" enctype="multipart/form-data"onsubmit="return submitWithoutReload(event)"> 
+		<form action="upload.py" id="uploadForm" method="GET" enctype="multipart/form-data"onsubmit="return submitWithoutReload(event)"> 
 		<!--<form action="/index.html" method="POST" enctype="multipart/form-data">-->
 			<input type="file" id="fileUpload" class="hideClass" name="fileUpload">
 			<input type="submit" id="submitButton" value="Upload" hidden> 

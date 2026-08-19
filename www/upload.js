@@ -27,20 +27,19 @@ function submitWithoutReload(event)
 		method: "POST",
 		body: formData
 	})
-	.then(response => {
-		if (!response.ok)
-			throw new Error(`Upload failed: HTTP ${response.status}`);
+	.then(async response => {
+		const responseText = await response.text();
+		if (!response.ok) {
+			document.open();
+			document.write(responseText);
+			document.close();
+			return;
+		}
 
-		return response.text();
+		console.log(responseText);
+		uploadMessage.textContent = responseText;
 	})
-	.then(text => {
-		console.log(text);
-		uploadMessage.textContent = text;
-	}) //reads the response body and converts it into a JavaScript string
-	.catch(error => {
-		console.error(error);
-		uploadMessage.textContent = "Upload failed! gg";
-	});
+	.catch(error => console.error("Upload request failed", error));
 }
 
 //TODO: after clicking upload button, hide that button and instead show 

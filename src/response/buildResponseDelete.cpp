@@ -1,5 +1,6 @@
 #include "../../inc/Http.hpp"
 #include <fstream>
+#include <system_error>
 
 void Http::handleDeleteResponse()
 {
@@ -8,20 +9,25 @@ void Http::handleDeleteResponse()
 		printError("Empty build URi", "handleDeleteResponse", NOT_VAR);
 		return setResponseCode(HTTP_BAD_REQUEST);
 	}
-	try
-	{
-		if (!std::filesystem::exists(this->_builtUri))
-			return setResponseCode(HTTP_NOT_FOUND);
-		std::uintmax_t deleted = std::filesystem::remove(this->_builtUri);
-		if (deleted == 0)
-			return setResponseCode(HTTP_NOT_FOUND);
-		setResponseCode(HTTP_OK);
-		setBody("");
-		setState(READY_TO_SEND);
+	std::error_code error;
+	if (!std::filesystem::exists(this->_builtUri, error)) {
+		if (error == std::errc::permission_denied)
+			return setResponseCode(HTTP_FORBIDDEN);
+		return setResponseCode(HTTP_NOT_FOUND);
 	}
-	catch(const std::exception& e)
+
+	bool deleted = std::filesystem::remove(this->_builtUri, error);
+	if (error == std::errc::permission_denied)
+		return setResponseCode(HTTP_FORBIDDEN);
+	if (error)
 	{
-		printError("Exception found", "handleDeleteResponse", NOT_VAR);
-		setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
+		printError(error.message(), "handleDeleteResponse", NOT_VAR);
+		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	}
+	if (!deleted)
+		return setResponseCode(HTTP_NOT_FOUND);
+
+	setResponseCode(HTTP_OK);
+	setBody("");
+	setState(READY_TO_SEND);
 }

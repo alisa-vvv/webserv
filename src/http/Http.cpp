@@ -89,6 +89,12 @@ void Http::setResponseHeader(const std::string &key, const std::string &value) {
 //assign from built uri
 void Http::setBody() {
 	std::string file = this->_builtUri;
+	std::error_code fileError;
+	if (!std::filesystem::is_regular_file(file, fileError))
+	{
+		printError("setBody target is not a file", "setBody", NOT_VAR);
+		return setResponseCode(HTTP_FORBIDDEN);
+	}
 	std::ifstream fileStream(file, std::ios::binary);
 	if (!fileStream.is_open())
 	{
@@ -110,11 +116,18 @@ void Http::setBody(const std::string uri) {
 	}
 	else
 	{
+		std::error_code fileError;
+		if (!std::filesystem::is_regular_file(resolvedUri, fileError))
+		{
+			printError("error page target is not a file", "setBody", NOT_VAR);
+			this->_body = std::get<1>(HTTP_STATUS_MESSAGE.at(this->_statusCode));
+			return;
+		}
 		std::ifstream fileStream(resolvedUri, std::ios::binary);
 		if (!fileStream.is_open())
 		{
 			printError("Cannot open", "setBody", NOT_VAR);
-			this->_body = "";
+			this->_body = std::get<1>(HTTP_STATUS_MESSAGE.at(this->_statusCode));
 			return;
 		}
 		std::string body((std::istreambuf_iterator<char>(fileStream)),

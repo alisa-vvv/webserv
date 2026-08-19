@@ -1,6 +1,7 @@
 #include <iostream>
 #include <filesystem>
 #include <sys/stat.h>
+#include <unistd.h>
 #include "../../inc/Http.hpp"
 
 std::string Http::resolveUri(const std::string &uri)
@@ -62,9 +63,13 @@ void Http::validateFile()
 			printError("methodGET permission", "validateFile", NOT_VAR);
 			return setResponseCode(HTTP_FORBIDDEN); //no read perm on get
 		}
-		else if (this->_method == DELETE && !(fileStat.st_mode & S_IWUSR)) {
-			printError("method DEl permission", "validateFile", NOT_VAR);
-			return setResponseCode(HTTP_FORBIDDEN); //no edit perm on del
+		else if (this->_method == DELETE) {
+			std::filesystem::path parentPath = std::filesystem::path(path).parent_path();
+			if (!(fileStat.st_mode & S_IWUSR)
+				|| access(parentPath.c_str(), W_OK | X_OK) != 0) {
+				printError("method DEl permission", "validateFile", NOT_VAR);
+				return setResponseCode(HTTP_FORBIDDEN); //require file and parent access
+			}
 		}
 		else if (getExtension() == true && !(fileStat.st_mode & S_IXUSR)) {
 			printError("extension permission", "validateFile", NOT_VAR);
