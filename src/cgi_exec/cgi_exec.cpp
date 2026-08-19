@@ -177,16 +177,16 @@ static char**	constructEnvironment(
 	};
 
 	char**	env = new char*[vars.size() + 1];
-	std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
-	for (size_t i = 0; i < vars.size(); i++) {
-		std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
-		const std::string&	cur_string = vars.at(i);
-		env[i] = new char[cur_string.size() + 1];
-		for (size_t j = 0; j < cur_string.size(); j++) {
-			env[i][j] = cur_string.at(j);
-		}
-		env[i][cur_string.size()] = '\0';
-	}
+	//std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
+	//for (size_t i = 0; i < vars.size(); i++) {
+	//	std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
+	//	const std::string&	cur_string = vars.at(i);
+	//	env[i] = new char[cur_string.size() + 1];
+	//	for (size_t j = 0; j < cur_string.size(); j++) {
+	//		env[i][j] = cur_string.at(j);
+	//	}
+	//	env[i][cur_string.size()] = '\0';
+	//}
 	env[vars.size()] = NULL;
 	return (env);
 }
@@ -315,8 +315,11 @@ std::optional<cgi_t>	executeCGI(
 	cgi_t	cgi_response_data;
 	char*	argv[] { NULL, NULL, NULL };
 	argv[0] = strdup(PYTHON_EXEC);
-	argv[1] = strdup(PATH_TO_SCRIPT);
+	std::cout << "cgi pass location: " << client.getHttpClass().requestConfig.location->prefix;
+	std::cout << "cgi pass path: " << client.getHttpClass().requestConfig.location->cgi_pass.path;
+	argv[1] = strdup((client.getHttpClass().requestConfig.location->cgi_pass.path).c_str());
 	argv[2] = NULL;
+	std::cout << "path to script: " << argv[1];
 
 	int	fork_ret = fork();
 	if (fork_ret < 0) {

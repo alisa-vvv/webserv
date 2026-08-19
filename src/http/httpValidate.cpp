@@ -147,8 +147,10 @@ int Http::validateURI(std::string uri)
 	}
 
 	// check CGI extensions
-	if (uri.find(".py") != std::string::npos || uri.find(".php") != std::string::npos || uri.find(".cgi") != std::string::npos)
+	if (uri.find(".py") != std::string::npos || uri.find(".php") != std::string::npos || uri.find(".cgi") != std::string::npos) {
+		setState(HANDLING_CGI_EXTENSION);
 		setExtension(true);
+	}
 	
 	// rewrite URI, strip location prefix and add root
 	if (!requestConfig.location)
