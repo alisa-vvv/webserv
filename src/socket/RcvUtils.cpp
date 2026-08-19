@@ -93,7 +93,7 @@ eServerError Server::_handleSend(Client& client)
 	const char *responseStart = response.c_str() + client.getBytesSent();
 	size_t remaining = response.size() - client.getBytesSent();
 
-	std::cout << "Trying to send " << client.getBytesSent()
+	std::cout << "Trying to send " << remaining
 			  << " bytes to client " << clientFd << std::endl;
 	ssize_t result = send(clientFd, responseStart, remaining, 0);
 

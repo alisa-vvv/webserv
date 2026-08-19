@@ -152,8 +152,7 @@ eClientEventResult Server::_handleClientEvent(int i)
 
 			if (state == READY_TO_SEND)
 				_pollFds[i].events = POLLOUT;
-			else if (state == HANDLING_CGI_EXTENSION
-				|| state == HANDLING_CGI_STATIC)
+			else if (state == HANDLING_CGI_EXTENSION)
 			{
 				if (_startCgi(fd) != SERVER_OK)
 				{

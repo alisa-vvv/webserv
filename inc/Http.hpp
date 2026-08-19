@@ -9,6 +9,9 @@
 #include "Colors.hpp"
 #include "configParser.hpp"
 #include "HttpError.hpp"
+//<<<<<<< HEAD
+//#include "Client.hpp"
+//=======
 #include "Listener.hpp"
 
 #include "Timer.hpp"
@@ -82,7 +85,6 @@ class Http {
 		
 		/*===========RESPONSE BUILDER===========*/
 		void			buildResponse(); //check statuscode, set header, set body
-		std::string		buildCGIResponseString(std::string cgiResponse);
 		void			buildResponseString(); //build to raw string ready to send to client
 
 		/*==========METHOD HANDLERS==========*/
@@ -136,16 +138,5 @@ class Http {
 		void			debugPrintHttpClassAttributes();
 		void			printError(std::string error, std::string functName, bool isVar);
 };
-
-
-typedef struct	cgi_t {
-	int							child_pid = -1;
-	int							input = -1;
-	int							output = -1;
-	std::string					input_string = "";
-	std::string					output_string = "";
-	time_point<system_clock>	timer;
-	Http						request_data;
-}	cgi_t;
 
 #endif

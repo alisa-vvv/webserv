@@ -1,22 +1,6 @@
 #include "../../inc/Http.hpp"
 #include <filesystem>
 
-std::string Http::buildCGIResponseString(std::string cgiResponse)
-{
-	size_t firstSpace = cgiResponse.find(" ");
-	size_t newLine = cgiResponse.find("\r\n"); 
-	std::string startLine = cgiResponse.substr(0, firstSpace);
-	std::string cgiResponseString;
-	if (startLine != "HTTP/1.1" && startLine != "HTTP/1.0")
-		cgiResponseString = cgiResponse;
-	else
-	{
-		cgiResponseString += "HTTP/1.1 200 OK\r\n";
-		cgiResponseString += cgiResponse.substr(newLine + 2);
-	}
-	return cgiResponseString;
-}
-
 /// @brief After building the response, build the response string ready for send()
 /// @return response string 
 void Http::buildResponseString()

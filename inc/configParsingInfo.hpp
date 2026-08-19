@@ -104,8 +104,8 @@ bool	fillServerAutoIndex(
 */
 bool	fillLocationRootField(
 	Config& config,
-	 const size_t& token_index,
-	 std::vector<t_config_token>& tokens
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
 );
 bool	fillLocationIndexField(
 	Config& config,

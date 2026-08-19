@@ -13,9 +13,6 @@
 #include "cgi_exec.hpp"
 #include "configParser.hpp"
 #include "Timer.hpp"
-#include "Http.hpp"
-#include "Client.hpp"
-#include "Server.hpp"
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstdlib>
@@ -32,13 +29,33 @@
 // root of location + cgi_pass
 
 // t his maybe remove? if not, remove from http class
+std::string buildCGIResponseString(std::string cgiResponse)
+{
+	size_t firstSpace = cgiResponse.find(" ");
+	size_t newLine = cgiResponse.find("\r\n"); 
+	std::string startLine = cgiResponse.substr(0, firstSpace);
+	std::string cgiResponseString;
+	if (startLine == "HTTP/1.1" || startLine == "HTTP/1.0")
+		cgiResponseString = cgiResponse;
+	else
+	{
+		cgiResponseString += "HTTP/1.1 200 OK\r\n";
+		if (newLine != std::string::npos) {
+			cgiResponseString += cgiResponse.substr(newLine + 2);
+		}
+		else
+			cgiResponseString += cgiResponse;
+	}
+	return cgiResponseString;
+}
+
 //static std::string buildCGIResponseString(std::string cgiResponse)
 //{
 //	size_t firstSpace = cgiResponse.find(" ");
 //	size_t newLine = cgiResponse.find("\r\n"); 
 //	std::string startLine = cgiResponse.substr(0, firstSpace);
 //	std::string cgiResponseString;
-//	if (startLine != "HTTP/1.1" && startLine != "HTTP/1.0")
+//	if (startLine != "HTTP/1.1" || startLine != "HTTP/1.0")
 //		cgiResponseString = cgiResponse;
 //	else
 //	{
@@ -90,14 +107,14 @@ int	gotCGIOutput(
 			std::cout << CLR_YEL << "\n[cgi output end]" << CLR_NON << "\n";
 			close(cgi.input);
 			close(cgi.output);
+			return (true);
 		}
 		else if (wait_res < 0) { //Note from Tutku: error here, else never works, if case only returns 1 or 0
 			// brr brr error
 			return (-1);
 		}
-		return (1);
 	}
-	return (0);
+	return (false);
 }
 
 // returns
@@ -117,31 +134,29 @@ int	checkCgiDone(
 		return (-1);
 	}
 	if (got_output == true) {
-		//Note from Tutku: you dont have client in cgi anymore so I commented this part
-		// // check if we need to make setResponse take an actual string and not a reference?
-		// std::string	response_string = buildCGIResponseString(cgi.output_string);
-		// cgi.client.setResponse(response_string);
-		// // THIS will probably look different after the Client/Http debaucle is resolved. check
-		// cgi.client.setClientState(READY_TO_SEND);
-		return 1; //Note from Tutku: it was missing a return
+		std::string	response_string = buildCGIResponseString(cgi.output_string);
+		cgi.client.setResponse(response_string);
+		cgi.client.getHttpClass().setState(READY_TO_SEND); // this sho
+		std::cout << "checking response string:\n" << cgi.client.getResponse();
+		return (true);
 	}
 	return (0);
 }
 
-//static const std::string match_method_to_string(
-//	httpMethod	method
-//) {
-//	switch (method) {
-//		case GET:
-//			return ("GET");
-//		case POST:
-//			return ("POST");
-//		case DELETE:
-//			return ("DELETE");
-//		case UNKNOWN:
-//			return ("UNKNOWN");
-//	}
-//}
+static const std::string match_method_to_string(
+	httpMethod	method
+) {
+	switch (method) {
+		case GET:
+			return ("GET");
+		case POST:
+			return ("POST");
+		case DELETE:
+			return ("DELETE");
+		case UNKNOWN:
+			return ("UNKNOWN");
+	}
+}
 	/*	These are things we're most likely not going to have. Putting them here in case */
 //"HTTP_COOKIE=", we don't have cookies
 //"HTTP_HOST=", // all these http related ones seem to be out of scope for us
@@ -155,66 +170,67 @@ int	checkCgiDone(
 //"REQUEST_URI=", not sure what this is, we might need it?
 //"SCRIPT_FILENAME=", same as above
 
-//static char**	constructEnvironment(
-//	const Client& client
-//) {
-//	const Http&	request_data = client.getHttpClass();
-//	const cfg_server_t&	server_config = *request_data.requestConfig.server;
-//	const t_location&	location = *request_data.requestConfig.location;
-//	std::string	request_uri = request_data.getReceivedUri();
-//	std::string	query_string;
-//	size_t		query_string_start = query_string.find_first_of('?') + 1;
-//	if (query_string_start != std::string::npos) {
-//		query_string = request_uri.substr(query_string_start + 1, request_uri.back());
-//	}
-//	std::vector<std::string>	vars = {
-//		"DOCUMENT_ROOT=" + server_config.root, // root directory of the server
-//		"PATH=" + (std::string) (getenv("PATH")), // CHECK THIS
-//		"QUERY_STRING=" + query_string,
-//		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
-//		"REQUEST_URI=" + request_data.getReceivedUri(),
-//		// FIX BELOW!!!
-//		"SCRIPT_FILENAME=" + location.cgi_pass.path,  // path to the script (absolute)
-//		"SCRIPT_NAME=" + location.cgi_pass.path, // path to the script we're executing relative to root
-//		"SERVER_NAME=" + server_config.server_names[0],
-//		"SERVER_PORT=" + std::to_string(server_config.ports.at(0)),
-//		"SERVER_SOFTWARE=webserv",
-//	};
+static char**	constructEnvironment(
+	Client& client
+) {
+	const Http&	request_data = client.getHttpClass();
+	const cfg_server_t&	server_config = *request_data.requestConfig.server;
+	const t_location&	location = *request_data.requestConfig.location;
+	std::string	request_uri = request_data.getReceivedUri();
+	std::string	query_string;
+	size_t		query_string_start = query_string.find_first_of('?') + 1;
+	if (query_string_start != std::string::npos) {
+		query_string = request_uri.substr(query_string_start + 1, request_uri.back());
+	}
+	std::vector<std::string>	vars = {
+		"DOCUMENT_ROOT=" + server_config.root, // root directory of the server
+		"PATH=" + (std::string) (getenv("PATH")), // CHECK THIS
+		"QUERY_STRING=" + query_string,
+		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
+		"REQUEST_URI=" + request_data.getReceivedUri(),
+		// FIX BELOW!!!
+		"SCRIPT_FILENAME=" + location.cgi_pass.path,  // path to the script (absolute)
+		"SCRIPT_NAME=" + location.cgi_pass.path, // path to the script we're executing relative to root
+		"SERVER_NAME=" + server_config.server_names[0],
+		"SERVER_PORT=" + std::to_string(server_config.ports.at(0)),
+		"SERVER_SOFTWARE=webserv",
+	};
 
-//	char**	env = new char*[vars.size() + 1];
-//	std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
-//	for (size_t i = 0; i < vars.size(); i++) {
-//		std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
-//		const std::string&	cur_string = vars.at(i);
-//		env[i] = new char[cur_string.size() + 1];
-//		for (size_t j = 0; j < cur_string.size(); j++) {
-//			env[i][j] = cur_string.at(j);
-//		}
-//		env[i][cur_string.size()] = '\0';
-//	}
-//	env[vars.size()] = NULL;
-//	return (env);
-//}
+	char**	env = new char*[vars.size() + 1];
+	//std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
+	for (size_t i = 0; i < vars.size(); i++) {
+		//std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
+		const std::string&	cur_string = vars.at(i);
+		env[i] = new char[cur_string.size() + 1];
+		for (size_t j = 0; j < cur_string.size(); j++) {
+			env[i][j] = cur_string.at(j);
+		}
+		env[i][cur_string.size()] = '\0';
+	}
+	env[vars.size()] = NULL;
+	return (env);
+}
 
 static int	findAndExecuteScript(
-	const Client& client,
+	Client& client,
 	const std::string binary_name,
 	char *const argv[],
 	std::vector<std::string> paths
-)
-{
+) {
 	std::string 	slash_arg;
 	char			path[PATH_MAX];	
-	(void) client;
-	//char**			env = constructEnvironment(client, client.getHttp());//
-	char ** env = NULL; // TMP TMP TMP
+	char**			env = constructEnvironment(client);
 
 	cgi_bzero(path, PATH_MAX);
+//	std::cout << "trying to exec binary: " << binary_name << '\n';
+//	std::cout << "argv[0]: " << argv[0] << '\n';
+//	std::cout << "argv[1]: " << argv[1] << '\n';
 	for (size_t i = 0; i < paths.size(); i++) {
 		slash_arg = paths.at(i) + "/" + binary_name;
 		for (size_t j = 0; j < slash_arg.size(); j++) {
 			path[j] = slash_arg.at(j);
 		}
+		//std::cout << "trying to exec in path: " << path << '\n';
 		execve(path, argv, env);
 		slash_arg.clear();
 		cgi_bzero(path, PATH_MAX);
@@ -241,7 +257,7 @@ static std::vector<std::string>	splitPathVar(
 }
 
 static int	tryExecveScript(
-	const Client& client,
+	Client& client,
 	const std::string binary_name,
 	char *const argv[]
 )
@@ -257,7 +273,7 @@ static int	tryExecveScript(
 }
 
 static void	handle_child(
-	const Client& client,
+	Client& client,
 	const std::string binary_name,
 	char *const argv[],
 	int in_pipe[2],
@@ -269,53 +285,11 @@ static void	handle_child(
 	dup2(out_pipe[1], STDOUT_FILENO);
 	close(in_pipe[0]);
 	close(out_pipe[1]);
-	std::cout << "executing cgi in child...\n\n";
+	std::cerr << "executing cgi in child...\n\n";
 	tryExecveScript(client, binary_name, argv);
-	std::cout << "if you see this, there's an error\n"; // delete this
+	std::cerr << "if you see this, there's an error\n"; // delete this
 	exit(1);
 }
-
-//eClientEventResult Server::_handleCgiEvent(int pollFd, int i)
-//{
-//	int clientFd = _backgroundCgis.at(pollFd).client.getclientFd();
-//	//eServerError err = callCGI(); // this is wehere we check if it;s finished and construct the resposne string,
-//	1. set client status to READY_TO_SEND
-//	2. set clinet response to whatever
-//	if (err != SERVER_OK)
-//	{
-//		closeForNow(fd); //todo:finish
-//		return CLIENT_REMOVED;
-//	}
-//	if (_clients.at(clientFd).getClientState() == HANDLING_CGI_EXTENSION)
-//	{
-//		return CLIENT_KEPT;
-//	}
-//	if (_pollFds[i].revents & POLLOUT)
-//	{
-//		eServerError err = _handleSend(_clients.at(clientFd)); // change client into _backgroundCgis.at(fd).getClient()
-//		if (err != SERVER_OK)
-//		{
-//			closeForNow(fd);//todo:finish
-//			return CLIENT_REMOVED;
-//		}
-//		if (_clients.at(clientFd).isResponseComplete()) //check if the response is complete
-//		{
-//			std::cout << "Response completely sent to client "
-//					<< fd << std::endl;//todo:finish
-//			closeForNow(fd);//todo:finish
-//			return CLIENT_REMOVED;
-//		}
-//	}
-//	//todo:finish
-//	if (_clients.at(fd).getResponseStatus() && _clients.at(clientFd).getClientState() == READY_TO_SEND) //TODO:check
-//	{
-//		_pollFds[i].events = POLLOUT;
-//		//call close client
-//		return CLIENT_KEPT;
-//	}
-//	return CLIENT_KEPT; //TODO:check later
-//
-//}
 
 static cgi_t	handle_parent(
 	int in_pipe[2],
@@ -343,6 +317,7 @@ std::optional<cgi_t>	executeCGI(
 	int	in_pipe[2];
 	int	out_pipe[2];
 
+	std::cout << GREEN << "Started CGI execution\n" << RESET;
 	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
 		// brr brr errorr
 		return (std::nullopt);
@@ -358,13 +333,17 @@ std::optional<cgi_t>	executeCGI(
 	//newly_created_cgi_request.request_data = &http_instance;
 	//background_cgis.push_back(newly_created_cgi_request);
 
-	//std::tuple<int, size_t>	cgi_response;
+	//td::tuple<int, size_t>	cgi_response; // @alisa what is this for?
 	cgi_t	cgi;
 	cgi_t	cgi_response_data;
 	char*	argv[] { NULL, NULL, NULL };
 	argv[0] = strdup(PYTHON_EXEC);
-	argv[1] = strdup(PATH_TO_SCRIPT);
+	std::cout << "cgi pass location: (" << client.getHttpClass().requestConfig.location->prefix << ")\n";
+	std::cout << "cgi pass path: (" << client.getHttpClass().requestConfig.location->cgi_pass.path << ")\n";
+	argv[1] = strdup((client.getHttpClass().getBuiltUri().c_str()));
 	argv[2] = NULL;
+	std::cout << "path to script: (" << argv[1] << ")\n";
+
 
 	int	fork_ret = fork();
 	if (fork_ret < 0) {
@@ -377,7 +356,7 @@ std::optional<cgi_t>	executeCGI(
 	}
 	else if (fork_ret > 0) {
 		cgi = handle_parent(in_pipe, out_pipe, fork_ret);
-		//cgi.client = client; //commented by tutku
+		cgi.client = client;
 		background_cgis.insert( {cgi.output, cgi} );
 	}
 	{	// this block is, essentially, what we need to do in the listen loop.
