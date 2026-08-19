@@ -85,7 +85,6 @@ class Http {
 		
 		/*===========RESPONSE BUILDER===========*/
 		void			buildResponse(); //check statuscode, set header, set body
-		std::string		buildCGIResponseString(std::string cgiResponse);
 		void			buildResponseString(); //build to raw string ready to send to client
 
 		/*==========METHOD HANDLERS==========*/
@@ -140,15 +139,4 @@ class Http {
 		void			printError(std::string error, std::string functName, bool isVar);
 };
 
-
-//typedef struct	cgi_t {
-//	int							child_pid = -1;
-//	int							input = -1;
-//	int							output = -1;
-//	std::string					input_string = "";
-//	std::string					output_string = "";
-//	time_point<system_clock>	timer;
-//	Client						client; // CHANGE THIS TO REF LATER
-//}	cgi_t;
-//
 #endif

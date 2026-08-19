@@ -39,3 +39,4 @@ int	checkCgiDone(
 	cgi_t&	cgi
 );
 
+std::string buildCGIResponseString(std::string cgiResponse);

@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
 
-print("Content-Type: text/html")
-print()
+#print("confetti requested!")
 
-print("""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Upload Result</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <h1>Upload received!</h1>
-    <p>Your Python CGI script ran successfully.</p>
-</body>
-</html>
-""")
+print("<html>\
+<head>\
+<title>Page Title</title>\
+</head>\
+<body>\
+\
+<h1>This is a Heading</h1>\
+<p>This is a paragraph.</p>\
+\
+</body>\
+</html>")

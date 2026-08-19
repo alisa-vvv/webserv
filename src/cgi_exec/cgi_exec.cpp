@@ -29,21 +29,41 @@
 // root of location + cgi_pass
 
 // t his maybe remove? if not, remove from http class
-static std::string buildCGIResponseString(std::string cgiResponse)
+std::string buildCGIResponseString(std::string cgiResponse)
 {
 	size_t firstSpace = cgiResponse.find(" ");
 	size_t newLine = cgiResponse.find("\r\n"); 
 	std::string startLine = cgiResponse.substr(0, firstSpace);
 	std::string cgiResponseString;
-	if (startLine != "HTTP/1.1" || startLine != "HTTP/1.0")
+	if (startLine == "HTTP/1.1" || startLine == "HTTP/1.0")
 		cgiResponseString = cgiResponse;
 	else
 	{
 		cgiResponseString += "HTTP/1.1 200 OK\r\n";
-		cgiResponseString += cgiResponse.substr(newLine + 2);
+		if (newLine != std::string::npos) {
+			cgiResponseString += cgiResponse.substr(newLine + 2);
+		}
+		else
+			cgiResponseString += cgiResponse;
 	}
 	return cgiResponseString;
 }
+
+//static std::string buildCGIResponseString(std::string cgiResponse)
+//{
+//	size_t firstSpace = cgiResponse.find(" ");
+//	size_t newLine = cgiResponse.find("\r\n"); 
+//	std::string startLine = cgiResponse.substr(0, firstSpace);
+//	std::string cgiResponseString;
+//	if (startLine != "HTTP/1.1" || startLine != "HTTP/1.0")
+//		cgiResponseString = cgiResponse;
+//	else
+//	{
+//		cgiResponseString += "HTTP/1.1 200 OK\r\n";
+//		cgiResponseString += cgiResponse.substr(newLine + 2);
+//	}
+//	return cgiResponseString;
+//}
 
 static void	cgi_bzero(
 	char* path,
@@ -87,14 +107,14 @@ int	gotCGIOutput(
 			std::cout << CLR_YEL << "\n[cgi output end]" << CLR_NON << "\n";
 			close(cgi.input);
 			close(cgi.output);
+			return (true);
 		}
 		else if (wait_res < 0) { //Note from Tutku: error here, else never works, if case only returns 1 or 0
 			// brr brr error
 			return (-1);
 		}
-		return (1);
 	}
-	return (0);
+	return (false);
 }
 
 // returns
@@ -114,11 +134,11 @@ int	checkCgiDone(
 		return (-1);
 	}
 	if (got_output == true) {
-		// check if we need to make setResponse take an actual string and not a reference?
 		std::string	response_string = buildCGIResponseString(cgi.output_string);
 		cgi.client.setResponse(response_string);
-		// THIS will probably look different after the Client/Http debaucle is resolved. check
 		cgi.client.getHttpClass().setState(READY_TO_SEND); // this sho
+		std::cout << "checking response string:\n" << cgi.client.getResponse();
+		return (true);
 	}
 	return (0);
 }
@@ -265,9 +285,9 @@ static void	handle_child(
 	dup2(out_pipe[1], STDOUT_FILENO);
 	close(in_pipe[0]);
 	close(out_pipe[1]);
-	std::cout << "executing cgi in child...\n\n";
+	std::cerr << "executing cgi in child...\n\n";
 	tryExecveScript(client, binary_name, argv);
-	std::cout << "if you see this, there's an error\n"; // delete this
+	std::cerr << "if you see this, there's an error\n"; // delete this
 	exit(1);
 }
 

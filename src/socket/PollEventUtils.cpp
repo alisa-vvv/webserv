@@ -113,7 +113,7 @@ void Server::_copyCgiResponse(int cgiFd, int clientFd)
 {
 	cgi_t &cgi = _backgroundCgis.at(cgiFd);
 
-	std::string response = _clients.at(clientFd).getHttpClass().buildCGIResponseString(cgi.output_string);
+	std::string response = buildCGIResponseString(cgi.output_string);
 
 
 	_clients.at(clientFd).setResponse(response);
