@@ -16,18 +16,18 @@ std::string Http::resolveUploadDir()
 	std::filesystem::path uploadPath(uploadDir);
 	std::filesystem::path finalPath = root / uploadPath.relative_path();
 
-	try
+	std::error_code fileError;
+	std::filesystem::file_status fileStatus = std::filesystem::status(finalPath, fileError);
+	if (fileError)
 	{
-		if (!std::filesystem::exists(finalPath) || !std::filesystem::is_directory(finalPath)) {
-			setResponseCode(HTTP_FORBIDDEN);
-			return "";
-		}
+		printError("Cannot access upload directory", "handlePostResponse", NOT_VAR);
+		setResponseCode(fileError == std::errc::permission_denied
+			? HTTP_FORBIDDEN : HTTP_INTERNAL_SERVER_ERROR);
+		return "";
 	}
-	catch (std::exception &e)
+	if (!std::filesystem::exists(fileStatus) || !std::filesystem::is_directory(fileStatus))
 	{
-		printError("Exception found", "handlePostResponse", NOT_VAR);
-		std::cout << e.what() << std::endl;
-		setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
+		setResponseCode(HTTP_FORBIDDEN);
 		return "";
 	}
 	return finalPath.lexically_normal().string();
@@ -104,37 +104,55 @@ void Http::createUploadFile(std::string uploadDir, std::string extension)
 		std::filesystem::path filepath = std::filesystem::path(uploadDir) / filename;
 		
 		int count = 1;
-		while(std::filesystem::exists(filepath))
+		std::error_code fileError;
+		while (std::filesystem::exists(filepath, fileError))
 		{
 			filename = baseFileName + "_" + std::to_string(count) + extension;
 			filepath = std::filesystem::path(uploadDir) / filename;
 			count++;
 		}
+		if (fileError)
+		{
+			printError("Cannot access upload file", "handlePostResponse", NOT_VAR);
+			setResponseCode(HTTP_FORBIDDEN);
+			return;
+		}
 
 		std::ofstream outFile(filepath, std::ios::binary);
-		// if (!outFile.is_open())
-		// {
-		// 	printError("Cannot open", "handlePostResponse", NOT_VAR);
-		// 	return setResponseCode(HTTP_FORBIDDEN);
-		// }
+		if (!outFile.is_open())
+		{
+			printError("Cannot write upload file", "handlePostResponse", NOT_VAR);
+			setResponseCode(HTTP_FORBIDDEN);
+			return;
+		}
 		outFile.write(this->_body.c_str(), this->_body.size());
+		if (!outFile)
+		{
+			printError("Cannot write upload file", "handlePostResponse", NOT_VAR);
+			setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
+			return;
+		}
 		outFile.close();
 		setResponseCode(HTTP_CREATED);
-		setResponseHeader("Location", "/" + filename);
+		std::string location = requestConfig.location->upload_store;
+		if (location.back() != '/')
+			location += '/';
+		setResponseHeader("Location", location + filename);
 		setRawBody("");
 		setState(READY_TO_SEND);
 	}
-	catch (const std::exception &e)
+	catch (const std::filesystem::filesystem_error &e)
 	{
-		std::cout << e.what() << std::endl;
 		printError("Exception found", "handlePostResponse", NOT_VAR);
-		setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
+		setResponseCode(e.code() == std::errc::permission_denied
+			? HTTP_FORBIDDEN : HTTP_INTERNAL_SERVER_ERROR);
 	}
 }
 
+
 void Http::handlePostResponse()
 {
-	debugPrintHttpClassAttributes();
+	// debugPrintHttpClassAttributes();
 
 	if (!this->_hasBody || this->_body.empty())
 	{

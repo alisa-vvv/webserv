@@ -3,7 +3,6 @@
 
 void Http::handleAutoIndexResponse() 
 {
-	std::cout << "ARE WE HERE CHAT\n";
 	try
 	{
 		std::filesystem::path dir(this->_builtUri);

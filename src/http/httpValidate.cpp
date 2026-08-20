@@ -90,9 +90,8 @@ void Http::buildAbsoluteUri()
 	// allow config roots like /www to resolve inside the project when no real filesystem root exists.
 	root = resolveUri(root);
 
-
 	// remove prefix and add root
-	std::string remaining = "/" + this->_receivedUri.substr(prefix.length());
+	std::string remaining = "/" + this->_receivedUri;
 
 	// only serve index if request ends with / or is exactly /
 	bool isDirectoryRequest = (this->_receivedUri == "/") || (this->_receivedUri.length() > 0 && this->_receivedUri.back() == '/');
