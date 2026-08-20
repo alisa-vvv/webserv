@@ -28,6 +28,13 @@
 #define PATH_TO_SCRIPT "/home/avaliull/Projects/lvl5/webserv/server/cgi-bin/hello_world.py"
 // root of location + cgi_pass
 
+void	fill_c_str_from_string(char *const c_str, const std::string& str) {
+	for (size_t i = 0; i < str.size(); i++) {
+		c_str[i] = str.at(i);
+	}
+	c_str[str.size()] = '\0';
+}
+
 // t his maybe remove? if not, remove from http class
 std::string buildCGIResponseString(std::string cgiResponse)
 {
@@ -315,6 +322,10 @@ std::optional<cgi_t>	executeCGI(
 ) {
 	int	in_pipe[2];
 	int	out_pipe[2];
+	static std::string	type = ".py";
+	static std::map<std::string, std::string>	type_exec {
+		{".py", "python"},
+	}; // change this if we want multiple cgi script types
 
 	std::cout << GREEN << "Started CGI execution\n" << RESET;
 	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
@@ -328,21 +339,15 @@ std::optional<cgi_t>	executeCGI(
 		return (std::nullopt);
 	}
 
-	//cgi_t					newly_created_cgi_request;
-	//newly_created_cgi_request.request_data = &http_instance;
-	//background_cgis.push_back(newly_created_cgi_request);
-
-	//td::tuple<int, size_t>	cgi_response; // @alisa what is this for?
 	cgi_t	cgi;
 	cgi_t	cgi_response_data;
-	char*	argv[] { NULL, NULL, NULL };
-	argv[0] = strdup(PYTHON_EXEC);
-	std::cout << "cgi pass location: (" << client.getHttpClass().requestConfig.location->prefix << ")\n";
-	std::cout << "cgi pass path: (" << client.getHttpClass().requestConfig.location->cgi_pass.path << ")\n";
-	argv[1] = strdup((client.getHttpClass().getBuiltUri().c_str()));
-	argv[2] = NULL;
-	std::cout << "path to script: (" << argv[1] << ")\n";
 
+	char*	argv[] { NULL, NULL, NULL };
+	argv[0] = new char[type_exec[type].size() + 1]; // change if we want multiple cgi script types
+	fill_c_str_from_string(&argv[0][0], type_exec[type]);
+	argv[1] = new char[(client.getHttpClass().getBuiltUri()).size() + 1];
+	fill_c_str_from_string(&argv[1][0], client.getHttpClass().getBuiltUri());
+	argv[2] = NULL;
 
 	int	fork_ret = fork();
 	if (fork_ret < 0) {
@@ -358,34 +363,12 @@ std::optional<cgi_t>	executeCGI(
 		cgi.client = client;
 		background_cgis.insert( {cgi.output, cgi} );
 	}
-	{	// this block is, essentially, what we need to do in the listen loop.
-		// the while (1) is the stand-in for the listen loop.
-	
-		//while (!background_cgis.empty()) {
-		//	cgi_response = checkBackgroundCGIs(background_cgis);
-		//	const auto& [cgi_responded, cgi_index] = cgi_response;
-		//	if (cgi_responded == 1) {
-		//		cgi_response_data = background_cgis.at(cgi_index);
-		//		background_cgis.erase(background_cgis.begin() + cgi_index);
-		//		break ;
-		//	}
-		//	else if (cgi_responded == -1) {
-		//		// brr brr error
-		//		// we can do an error response and erase the background_cgi that gave error
-		//		return std::nullopt;
-		//	}
-		//}
 		// at the end of the program, run this for every previously launched cgi
 		// cout message unnecessary
 
 		//while (waitpid(cgi.child_pid, NULL, WNOHANG) == 0);
 		//std::cout << "process terminated\n";
-	}
-	// if response has Status (case insensitive) header, than that's the status
-	// otherwise, 200
-	// 
-	// MAKE THESE REASONABLE ->
-	delete argv[0];
-	delete argv[1];
+	delete[] argv[0];
+	delete[] argv[1];
 	return (cgi);
 }

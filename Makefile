@@ -163,7 +163,7 @@ leak:
 	+$(MAKE) debug
 	+$(MAKE) val
 val:
-	valgrind --track-fds=yes --track-origins=yes \
+	valgrind -s --track-fds=yes --track-origins=yes \
 	--leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)
 
 .PHONY:	clangd all clean fclean re test run leak debug gdb
