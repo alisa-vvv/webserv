@@ -26,7 +26,6 @@
 
 #define PYTHON_EXEC "python"
 #define PATH_TO_SCRIPT "/home/avaliull/Projects/lvl5/webserv/server/cgi-bin/hello_world.py"
-// root of location + cgi_pass
 
 void	fill_c_str_from_string(char *const c_str, const std::string& str) {
 	for (size_t i = 0; i < str.size(); i++) {
@@ -35,7 +34,6 @@ void	fill_c_str_from_string(char *const c_str, const std::string& str) {
 	c_str[str.size()] = '\0';
 }
 
-// t his maybe remove? if not, remove from http class
 std::string buildCGIResponseString(std::string cgiResponse)
 {
 	size_t firstSpace = cgiResponse.find(" ");
@@ -55,22 +53,6 @@ std::string buildCGIResponseString(std::string cgiResponse)
 	}
 	return cgiResponseString;
 }
-
-//static std::string buildCGIResponseString(std::string cgiResponse)
-//{
-//	size_t firstSpace = cgiResponse.find(" ");
-//	size_t newLine = cgiResponse.find("\r\n"); 
-//	std::string startLine = cgiResponse.substr(0, firstSpace);
-//	std::string cgiResponseString;
-//	if (startLine != "HTTP/1.1" || startLine != "HTTP/1.0")
-//		cgiResponseString = cgiResponse;
-//	else
-//	{
-//		cgiResponseString += "HTTP/1.1 200 OK\r\n";
-//		cgiResponseString += cgiResponse.substr(newLine + 2);
-//	}
-//	return cgiResponseString;
-//}
 
 static void	cgi_bzero(
 	char* path,
@@ -287,13 +269,11 @@ static void	handle_child(
 ) {
 	close(in_pipe[1]);
 	close(out_pipe[0]);
-	dup2(in_pipe[0], STDIN_FILENO); // add error checks on dup2?
+	dup2(in_pipe[0], STDIN_FILENO);
 	dup2(out_pipe[1], STDOUT_FILENO);
 	close(in_pipe[0]);
 	close(out_pipe[1]);
-	std::cerr << "executing cgi in child...\n\n";
 	tryExecveScript(client, binary_name, argv);
-	std::cerr << "if you see this, there's an error\n"; // delete this
 	exit(1);
 }
 
@@ -363,11 +343,6 @@ std::optional<cgi_t>	executeCGI(
 		cgi.client = client;
 		background_cgis.insert( {cgi.output, cgi} );
 	}
-		// at the end of the program, run this for every previously launched cgi
-		// cout message unnecessary
-
-		//while (waitpid(cgi.child_pid, NULL, WNOHANG) == 0);
-		//std::cout << "process terminated\n";
 	delete[] argv[0];
 	delete[] argv[1];
 	return (cgi);

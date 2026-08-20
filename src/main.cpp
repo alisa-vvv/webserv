@@ -14,7 +14,6 @@
 
 int main (int argc, char *argv[])
 {
-	(void)argv;
 	if (argc != 2)
 	{
 		std::cerr << "Error! No config file provided" << std::endl;
@@ -24,9 +23,9 @@ int main (int argc, char *argv[])
 	if (setupSignal() != SERVER_OK)
 		return (ERROR);
 	
-	char* config_file_path = argv[1]; // path to config file
+	char* config_file_path = argv[1];
 	std::optional<Config>	parse_config_ret = parseConfig(config_file_path);
-	if (parse_config_ret == std::nullopt)  // error during parsing.
+	if (parse_config_ret == std::nullopt)
 		return (ERROR);
 	const Config& config = *parse_config_ret;
 
@@ -46,6 +45,11 @@ int main (int argc, char *argv[])
 		return (1);
 	}
 	server.closeListeners();
+
+	// @alisa we'll need to test this. this is to kill hanging child processes on exit
+	signal(SIGQUIT, SIG_IGN);
+	kill(0, SIGQUIT);
+
 	return (0);
 }
 
