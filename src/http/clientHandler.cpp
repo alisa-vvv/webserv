@@ -22,7 +22,7 @@ static int checkState(Http &http)
 void	Client::clientHandler(const std::string &recvStr)
 {
 	Http &http = getHttpClass();
-	std::cout << GREEN << "==================REQUEST START======================" << RESET << std::endl;
+	//std::cout << GREEN << "==================REQUEST START======================" << RESET << std::endl;
 	
 	http.parseRequest(recvStr);
 
