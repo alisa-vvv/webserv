@@ -90,6 +90,7 @@ void Http::setResponseHeader(const std::string &key, const std::string &value) {
 void Http::setBody() {
 	std::string file = this->_builtUri;
 	std::error_code fileError;
+
 	if (!std::filesystem::is_regular_file(file, fileError))
 	{
 		printError("setBody target is not a file", "setBody", NOT_VAR);

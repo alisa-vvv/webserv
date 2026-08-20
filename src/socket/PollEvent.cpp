@@ -166,10 +166,10 @@ eClientEventResult Server::_handleClientEvent(int i)
 	if (_pollFds[i].revents & POLLOUT)
 	{
 		std::cout << "Calling send for client " << fd << std::endl;
-
-		std::cout << "Generated response:\n"
-				<< _clients.at(fd).getResponse()
-				<< "\n--- response end ---\n";
+//
+//		std::cout << "Generated response:\n"
+//				<< _clients.at(fd).getResponse()
+//				<< "\n--- response end ---\n";
 
 		eServerError err = _handleSend(_clients.at(fd));
 		if (err != SERVER_OK)

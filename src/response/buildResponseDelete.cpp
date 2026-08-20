@@ -28,6 +28,5 @@ void Http::handleDeleteResponse()
 		return setResponseCode(HTTP_NOT_FOUND);
 
 	setResponseCode(HTTP_OK);
-	setBody("");
 	setState(READY_TO_SEND);
 }
