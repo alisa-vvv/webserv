@@ -64,10 +64,10 @@ static void	cgi_bzero(
 }
 
 int	gotCGIOutput(
-	cgi_t&	cgi,
-	int*	p_status
+	cgi_t&	cgi
 ) {
 	const bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S_CGI);
+	int			p_status = 0;
 
 	if (timed_out) {
 		std::cout << "cgi execution took too long...\n";
@@ -79,7 +79,7 @@ int	gotCGIOutput(
 	}
 
 	#define CGI_RECV_BUF 512
-	int wait_res = waitpid(cgi.child_pid, p_status, WNOHANG);
+	int wait_res = waitpid(cgi.child_pid, &p_status, WNOHANG);
 	if (wait_res > 0) {
 		char buffer[CGI_RECV_BUF];
 		int	recv_ret;
@@ -114,10 +114,9 @@ int	gotCGIOutput(
 int	checkCgiDone(
 	cgi_t&	cgi
 ) {
-	int			p_status = 0;
 	int			got_output;
 
-	got_output = gotCGIOutput(cgi, &p_status);
+	got_output = gotCGIOutput(cgi);
 	if (got_output == -1) {
 		return (-1);
 	}
