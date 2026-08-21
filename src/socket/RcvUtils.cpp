@@ -12,11 +12,11 @@ eServerError Server::_handleRecv(int clientFd)
 	if (bytesRead > 0)
 	{
 		client.updateLastActivity();
-		std::cout << "Received "
-					<< bytesRead
-					<< " bytes from client "
-					<< clientFd
-					<< std::endl;
+		//std::cout << "Received "
+		//			<< bytesRead
+		//			<< " bytes from client "
+		//			<< clientFd
+		//			<< std::endl;
 
 		bufferObj.totalBytesReceived += bytesRead;
 		
@@ -60,9 +60,9 @@ eServerError	Server::_checkRecvBuffer(Client &client)
 	if (status == COMPLETE)
 	{
 		client.clientHandler(bufferObj.getRecvStr());
-		std::cout << "Client response now contains "
-			<< client.getResponse().size()
-			<< " bytes" << std::endl;
+		//std::cout << "Client response now contains "
+		//	<< client.getResponse().size()
+		//	<< " bytes" << std::endl;
 	}
 	return SERVER_OK;
 }
@@ -93,8 +93,6 @@ eServerError Server::_handleSend(Client& client)
 	const char *responseStart = response.c_str() + client.getBytesSent();
 	size_t remaining = response.size() - client.getBytesSent();
 
-	std::cout << "Trying to send " << remaining
-			  << " bytes to client " << clientFd << std::endl;
 	ssize_t result = send(clientFd, responseStart, remaining, 0);
 
 	if (result == ERROR)
@@ -111,21 +109,18 @@ eServerError Server::_handleSend(Client& client)
 	}
 	else if (result > 0)
 	{
-		std::cout << "send returned: " << result
-				  << ", bytes before: " << client.getBytesSent()
-				  << std::endl;
+		//std::cout << "send returned: " << result
+		//		  << ", bytes before: " << client.getBytesSent()
+		//		  << std::endl;
 
 		client.updateBytesSent(static_cast<size_t>(result));
 		client.updateLastActivity();
 
-		std::cout << "Sent\nbytes after: " << client.getBytesSent()
-				  << ", response size: " << response.size()
-				  << std::endl;
 
 		if (client.isResponseComplete())
 			client.setResponseStatus(false);
 	}
-	std::cout << "finisHED SEND" << std::endl; //test
+	//std::cout << PINK << "FINISHED SEND" << RESET << std::endl;
 
 	return SERVER_OK;
 }

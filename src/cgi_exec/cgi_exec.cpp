@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:04:11 by avaliull          #+#    #+#             */
-/*   Updated: 2026/08/18 10:31:44 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/20 13:52:12 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,29 +90,28 @@ int	gotCGIOutput(
 	}
 
 	#define CGI_RECV_BUF 512
-	if (int wait_res = waitpid(cgi.child_pid, p_status, WNOHANG) != 0) {
-		if (wait_res > 0) {
-			char buffer[CGI_RECV_BUF];
-			int	recv_ret;
-			do {
-				cgi_bzero(buffer, CGI_RECV_BUF);
-				recv_ret = read(cgi.output, buffer, CGI_RECV_BUF);
-				for (int i = 0; buffer[i] != '\0'; i++) {
-					cgi.output_string.push_back(buffer[i]);
-				}
-			} while (recv_ret > 0);
-			std::cout << CLR_YEL << "[cgi output start]\n";
-			std::cout << CLR_NON;
-			std::cout << cgi.output_string;
-			std::cout << CLR_YEL << "\n[cgi output end]" << CLR_NON << "\n";
-			close(cgi.input);
-			close(cgi.output);
-			return (true);
-		}
-		else if (wait_res < 0) { //Note from Tutku: error here, else never works, if case only returns 1 or 0
-			// brr brr error
-			return (-1);
-		}
+	int wait_res = waitpid(cgi.child_pid, p_status, WNOHANG);
+	if (wait_res > 0) {
+		char buffer[CGI_RECV_BUF];
+		int	recv_ret;
+		do {
+			cgi_bzero(buffer, CGI_RECV_BUF);
+			recv_ret = read(cgi.output, buffer, CGI_RECV_BUF);
+			for (int i = 0; buffer[i] != '\0'; i++) {
+				cgi.output_string.push_back(buffer[i]);
+			}
+		} while (recv_ret > 0);
+		std::cout << CLR_YEL << "[cgi output start]\n";
+		std::cout << CLR_NON;
+		//std::cout << cgi.output_string;
+		std::cout << CLR_YEL << "\n[cgi output end]" << CLR_NON << "\n";
+		close(cgi.input);
+		close(cgi.output);
+		return (true);
+	}
+	else if (wait_res < 0) {
+		// brr brr error
+		return (-1);
 	}
 	return (false);
 }
@@ -137,7 +136,7 @@ int	checkCgiDone(
 		std::string	response_string = buildCGIResponseString(cgi.output_string);
 		cgi.client.setResponse(response_string);
 		cgi.client.getHttpClass().setState(READY_TO_SEND); // this sho
-		std::cout << "checking response string:\n" << cgi.client.getResponse();
+		//std::cout << "checking response string:\n" << cgi.client.getResponse();
 		return (true);
 	}
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:50:39 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/18 09:38:26 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/20 14:34:45 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ eServerError Server::_initPollEvent()
 {
 	int pollFdCount;
 
+	std::cout << GREEN << "==================SERVER RUNS SUCCESSFULLY======================" << RESET << std::endl;
 	while (gStop == 0)
 	{
 		pollFdCount = poll(_pollFds.data(), _pollFds.size(), POLL_TIMEOUT_MS);
@@ -91,7 +92,7 @@ eServerError Server::_pollEvents()
 				return err;
 			i++;
 		}
-		else if (_isCgiFd(fd)) //TODO:finish
+		else if (_isCgiFd(fd))
 		{
 			eClientEventResult clientClosed = _handleCgiEvent(fd, i);
 			if (clientClosed == CLIENT_KEPT)
@@ -151,7 +152,10 @@ eClientEventResult Server::_handleClientEvent(int i)
 			clientState state = _clients.at(fd).getHttpClass().getState();
 
 			if (state == READY_TO_SEND)
+			{
 				_pollFds[i].events = POLLOUT;
+				return CLIENT_KEPT;
+			}
 			else if (state == HANDLING_CGI_EXTENSION)
 			{
 				if (_startCgi(fd) != SERVER_OK)
@@ -160,16 +164,13 @@ eClientEventResult Server::_handleClientEvent(int i)
 					return CLIENT_REMOVED;
 				}
 				_pollFds[i].events = 0;
+				return CLIENT_KEPT;
 			}
 		}
 	}
 	if (_pollFds[i].revents & POLLOUT)
 	{
-		std::cout << "Calling send for client " << fd << std::endl;
-
-		std::cout << "Generated response:\n"
-				<< _clients.at(fd).getResponse()
-				<< "\n--- response end ---\n";
+		//std::cout << "Calling send for client " << fd << std::endl;
 
 		eServerError err = _handleSend(_clients.at(fd));
 		if (err != SERVER_OK)
@@ -179,8 +180,6 @@ eClientEventResult Server::_handleClientEvent(int i)
 		}
 		if (_clients.at(fd).isResponseComplete())
 		{
-			std::cout << "Response completely sent to client "
-					<< fd << std::endl;
 			_closeClientFd(fd);
 			return CLIENT_REMOVED;
 		}

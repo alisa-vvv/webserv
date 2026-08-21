@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:55:10 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/18 11:31:56 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/20 14:29:16 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,11 +68,11 @@ eServerError Server::_acceptClients(int serverListenFd)
 			_clients[clientFd] = newClient;
 			
 			_addFdToPoll(clientFd);
-			std::cout << "Accepted client "
-					  << clientFd
-					  << " on listener "
-					  << serverListenFd
-					  << std::endl;
+			//std::cout << "Accepted client "
+			//		  << clientFd
+			//		  << " on listener "
+			//		  << serverListenFd
+			//		  << std::endl;
 			continue;
 		}
 		else if (errno == EWOULDBLOCK || errno == EAGAIN)
@@ -160,7 +160,7 @@ eClientEventResult Server::_handleCgiEvent(int cgiFd, int i)
 			break;
 		}
 	}
-	return CLIENT_KEPT;
+	return CLIENT_REMOVED;
 }
 
 void Server::_removeActiveCgi(int cgiFd)
