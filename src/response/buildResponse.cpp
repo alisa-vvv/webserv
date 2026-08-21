@@ -36,7 +36,6 @@ void Http::buildResponse()
 			{
 				if (std::filesystem::is_directory(this->_builtUri))
 				{
-					std::cout << "JUICE " << this->_builtUri << '\n';
 					if (requestConfig.location && requestConfig.location->autoindex)
 						handleAutoIndexResponse();
 					else if (requestConfig.server->autoindex)

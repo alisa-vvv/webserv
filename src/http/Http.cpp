@@ -74,7 +74,7 @@ std::uintmax_t	Http::getClientMaxBodySize(){
 /// @param code 
 void Http::setResponseCode(int code) {
 	this->_statusCode = code;
-	if (_statusCode != HTTP_OK && _statusCode != HTTP_CREATED)
+	if (_statusCode >= 400)
 		this->_state = CLIENT_ERROR;
 }
 
@@ -163,10 +163,9 @@ void Http::debugPrintRequest()
 	std::cout << "=== HTTP Debug Print ===" << std::endl;
 	std::cout << "Type: " << this->getState() << std::endl;
 	std::cout << "Method: " << this->getMethod() << std::endl;
-	std::cout << "Version: " << this->getVersion() << std::endl;
 	std::cout << "Status Code: " << this->getStatusCode() << std::endl;
 	std::cout << "Content Length: " << this->getContentLen() << std::endl;
-	std::cout << "Body: " << this->getBody() << std::endl;
+	std::cout << "URI: " << this->getReceivedUri() << std::endl;
 	std::cout << "========================" << std::endl;
 	
 }
