@@ -248,9 +248,9 @@ void	Http::validateLayer()
 	/*=====URI=====*/
 	if (validateURI(this->_receivedUri) == FAILURE)
 		return;
-	else {
-		validateFile();
-	}
+	if (requestConfig.location->returns.code != 0)
+		return;
+	validateFile();
 }
 
 

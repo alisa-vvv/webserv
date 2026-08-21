@@ -24,6 +24,8 @@ static const int HTTP_VERSION_NOT_SUPPORTED = 505; //HTTP Version not supported
 static const std::map<int, std::tuple<std::string, std::string>> HTTP_STATUS_MESSAGE = {
 	{200, {"OK", ""}},
 	{201, {"Created", ""}},
+	{300, {"Multiple Choices", ""}},
+	{302, {"Found", ""}},
 	{400, {"Bad request", "error_pages/400.html"}},
 	{401, {"Unauthorized", "error_pages/401.html"}},
 	{403, {"Forbidden", "error_pages/403.html"}},

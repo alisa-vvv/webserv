@@ -1,0 +1,27 @@
+
+Simple tests
+
+curl localhost:8080/index.html
+curl -X POST -H "Content-Type: plain/text" --data "1234567890" localhost:8080/
+curl -X DELETE localhost:8080/upload/upload.txt
+curl -X UNKNOWN localhost:8080
+
+
+localhost:8080/upload/
+
+Redirect
+curl -i http://localhost:8080/redirect
+
+Test cases
+File traversal
+curl --path-as-is -i 'http://127.0.0.1:8080/../secret.html'
+
+Double slash
+curl --path-as-is -i 'http://127.0.0.1:8080//etc/passwd'
+
+Backslash traversal
+curl --path-as-is -i 'http://127.0.0.1:8080/..\secret'
+
+Malformed request
+printf 'GET  HTTP/1.1\r\nHost: localhost\r\n\r\n' | nc 127.0.0.1 8080
+

@@ -66,7 +66,12 @@ void Http::setRequestConfig(const Listener *listener)
 			bestMatch = &currentLoc;
 			continue;
 		}
-		if (this->_receivedUri.find(currentLoc.prefix) == 0)
+		bool matchesLocation = this->_receivedUri == currentLoc.prefix
+			|| (this->_receivedUri.find(currentLoc.prefix) == 0
+				&& (currentLoc.prefix.back() == '/'
+					|| (this->_receivedUri.size() > currentLoc.prefix.size()
+						&& this->_receivedUri[currentLoc.prefix.size()] == '/')));
+		if (matchesLocation)
 		{
 			if (currentLoc.prefix.length() > longest)
 			{

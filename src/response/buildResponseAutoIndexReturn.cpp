@@ -32,6 +32,6 @@ void Http::handleReturnResponse()
 	std::cout << CLR_YEL << "DOING SHIT" << CLR_NON << "\n";
 	setResponseCode(returnCode);
 	setResponseHeader("Location", requestConfig.location->returns.target);
-	setBody("");
+	this->_body.clear();
 	setState(READY_TO_SEND);
 }
