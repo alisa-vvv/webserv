@@ -74,18 +74,18 @@ int	gotCGIOutput(
 		// we throw timeout error
 		kill(cgi.child_pid, SIGTERM);
 		close(cgi.input);
-		close(cgi.output);
+		//close(cgi.output); // i wanna die
 		return (-1);
 	}
 
-	#define CGI_RECV_BUF 512
+	static const int cgi_recv_buf = 512;
 	int wait_res = waitpid(cgi.child_pid, &p_status, WNOHANG);
 	if (wait_res > 0) {
-		char buffer[CGI_RECV_BUF];
+		char buffer[cgi_recv_buf];
 		int	recv_ret;
 		do {
-			cgi_bzero(buffer, CGI_RECV_BUF);
-			recv_ret = read(cgi.output, buffer, CGI_RECV_BUF);
+			cgi_bzero(buffer, cgi_recv_buf);
+			recv_ret = read(cgi.output, buffer, cgi_recv_buf - 1);
 			for (int i = 0; buffer[i] != '\0'; i++) {
 				cgi.output_string.push_back(buffer[i]);
 			}
