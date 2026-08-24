@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PollEvent.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:50:39 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/20 14:34:45 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/24 19:03:43 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ eServerError Server::_initPollEvent()
 {
 	int pollFdCount;
 
-	std::cout << GREEN << "==================SERVER RUNS SUCCESSFULLY======================" << RESET << std::endl;
+	_printSection("SERVER RUNS SUCCESSFULLY");
 	while (gStop == 0)
 	{
 		pollFdCount = poll(_pollFds.data(), _pollFds.size(), POLL_TIMEOUT_MS);
@@ -50,7 +50,10 @@ eServerError Server::_initPollEvent()
 					break;
 				continue; // poll should start again
 			}
-			std::cerr << "poll() failed: " << std::strerror(errno) << std::endl;
+
+			const std::string infoMsg = "failed: " + std::string(std::strerror(errno));
+			_printDebug("[POLL ERROR]", infoMsg, true);
+
 			return SERVER_POLL_ERR;
 		}
 		if (pollFdCount > 0)
@@ -82,8 +85,6 @@ eServerError Server::_pollEvents()
 			i++;
 			continue;
 		}
-		
-		printPollInfo(i); // test
 
 		if (_isListenerFd(fd))
 		{
@@ -117,7 +118,9 @@ eServerError Server::_handleListenerEvent(int i)
 
 	if (_pollFds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 	{
-		std::cerr << "Listening socket error on fd " << fd << std::endl;
+		const std::string infoMsg = "POLLHUP | POLLERR | POLLNVAL";
+		_printDebug("[LISTENER ERROR]", fd, infoMsg, true);
+
 		return SERVER_POLL_ERR;
 	}
 
@@ -149,6 +152,9 @@ eClientEventResult Server::_handleClientEvent(int i)
 		}
 		if (_clients.at(fd).getRecvStatus() == COMPLETE)
 		{
+			const std::string infoMsg = "bytes=" + std::to_string(_clients.at(fd).getRcvBuffer().totalBytesReceived);
+			_printDebug("[RECV COMPLETE]", _clients.at(fd), infoMsg, false);
+			
 			clientState state = _clients.at(fd).getHttpClass().getState();
 
 			if (state == READY_TO_SEND)
@@ -170,8 +176,6 @@ eClientEventResult Server::_handleClientEvent(int i)
 	}
 	if (_pollFds[i].revents & POLLOUT)
 	{
-		//std::cout << "Calling send for client " << fd << std::endl;
-
 		eServerError err = _handleSend(_clients.at(fd));
 		if (err != SERVER_OK)
 		{
@@ -187,3 +191,52 @@ eClientEventResult Server::_handleClientEvent(int i)
 	return CLIENT_KEPT;
 }
 
+eClientEventResult Server::_handleCgiEvent(int cgiFd, int i)
+{
+	int clientFd = _cgiFdToClientFd.at(cgiFd);
+
+	if (_pollFds[i].revents & (POLLERR | POLLNVAL))
+	{
+		std::string infoMsg;
+
+		if (_pollFds[i].revents & POLLERR)
+			infoMsg += "POLLERR ";
+		if (_pollFds[i].revents & POLLNVAL)
+			infoMsg += "POLLNVAL";
+		_printDebug("[CGI POLL ERROR]", _clients.at(clientFd), cgiFd, infoMsg, true);
+
+		_removeActiveCgi(cgiFd);
+		_closeClientFd(clientFd);
+		return CLIENT_REMOVED;
+	}
+
+	int isCgiDone = checkCgiDone(_backgroundCgis.at(cgiFd));
+
+	if (isCgiDone == -1)
+	{
+		_printDebug("[CGI ERROR]", _clients.at(clientFd), cgiFd, "execution failed", true);
+
+		_removeActiveCgi(cgiFd);
+		_closeClientFd(clientFd);
+		return CLIENT_REMOVED;
+	}
+	if (isCgiDone == 0) // cgi still running
+	{
+		return CLIENT_KEPT;
+	}
+
+	// cgi finished and response ready
+	_printDebug("[CGI DONE]", _clients.at(clientFd), cgiFd, "", false);
+	_copyCgiResponse(cgiFd, clientFd);
+
+	// set client to POLLOUT for sending
+	for (size_t j = 0; j < _pollFds.size(); j++)
+	{
+		if (_pollFds[j].fd == clientFd)
+		{
+			_pollFds[j].events = POLLOUT;
+			break;
+		}
+	}
+	return CLIENT_REMOVED;
+}

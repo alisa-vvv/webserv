@@ -101,3 +101,6 @@ https://www.w3schools.com/jsref/met_document_addeventlistener.asp
 
 getElementById
 https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById
+
+string empty check
+https://www.geeksforgeeks.org/cpp/std-string-empty-in-cpp/

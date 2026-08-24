@@ -6,7 +6,7 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:35:04 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/19 23:57:24 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/24 18:42:14 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <netdb.h>
 
+#include "Colors.hpp"
 #include "configParser.hpp"
 
 #define SUCCESS 0
@@ -83,10 +84,10 @@ class Listener
 		size_t				getConfigCount() const { return _serverConfigs.size(); };
 		
 		void				closeSocket();
-
-		//test
-		void			printPortNumber();
-		int				_printSocketName();
+		
+		//debug
+		void			_printDebug(const std::string &eventStr, int fd, const std::string &infoMsg, bool error);
+		std::string		_getSocketInfo() const;
 };
 
 #endif

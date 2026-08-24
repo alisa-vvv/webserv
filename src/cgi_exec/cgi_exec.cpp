@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi_exec.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:04:11 by avaliull          #+#    #+#             */
-/*   Updated: 2026/08/20 13:52:12 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/24 18:30:43 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -306,7 +306,7 @@ std::optional<cgi_t>	executeCGI(
 		{".py", "python"},
 	}; // change this if we want multiple cgi script types
 
-	std::cout << GREEN << "Started CGI execution\n" << RESET;
+	// std::cout << GREEN << "Started CGI execution\n" << RESET;
 	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
 		// brr brr errorr
 		return (std::nullopt);

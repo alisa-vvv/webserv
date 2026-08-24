@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+         #
+#    By: tutku <tutku@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/22 19:01:25 by avaliull          #+#    #+#              #
-#    Updated: 2026/07/28 11:14:48 by tcakir-y         ###   ########.fr        #
+#    Updated: 2026/08/24 15:12:13 by tutku            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -66,7 +66,8 @@ CXXFILES_SOCKET =	Server.cpp\
 					RcvBuffer.cpp\
 					PollEvent.cpp\
 					PollEventUtils.cpp\
-					ServerCleanup.cpp
+					ServerCleanup.cpp\
+					ServerDebug.cpp
 		
 MAIN =				main.cpp
 

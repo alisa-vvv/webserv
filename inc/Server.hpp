@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/08/18 10:29:14 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/24 19:03:38 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,59 +59,63 @@ private:
 	std::map<int, cgi_t>		_backgroundCgis;
 	std::map<int, int>			_cgiFdToClientFd;
 
-	void				_buildListener(void);
-	void				_addFdToPoll(int fd);
-	void				_addListenerFdsToPoll();
+	void						_buildListener(void);
+	void						_addFdToPoll(int fd);
+	void						_addListenerFdsToPoll();
 	
-	bool				_isListenerFd(int fd) const;
-	bool				_isClientFd(int fd) const;
-	bool				_isCgiFd(int fd);
+	bool						_isListenerFd(int fd) const;
+	bool						_isClientFd(int fd) const;
+	bool						_isCgiFd(int fd);
 
-	const Listener*		_findListenerByFd(int fd);
+	const Listener*				_findListenerByFd(int fd);
 	
 	Server(const Server &other);
-	Server				&operator=(const Server &other);
-	eServerError		_initPollEvent();
+	Server						&operator=(const Server &other);
+	eServerError				_initPollEvent();
 	
-	eServerError		_pollEvents();
-	eServerError		_handleListenerEvent(int i);
-	eClientEventResult	_handleClientEvent(int i);
-	eClientEventResult	_handleCgiEvent(int i);
-	eServerError		_startCgi(int clientFd);
-	eServerError		_handleRecv(int fd);
-	eServerError		_checkRecvBuffer(Client &client);
-	eServerError		_handleSend(Client& client);
+	eServerError				_pollEvents();
+	eServerError				_handleListenerEvent(int i);
+	eClientEventResult			_handleClientEvent(int i);
+	eClientEventResult			_handleCgiEvent(int i);
+	eServerError				_startCgi(int clientFd);
+	eServerError				_handleRecv(int fd);
+	eServerError				_checkRecvBuffer(Client &client);
+	eServerError				_handleSend(Client& client);
 
-	eServerError		_acceptClients(int serverListenFd);
-	eServerError		_setNonBlocking(int fd);
-	void				_checkClientTimeouts();
+	eServerError				_acceptClients(int serverListenFd);
+	eServerError				_setNonBlocking(int fd);
+	void						_checkClientTimeouts();
 
 
-	void				_closeClientFd(int fd);
-	void				_closeClients();
-	void				_closeAll();
-	void				_removeFdFromPoll(int fd);
+	void						_closeClientFd(int fd);
+	void						_closeClients();
+	void						_closeAll();
+	void						_removeFdFromPoll(int fd);
 	
 	public:
 	Server(const Config &config);
 	~Server();
 	
-	eServerError		setup(void);
-	eServerError		run();
-	int					matchConfig(uint32_t ip, int port, const cfg_server_t &serverConfig);
+	eServerError				setup(void);
+	eServerError				run();
+	int							matchConfig(uint32_t ip, int port, const cfg_server_t &serverConfig);
 	
-	void				closeListeners();
-
-	//test
-	void					printPollInfo(int i);
+	void						closeListeners();
 	
 	const std::map<int, cgi_t>&	getActiveCgis() const;
-	void					_removeActiveCgi(int cgiFd);
-	eClientEventResult		_handleCgiEvent(int fd, int i);
-	void _copyCgiResponse(int cgiFd, int clientFd);
+	void						_removeActiveCgi(int cgiFd);
+	eClientEventResult			_handleCgiEvent(int fd, int i);
+	void						_copyCgiResponse(int cgiFd, int clientFd);
+
+	//debug
+	void						_printDebug(const std::string &eventStr, const std::string &infoMsg, bool error); //poll
+	void						_printDebug(const std::string &eventStr, const Client &client, const std::string &infoMsg, bool error);
+	void						_printDebug(const std::string &eventStr, const Client &client, int cgiFd, const std::string &infoMsg, bool error); //cgi
+	void						_printDebug(const std::string &eventStr, int fd, const std::string &infoMsg, bool error = false);
+	void						_printSection(const std::string &msg);
 };
 
-int					setupSignal();
+int								setupSignal();
 
 #endif
 

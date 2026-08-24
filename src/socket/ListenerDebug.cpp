@@ -6,25 +6,13 @@
 /*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/04 11:57:12 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/02 20:54:40 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/24 18:42:09 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Listener.hpp"
 
-void Listener::printPortNumber()
-{
-	socklen_t length = sizeof(_address);
-
-	if (getsockname(_listenerFd, (struct sockaddr *)&_address, &length))
-	{
-		perror("getting socket name");
-		exit(1);
-	}
-	printf("Socket has port #%d\n", ntohs(_address.sin_port));
-}
-
-int Listener::_printSocketName()
+std::string Listener::_getSocketInfo() const
 {
 	struct sockaddr_in addr;
 	socklen_t len;
@@ -34,9 +22,37 @@ int Listener::_printSocketName()
 
 	if (getsockname(_listenerFd, reinterpret_cast<struct sockaddr *>(&addr), &len) == ERROR)
 	{
-		std::cerr << "getsockname failed" << std::endl;
-		return ERROR;
+		return "";
 	}
-	std::cout << "Bound port: " << ntohs(addr.sin_port) << std::endl;
-	return SUCCESS;
+
+	return "port=" + std::to_string(ntohs(addr.sin_port));
+}
+
+// to print socket/bind/listen information
+void Listener::_printDebug(const std::string &eventStr, int fd, const std::string &infoMsg, bool error)
+{
+	if (error != true)
+	{
+		std::cout << GREEN << eventStr
+				  << RESET
+				  << " fd=" << fd;
+	
+		if (infoMsg.empty() != true)
+		{
+			std::cout << " " << infoMsg;
+		}
+		std::cout << std::endl;
+	}
+	else
+	{
+		std::cerr << RED << eventStr
+				  << RESET
+				  << " fd=" << fd;
+
+		if (infoMsg.empty() != true)
+		{
+			std::cerr << " " << infoMsg;
+		}
+		std::cerr << std::endl;
+	}
 }

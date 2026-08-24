@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PollEventUtils.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:55:10 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/20 14:29:16 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/24 17:30:07 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,7 @@ eServerError Server::_acceptClients(int serverListenFd)
 
 	if (listener == NULL)
 	{
-		std::cerr << "Listener not found for fd "
-				  << serverListenFd << std::endl;
+		_printDebug("[LISTENER ERROR]", serverListenFd, "listener not found", true);
 		return SERVER_LISTENER_NOT_FOUND_ERR;
 	}
 
@@ -56,34 +55,27 @@ eServerError Server::_acceptClients(int serverListenFd)
 		{
 			if (_setNonBlocking(clientFd) != SERVER_OK)
 			{
-				std::cerr << "Failed to set client "
-						  << clientFd
-						  << " to non-blocking mode"
-						  << std::endl;
+				_printDebug("[CLIENT ERROR]", clientFd, "failed to set non-blocking mode", true);
+
 				close(clientFd);
 				continue;
 			}
 
-			Client newClient(_findListenerByFd(serverListenFd), clientFd);
+			Client newClient(listener, clientFd);
 			_clients[clientFd] = newClient;
 			
 			_addFdToPoll(clientFd);
-			//std::cout << "Accepted client "
-			//		  << clientFd
-			//		  << " on listener "
-			//		  << serverListenFd
-			//		  << std::endl;
+			_printDebug("[ACCEPT]", newClient, "connected", false);
 			continue;
 		}
 		else if (errno == EWOULDBLOCK || errno == EAGAIN)
 			break;
 		if (errno == EINTR || errno == ECONNABORTED)
 			continue;
-		std::cerr << "accept() failed on listener "
-				  << serverListenFd
-				  << ": "
-				  << std::strerror(errno)
-				  << std::endl;
+
+		const std::string infoMsg = "accept failed: " + std::string(std::strerror(errno));
+		_printDebug("[ACCEPT ERROR]", serverListenFd, infoMsg, true);
+
 		return SERVER_ACCEPT_ERR;
 	}
 	return SERVER_OK;
@@ -118,49 +110,11 @@ void Server::_copyCgiResponse(int cgiFd, int clientFd)
 
 	_clients.at(clientFd).setResponse(response);
 	_clients.at(clientFd).getHttpClass().setState(READY_TO_SEND);
+
+	const std::string infoMsg = "bytes=" + std::to_string(response.size());
+	_printDebug("[CGI RESPONSE]", _clients.at(clientFd), cgiFd, infoMsg, false);
+
 	_removeActiveCgi(cgiFd);
-}
-
-
-eClientEventResult Server::_handleCgiEvent(int cgiFd, int i)
-{
-	int clientFd = _cgiFdToClientFd.at(cgiFd);
-
-	if (_pollFds[i].revents & (POLLERR | POLLNVAL))
-	{
-		std::cerr << "CGI event error! fd: " << cgiFd << std::endl;
-
-		_removeActiveCgi(cgiFd);
-		_closeClientFd(clientFd);
-		return CLIENT_REMOVED;
-	}
-
-	int isCgiDone = checkCgiDone(_backgroundCgis.at(cgiFd));
-	
-	if (isCgiDone == -1)
-	{
-		_removeActiveCgi(cgiFd);
-		_closeClientFd(clientFd);
-		return CLIENT_REMOVED;
-	}
-	if (isCgiDone == 0) //cgi still running
-	{
-		return CLIENT_KEPT;
-	}
-
-	//cgi finished and response ready
-	_copyCgiResponse(cgiFd, clientFd);
-
-	//set client to POLLOUT for sending
-	for (size_t j = 0; j < _pollFds.size(); j++)
-	{
-		if (_pollFds[j].fd == clientFd)
-		{
-			_pollFds[j].events = POLLOUT;
-			break;
-		}
-	}
-	return CLIENT_REMOVED;
 }
 
 void Server::_removeActiveCgi(int cgiFd)
@@ -170,7 +124,7 @@ void Server::_removeActiveCgi(int cgiFd)
 
 	size_t removed = _backgroundCgis.erase(cgiFd);
 	if (removed == 0)
-		std::cerr << "CGI fd was not found\n";
+		_printDebug("[CGI REMOVE ERROR]", cgiFd, "CGI fd not found", true);
 	_cgiFdToClientFd.erase(cgiFd);
 }
 
@@ -183,11 +137,16 @@ eServerError Server::_startCgi(int clientFd)
 	std::optional<cgi_t> cgi = executeCGI(client, _backgroundCgis);
 
 	if (!cgi.has_value())
+	{
+		_printDebug("[CGI START ERROR]", client, "failed to start CGI", true);
 		return SERVER_CGI_ERR;
+	}
 
 	int cgiFd = cgi->output;
 	_cgiFdToClientFd[cgiFd] = clientFd;
 	_addFdToPoll(cgiFd);
+
+	_printDebug("[CGI START]", client, cgiFd, "", false);
 
 	return SERVER_OK;
 }

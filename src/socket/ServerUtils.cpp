@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 20:52:11 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/22 14:09:23 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/24 19:03:49 by tutku            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,33 +65,17 @@ eServerError Server::_setNonBlocking(int fd)
 	int flags = fcntl(fd, F_GETFL, 0);
 	if (flags == ERROR)
 	{
-		std::cerr << "Error fcntl F_GETFL: " << std::strerror(errno) << std::endl;
+		const std::string infoMsg ="F_GETFL failed: " + std::string(std::strerror(errno));
+		_printDebug("[FCNTL ERROR]", fd, infoMsg, true);
 		return SERVER_SETNONBLOCKING_ERR;
 	}
 	int status = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 	if (status == ERROR)
 	{
-		std::cerr << "Error making fd non-blocking: " << std::strerror(errno) << std::endl;
+		const std::string infoMsg = "F_SETFL failed: " + std::string(std::strerror(errno));
+		_printDebug("[FCNTL ERROR]", fd, infoMsg, true);
 		return SERVER_SETNONBLOCKING_ERR;
 	}
+	_printDebug("[NONBLOCKING]", fd, "enabled", false);
 	return SERVER_OK;
-}
-
-// test
-// https://man7.org/linux/man-pages/man2/poll.2.html
-void Server::printPollInfo(int i) // @alisa commented this out cause it output
-{
-	(void) i;
-	//std::cout << "fd " << _pollFds[i].fd << " revents: ";
-	//if (_pollFds[i].revents & POLLIN) // There is data to read.
-	//	std::cout << "POLLIN ";
-	//if (_pollFds[i].revents & POLLOUT) // Writing is now possible
-	//	std::cout << "POLLOUT ";
-	//if (_pollFds[i].revents & POLLHUP) // Hang up
-	//	std::cout << "POLLHUP ";
-	//if (_pollFds[i].revents & POLLERR) // Error condition
-	//	std::cout << "POLLERR ";
-	//if (_pollFds[i].revents & POLLNVAL) // Invalid request, fd not open
-	//	std::cout << "POLLNVAL ";
-	//std::cout << std::endl;
 }
