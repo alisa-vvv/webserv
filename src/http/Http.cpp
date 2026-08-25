@@ -238,6 +238,7 @@ void Http::printError(std::string error, std::string functName, bool isVar)
 			std::cout << RED << "Printing variable " << error << ": " << RESET << functName << std::endl;
 		else 
 			std::cout << RED << "Error: " << error << " on function " << RESET << functName << std::endl;
+		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 	}
 }
 
