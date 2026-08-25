@@ -68,11 +68,14 @@ static void	cgi_bzero(
 }
 
 void	checkCgiTimeout(cgi_t& cgi) {
+	if (cgi.timed_out == true)
+		return ;
 	const bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S_CGI);
 
 	if (timed_out) {
 		cgi.timed_out = true;
-		std::cout << "Killing cgi process (fd: " << cgi.output << ") due to timeout\n";
+		std::cout << CLR_YEL << "[CGI TIMEOUT] " << CLR_NON;
+		std::cout << "killing cgi process (fd: " << cgi.output << ") due to timeout\n";
 		//Http& http = cgi.client.getHttpClass();
 		//std::cout << "here, should construct timeout error and return true\n";
 		//http.setResponseCode(HTTP_REQUEST_TIMEOUT);
@@ -135,6 +138,7 @@ int	checkCgiDone(
 			http.setResponseCode(HTTP_REQUEST_TIMEOUT);
 			http.handleErrorResponse();
 			http.buildResponseString();
+			cgi.client.setResponse(http.getResponseString());
 		}
 		else {
 			std::string	response_string = buildCGIResponseString(cgi.output_string);
@@ -322,7 +326,6 @@ std::optional<cgi_t>	executeCGI(
 		{".py", "python"},
 	}; // change this if we want multiple cgi script types
 
-	std::cout << GREEN << "Started CGI execution\n" << RESET;
 	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
 		// brr brr errorr
 		return (std::nullopt);
