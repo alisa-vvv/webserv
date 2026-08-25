@@ -43,6 +43,7 @@ std::tuple<int, size_t>	checkBackgroundCGIs(
 int	checkCgiDone(
 	cgi_t&	cgi
 );
+void	killCgi(cgi_t& cgi);
 
 std::string buildCGIResponseString(std::string cgiResponse);
 

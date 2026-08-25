@@ -70,7 +70,15 @@ void Server::_checkClientTimeouts()
 		if (checkTimeOut(lastActivity, DEFAULT_TIMEOUT_S))
 		{
 			_printDebug("[TIMEOUT]", _clients.at(clientFd), "client inactive for too long", true);
-			_closeClientFd(clientFd);
+			std::map<int, cgi_t>&	cgis = getActiveCgis();
+			if (cgis.find(clientFd) != cgis.end()) {
+				killCgi(cgis.at(clientFd));
+				checkCgiDone(cgis.at(clientFd));
+			}
+			else { // this is where we handle requests that don't have a cgi
+				//_closeClientFd(clientFd); -- we shouldnt' close it yet, we should send first
+			}
+			// here we send the resoinse and close the client
 		}
 	}
 }

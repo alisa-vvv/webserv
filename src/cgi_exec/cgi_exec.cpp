@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "cgi_exec.hpp"
+#include "utils.hpp"
 #include "configParser.hpp"
 #include "Timer.hpp"
 #include <unistd.h>
@@ -67,16 +68,20 @@ static void	cgi_bzero(
 	}
 }
 
+void	killCgi(cgi_t& cgi) {
+	cgi.timed_out = true;
+	std::cout << CLR_YEL << "[CGI TIMEOUT] " << CLR_NON;
+	std::cout << "killing cgi process (fd: " << cgi.output << ") due to timeout\n";
+	kill(cgi.child_pid, SIGTERM);
+}
+
 void	checkCgiTimeout(cgi_t& cgi) {
 	if (cgi.timed_out == true)
 		return ;
 	const bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S_CGI);
 
 	if (timed_out) {
-		cgi.timed_out = true;
-		std::cout << CLR_YEL << "[CGI TIMEOUT] " << CLR_NON;
-		std::cout << "killing cgi process (fd: " << cgi.output << ") due to timeout\n";
-		kill(cgi.child_pid, SIGTERM);
+		killCgi(cgi);
 	}
 }
 
@@ -127,10 +132,7 @@ int	checkCgiDone(
 	if (got_output == true) {
 		Http& http = cgi.client.getHttpClass();
 		if (cgi.timed_out) {
-			http.setResponseCode(HTTP_REQUEST_TIMEOUT);
-			http.handleErrorResponse();
-			http.buildResponseString();
-			cgi.client.setResponse(http.getResponseString());
+			createErrorResponse(cgi.client, cgi.client.getHttpClass());
 		}
 		else {
 			std::string	response_string = buildCGIResponseString(cgi.output_string);

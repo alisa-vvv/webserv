@@ -29,7 +29,8 @@ CXXFILES	=	$(CXXFILES_PARSER)\
 				$(RESPONSE_BUILDER)\
 				$(CXXFILES_SOCKET)\
 				$(MAIN)\
- 				$(CXXFILES_CGI)
+ 				$(CXXFILES_CGI)\
+				utils.cpp
 
 CXXFILES_PARSER	=	configParser.cpp\
 					configParserTEST.cpp\
