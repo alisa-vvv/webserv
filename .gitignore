@@ -20,3 +20,5 @@ www/upload/*
 configParser
 config_parser
 webserv
+tester
+cgi_tester
