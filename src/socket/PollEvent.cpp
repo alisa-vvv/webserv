@@ -68,8 +68,10 @@ eServerError Server::_initPollEvent()
 		for (size_t i = 0; i < _pollFds.size(); i++) {
 			const int fd = _pollFds.at(i).fd;
 			if (_isCgiFd(fd)) {
-				auto cgi_map = getActiveCgis();
-				checkCgiTimeout(cgi_map[fd]);
+				std::map<int, cgi_t>& cgi_map = getActiveCgis();
+				if (cgi_map.find(fd) != cgi_map.end()) {
+					checkCgiTimeout(cgi_map.at(fd));
+				}
 			}
 		}
 	}

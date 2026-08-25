@@ -74,7 +74,8 @@ void Server::_checkClientTimeouts()
 		}
 	}
 }
-const std::map<int, cgi_t>& Server::getActiveCgis() const //TODO:finish
+
+std::map<int, cgi_t>& Server::getActiveCgis() //TODO:finish
 {
 	return _backgroundCgis;
 }

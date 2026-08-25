@@ -17,15 +17,20 @@
 
 // might mvoe this declaration elsewhere, still confused about our scturcuture
 // i think if it's not declared here we're making a big mistake lol
-typedef struct	cgi_t {
+class	cgi_t {
+public:
+	cgi_t() = delete;
+	cgi_t(Client&);
+
 	int							child_pid = -1;
 	int							input = -1;
 	int							output = -1;
 	std::string					input_string = "";
 	std::string					output_string = "";
 	time_point<system_clock>	timer;
-	Client						client;
-}	cgi_t;
+	bool						timed_out = false;
+	Client&						client;
+};
 
 std::optional<cgi_t>	executeCGI(
 	Client& client,
