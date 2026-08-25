@@ -13,7 +13,7 @@
 
 #include "Timer.hpp"
 #include <optional>
-#define DEBUG_HTTP 0
+#define DEBUG_HTTP 1
 
 
 
