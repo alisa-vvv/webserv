@@ -233,9 +233,11 @@ void Http::debugPrintHttpClassAttributes()
 /// @param isVar 
 void Http::printError(std::string error, std::string functName, bool isVar)
 {
-	if (isVar)
-		std::cout << RED << "Printing variable " << error << ": " << RESET << functName << std::endl;
-	else 
-		std::cout << RED << "Error: " << error << " on function " << RESET << functName << std::endl;
+	if (DEBUG_HTTP) {
+		if (isVar)
+			std::cout << RED << "Printing variable " << error << ": " << RESET << functName << std::endl;
+		else 
+			std::cout << RED << "Error: " << error << " on function " << RESET << functName << std::endl;
+	}
 }
 
