@@ -40,3 +40,5 @@ int	checkCgiDone(
 );
 
 std::string buildCGIResponseString(std::string cgiResponse);
+
+void	checkCgiTimeout(cgi_t& cgi);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi_exec.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:04:11 by avaliull          #+#    #+#             */
-/*   Updated: 2026/08/24 18:30:43 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/20 13:52:12 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,18 @@ static void	cgi_bzero(
 	}
 }
 
+void	checkCgiTimeout(cgi_t& cgi) {
+	const bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S_CGI);
+
+	if (timed_out) {
+		std::cerr << "Killing cgi process (fd: " << cgi.output << ") due to timeout\n";
+		// we throw timeout error
+		kill(cgi.child_pid, SIGTERM);
+		close(cgi.input);
+	//	close(cgi.output); // i wanna die
+	}
+}
+
 int	gotCGIOutput(
 	cgi_t&	cgi
 ) {
@@ -70,12 +82,13 @@ int	gotCGIOutput(
 	int			p_status = 0;
 
 	if (timed_out) {
-		std::cout << "cgi execution took too long...\n";
-		// we throw timeout error
-		kill(cgi.child_pid, SIGTERM);
-		close(cgi.input);
-		//close(cgi.output); // i wanna die
-		return (-1);
+		Http& http = cgi.client.getHttpClass();
+		std::cerr << "here, should construct timeout error and return true\n";
+		http.setResponseCode(HTTP_REQUEST_TIMEOUT);
+		http.handleErrorResponse();
+		http.buildResponse();
+		http.buildResponseString();
+		return (true);
 	}
 
 	static const int cgi_recv_buf = 512;
@@ -116,6 +129,7 @@ int	checkCgiDone(
 ) {
 	int			got_output;
 
+	std::cout << "are we checking chat\n";
 	got_output = gotCGIOutput(cgi);
 	if (got_output == -1) {
 		return (-1);
@@ -141,7 +155,9 @@ static const std::string match_method_to_string(
 		case DELETE:
 			return ("DELETE");
 		case UNKNOWN:
+		default:
 			return ("UNKNOWN");
+			
 	}
 }
 	/*	These are things we're most likely not going to have. Putting them here in case */
@@ -306,7 +322,7 @@ std::optional<cgi_t>	executeCGI(
 		{".py", "python"},
 	}; // change this if we want multiple cgi script types
 
-	// std::cout << GREEN << "Started CGI execution\n" << RESET;
+	std::cout << GREEN << "Started CGI execution\n" << RESET;
 	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
 		// brr brr errorr
 		return (std::nullopt);
