@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/10 19:57:27 by tutku             #+#    #+#             */
-/*   Updated: 2026/07/22 14:58:52 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/25 12:01:41 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ int main (int argc, char *argv[])
 	eServerError err = server.setup();
 	if (err != SERVER_OK)
 	{
-		std::cerr << "Server setup failed" << std::strerror(errno) <<std::endl;
 		server.closeListeners();
 		return (1);
 	}
@@ -53,24 +52,3 @@ int main (int argc, char *argv[])
 	return (0);
 }
 
-/*
-flow:
-
-socket()
-setsockopt()
-fcntl(non-blocking)
-setAddress()
-bind()
-listen()
-*/
-
-/*
-//cgi order
-	std::vector<cgi_t>		cgis_in_background;
-	std::optional<cgi_t>	cgi = executeCGI(config.servers.back());
-	if (cgi == std::nullopt) {
-		// brr brr error
-		return (1);
-	}
-	cgis_in_background.push_back(*cgi);
-*/

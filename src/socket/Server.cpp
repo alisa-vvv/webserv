@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/08/24 19:00:51 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/25 13:22:57 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ eServerError Server::run()
 {
 	eServerError err;
 
-	_printSection("INITIALIZING POLL");
 	_addListenerFdsToPoll();
 	if (_pollFds.empty()) //server has nothing to listen on
 	{

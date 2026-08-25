@@ -116,6 +116,7 @@ eServerError Server::_handleSend(Client& client)
 
 			const std::string completeMsg = "bytes=" + std::to_string(client.getBytesSent());
 			_printDebug("[SEND COMPLETE]", client, completeMsg, false);
+			std::cout << std::endl;
 		}
 	}
 	return SERVER_OK;

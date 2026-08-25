@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PollEventUtils.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:55:10 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/24 17:30:07 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/25 12:01:51 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ eServerError Server::_acceptClients(int serverListenFd)
 			
 			_addFdToPoll(clientFd);
 			_printDebug("[ACCEPT]", newClient, "connected", false);
+			std::cout << std::endl;
 			continue;
 		}
 		else if (errno == EWOULDBLOCK || errno == EAGAIN)
