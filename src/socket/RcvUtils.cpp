@@ -16,8 +16,8 @@ eServerError Server::_handleRecv(int clientFd)
 		bufferObj.totalBytesReceived += bytesRead;
 		bufferObj.append(buffer, bytesRead);
 		
-		const std::string infoMsg = "bytes=" + std::to_string(bytesRead);
-		_printDebug("[RECV]", client, infoMsg, false);
+		//const std::string infoMsg = "bytes=" + std::to_string(bytesRead);
+		//_printDebug("[RECV]", client, infoMsg, false);
 
 		const std::string &requestStr = bufferObj.getRecvStr();
 		if (requestStr.size() > MAX_REQUEST)

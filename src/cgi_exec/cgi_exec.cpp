@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:04:11 by avaliull          #+#    #+#             */
-/*   Updated: 2026/08/20 13:52:12 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/25 15:21:42 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,10 +111,6 @@ int	gotCGIOutput(
 				cgi.output_string.push_back(buffer[i]);
 			}
 		} while (recv_ret > 0);
-		std::cout << CLR_YEL << "[cgi output start]\n";
-		std::cout << CLR_NON;
-		//std::cout << cgi.output_string;
-		std::cout << CLR_YEL << "\n[cgi output end]" << CLR_NON << "\n";
 		close(cgi.input);
 		close(cgi.output);
 		return (true);
@@ -329,7 +325,6 @@ std::optional<cgi_t>	executeCGI(
 		{".py", "python"},
 	}; // change this if we want multiple cgi script types
 
-	std::cout << GREEN << "Started CGI execution\n" << RESET;
 	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
 		// brr brr errorr
 		return (std::nullopt);
