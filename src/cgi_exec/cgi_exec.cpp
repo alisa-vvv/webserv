@@ -76,14 +76,6 @@ void	checkCgiTimeout(cgi_t& cgi) {
 		cgi.timed_out = true;
 		std::cout << CLR_YEL << "[CGI TIMEOUT] " << CLR_NON;
 		std::cout << "killing cgi process (fd: " << cgi.output << ") due to timeout\n";
-		//Http& http = cgi.client.getHttpClass();
-		//std::cout << "here, should construct timeout error and return true\n";
-		//http.setResponseCode(HTTP_REQUEST_TIMEOUT);
-		//http.handleErrorResponse();
-		////http.buildResponse();
-		////http.buildResponseString();
-		//std::cout << "response: " << http.getResponseString() << '\n';
-		// we throw timeout error
 		kill(cgi.child_pid, SIGTERM);
 	}
 }
