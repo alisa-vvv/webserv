@@ -22,15 +22,12 @@ static int checkState(Http &http)
 void	Client::clientHandler(const std::string &recvStr)
 {
 	Http &http = getHttpClass();
-	// std::cout << GREEN << "==================REQUEST START======================" << RESET << std::endl;
-	// http.debugPrintRequest();
 	http.parseRequest(recvStr);
 
 	if (!checkState(http))
 	{
 		setResponse(http.getResponseString());
 		http.printError("parseRequest", "clientHandler", NOT_VAR);
-		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return;
 	}
 
@@ -40,7 +37,6 @@ void	Client::clientHandler(const std::string &recvStr)
 		setResponse(http.getResponseString());
 		http.printError("Set Request Config", "clientHandler", NOT_VAR);
 		return;
-		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 	}
 
 	http.validateLayer();
@@ -48,7 +44,6 @@ void	Client::clientHandler(const std::string &recvStr)
 	if (!checkState(http)){
 		setResponse(http.getResponseString());
 		http.printError("validateLayer", "clientHandler", NOT_VAR);
-		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return;
 	}
 
@@ -64,11 +59,9 @@ void	Client::clientHandler(const std::string &recvStr)
 	{
 		setResponse(http.getResponseString());
 		http.printError("buildResponse", "clientHandler", NOT_VAR);
-		std::cout << PURPLE << "==================REQUEST END======================" << RESET << std::endl;
 		return;
 	}
 	setResponse(http.getResponseString());
 
 	return;
-	
 }

@@ -9,13 +9,12 @@
 #include "Colors.hpp"
 #include "configParser.hpp"
 #include "HttpError.hpp"
-//<<<<<<< HEAD
-//#include "Client.hpp"
-//=======
 #include "Listener.hpp"
 
 #include "Timer.hpp"
 #include <optional>
+#define DEBUG_HTTP 0
+
 
 
 enum clientState {
