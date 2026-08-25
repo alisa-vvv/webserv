@@ -129,7 +129,6 @@ int	checkCgiDone(
 ) {
 	int			got_output;
 
-	std::cout << "are we checking chat\n";
 	got_output = gotCGIOutput(cgi);
 	if (got_output == -1) {
 		return (-1);

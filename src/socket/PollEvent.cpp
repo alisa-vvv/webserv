@@ -65,7 +65,13 @@ eServerError Server::_initPollEvent()
 				return err;
 		}
 		_checkClientTimeouts();
-		//add CGI timeout stuff
+		for (size_t i = 0; i < _pollFds.size(); i++) {
+			const int fd = _pollFds.at(i).fd;
+			if (_isCgiFd(fd)) {
+				auto cgi_map = getActiveCgis();
+				checkCgiTimeout(cgi_map[fd]);
+			}
+		}
 	}
 	return SERVER_OK;
 }
