@@ -204,9 +204,7 @@ static char**	constructEnvironment(
 	};
 
 	char**	env = new char*[vars.size() + 1];
-	//std::cout << CLR_YEL << "DEBUG:" << CLR_NON << "\n";
 	for (size_t i = 0; i < vars.size(); i++) {
-		//std::cout << "cgi_var " << i << ": " << vars.at(i) << '\n';
 		const std::string&	cur_string = vars.at(i);
 		env[i] = new char[cur_string.size() + 1];
 		for (size_t j = 0; j < cur_string.size(); j++) {
@@ -229,15 +227,11 @@ static int	findAndExecuteScript(
 	char**			env = constructEnvironment(client);
 
 	cgi_bzero(path, PATH_MAX);
-//	std::cout << "trying to exec binary: " << binary_name << '\n';
-//	std::cout << "argv[0]: " << argv[0] << '\n';
-//	std::cout << "argv[1]: " << argv[1] << '\n';
 	for (size_t i = 0; i < paths.size(); i++) {
 		slash_arg = paths.at(i) + "/" + binary_name;
 		for (size_t j = 0; j < slash_arg.size(); j++) {
 			path[j] = slash_arg.at(j);
 		}
-		//std::cout << "trying to exec in path: " << path << '\n';
 		execve(path, argv, env);
 		slash_arg.clear();
 		cgi_bzero(path, PATH_MAX);
