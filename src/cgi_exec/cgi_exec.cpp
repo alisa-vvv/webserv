@@ -26,7 +26,6 @@
 #include <sstream>
 
 #define PYTHON_EXEC "python"
-#define PATH_TO_SCRIPT "/home/avaliull/Projects/lvl5/webserv/server/cgi-bin/hello_world.py"
 
 cgi_t::cgi_t(Client&	client_ref)
 	:	client(client_ref)
@@ -185,7 +184,7 @@ static char**	constructEnvironment(
 	const t_location&	location = *request_data.requestConfig.location;
 	std::string	request_uri = request_data.getReceivedUri();
 	std::string	query_string;
-	size_t		query_string_start = query_string.find_first_of('?') + 1;
+	size_t		query_string_start = request_uri.find_first_of('?');
 	if (query_string_start != std::string::npos) {
 		query_string = request_uri.substr(query_string_start + 1, request_uri.back());
 	}
@@ -197,7 +196,7 @@ static char**	constructEnvironment(
 		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
 		"REQUEST_URI=" + request_data.getReceivedUri(),
 		// FIX BELOW!!!
-		"SCRIPT_FILENAME=" + (std::string) (getenv("PWD")) + location.root + location.cgi_pass.path,  // path to the script (absolute)
+		"SCRIPT_FILENAME=" + request_data.getBuiltUri(),  // path to the script (absolute)
 		"SCRIPT_NAME=" + location.cgi_pass.path, // path to the script we're executing relative to root
 		"SERVER_NAME=" + server_config.server_names[0],
 		"SERVER_PORT=" + std::to_string(server_config.ports.at(0)),
@@ -344,7 +343,7 @@ std::optional<cgi_t>	executeCGI(
 	}
 	else if (fork_ret == 0) {
 		handle_child(client,
-			   PYTHON_EXEC, argv, in_pipe, out_pipe);
+			   argv[0], argv, in_pipe, out_pipe);
 	}
 	else if (fork_ret > 0) {
 		handle_parent(cgi, in_pipe, out_pipe, fork_ret);
