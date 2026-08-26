@@ -146,7 +146,13 @@ void Http::setExtension(bool status) {
 }
 
 void Http::setClientMaxBodySize(){
-	this->_clientMaxBodySize = static_cast<std::uintmax_t>(requestConfig.server->client_max_body_size) * 1024u * 1024u;
+	int	max_body_size;
+
+	if (requestConfig.location->client_max_body_size != -1)
+		max_body_size = requestConfig.location->client_max_body_size;
+	else
+		max_body_size = requestConfig.server->client_max_body_size;
+	this->_clientMaxBodySize = static_cast<std::uintmax_t>(max_body_size) * 1024u * 1024u;
 }
 
 /// @brief direct assignment
