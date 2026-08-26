@@ -104,15 +104,7 @@ void Server::_addListenerFdsToPoll()
 
 void Server::_copyCgiResponse(int cgiFd, int clientFd)
 {
-	cgi_t &cgi = _backgroundCgis.at(cgiFd);
-
-	std::string response = buildCGIResponseString(cgi.output_string);
-
-
-	_clients.at(clientFd).setResponse(response);
-	_clients.at(clientFd).getHttpClass().setState(READY_TO_SEND);
-
-	const std::string infoMsg = "bytes=" + std::to_string(response.size());
+	const std::string infoMsg = "bytes=" + std::to_string(_clients.at(clientFd).getResponse().size());
 	_printDebug("[CGI RESPONSE]", _clients.at(clientFd), cgiFd, infoMsg, false);
 
 	_removeActiveCgi(cgiFd);

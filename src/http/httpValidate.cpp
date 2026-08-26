@@ -4,6 +4,18 @@
 #include <unistd.h>
 #include "../../inc/Http.hpp"
 
+static bool hasCgiExtension(const std::string &uri)
+{
+	const size_t cutoff = uri.find_first_of("?#");
+	const std::string pathOnly = uri.substr(0, cutoff);
+	const std::string extension = std::filesystem::path(pathOnly).extension().string();
+
+	return extension == ".py"
+		|| extension == ".php"
+		|| extension == ".cgi"
+		|| extension == ".bla";
+}
+
 std::string Http::resolveUri(const std::string &uri)
 {
 	try {
@@ -23,17 +35,7 @@ std::string Http::resolveUri(const std::string &uri)
 void Http::validateFile()
 {
 	std::string path = this->_builtUri;
-	//	case 1: autoindex on && index is set: {
-	//		1. do all regular checks
-	//		2. if they fail, generate autoindex
-	//		3. return ;
-	//	}
-	//	case 2: autoindex on && index is not set {
-	//		1. generate autoindex;
-	//		2. return;
-	//	}
-	//	if path ends with index.html && if autoindex == true
-	//		return ;
+
 	try
 	{
 		if (!std::filesystem::exists(path))
@@ -103,26 +105,26 @@ void Http::buildAbsoluteUri()
 			if (remaining.empty())
 			{
 				this->_builtUri = root + "/" + requestConfig.location->index;
-				// printError("builturi1", getBuiltUri(), IS_VAR);
+				printError("builturi1", getBuiltUri(), IS_VAR);
 			}
 			else if (remaining.back() == '/') {
 				this->_builtUri = root + remaining + requestConfig.location->index;
-				// printError("builturi2", getBuiltUri(), IS_VAR);
+				printError("builturi2", getBuiltUri(), IS_VAR);
 			}
 			else {
 				this->_builtUri = root + remaining + "/" + requestConfig.location->index;
-				// printError("builturi3", getBuiltUri(), IS_VAR);		
+				printError("builturi3", getBuiltUri(), IS_VAR);		
 			}
 		}
 		else {
 			this->_builtUri = root + (remaining.empty() ? "/" : remaining);
-			// printError("builturi4", getBuiltUri(), IS_VAR);
+			printError("builturi4", getBuiltUri(), IS_VAR);
 		}
 	}
 	else
 	{
 		this->_builtUri = root + remaining;
-		// printError("builturi5", getBuiltUri(), IS_VAR);
+		printError("builturi5", getBuiltUri(), IS_VAR);
 	}
 }
 
@@ -150,12 +152,12 @@ int Http::validateURI(std::string uri)
 		return FAILURE;
 	}
 
-	// check CGI extensions
-	if (uri.find(".py") != std::string::npos || uri.find(".php") != std::string::npos || uri.find(".cgi") != std::string::npos) {
+	// check CGI extensions using exact final file extension only
+	if (hasCgiExtension(uri)) {
 		setState(HANDLING_CGI_EXTENSION);
 		setExtension(true);
 	}
-	
+
 	// rewrite URI, strip location prefix and add root
 	if (!requestConfig.location)
 	{

@@ -29,7 +29,8 @@ CXXFILES	=	$(CXXFILES_PARSER)\
 				$(RESPONSE_BUILDER)\
 				$(CXXFILES_SOCKET)\
 				$(MAIN)\
- 				$(CXXFILES_CGI)
+ 				$(CXXFILES_CGI)\
+				utils.cpp
 
 CXXFILES_PARSER	=	configParser.cpp\
 					configParserTEST.cpp\
@@ -167,5 +168,7 @@ leak:
 val:
 	valgrind -s --track-fds=yes --track-origins=yes \
 	--leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)
+youpi:
+	./$(NAME) config/youpi
 
 .PHONY:	clangd all clean fclean re test run leak debug gdb

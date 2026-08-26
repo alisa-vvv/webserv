@@ -149,17 +149,8 @@ void Http::createUploadFile(std::string uploadDir, std::string extension)
 	}
 }
 
-
 void Http::handlePostResponse()
 {
-	// debugPrintHttpClassAttributes();
-
-	if (!this->_hasBody || this->_body.empty())
-	{
-		printError("Body empty", "handlePostResponse", NOT_VAR);
-		return setResponseCode(HTTP_BAD_REQUEST); //post needs body
-	}
-
 	std::string uploadDir = resolveUploadDir();
 
 	if (getState() == CLIENT_ERROR)

@@ -2,8 +2,6 @@
 #include "string.h"
 #include <iostream>
 
-//tRequestString = "POST /api/users?active=true HTTP/1.1\r\nHost: api.example.com\r\nContent-Type: application/json\r\nContent-Length: 37\r\nConnection: keep-alive\r\nAuthorization: Bearer eyJhbGci...\r\n\r\n{"username": "ally", "active": true}";
-
 /// @brief Parses the first line of the request AKA request line and stores it in the Http obj.
 //Example: POST /api/users HTTP/1.1\
 /// @param line 

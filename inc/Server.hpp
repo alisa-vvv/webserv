@@ -108,7 +108,7 @@ private:
 	
 	void						closeListeners();
 	
-	const std::map<int, cgi_t>&	getActiveCgis() const;
+	std::map<int, cgi_t>&		getActiveCgis();
 	void						_removeActiveCgi(int cgiFd);
 	eClientEventResult			_handleCgiEvent(int fd, int i);
 	void						_copyCgiResponse(int cgiFd, int clientFd);
