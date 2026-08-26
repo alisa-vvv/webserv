@@ -67,6 +67,152 @@ body {
 	margin: 0;
 }
 
+.test-page {
+	width: min(1120px, calc(100% - 36px));
+	padding: 56px 0 80px;
+	color: #30271f;
+}
+
+.test-header {
+	border-bottom: 3px solid #6c3005;
+	margin-bottom: 42px;
+	padding-bottom: 28px;
+}
+
+.test-header h1 {
+	margin: 0 0 12px;
+	color: #6c3005;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: clamp(2.5rem, 7vw, 5rem);
+	font-weight: 400;
+	letter-spacing: 0;
+}
+
+.test-header p:last-child,
+.section-heading p {
+	max-width: 680px;
+	margin: 0;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	line-height: 1.6;
+}
+
+.eyebrow,
+.section-number {
+	margin: 0 0 10px;
+	color: #D46D25;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	font-size: 0.75rem;
+	font-weight: bold;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.test-section {
+	margin: 0 0 52px;
+}
+
+.section-heading {
+	display: flex;
+	align-items: flex-start;
+	gap: 18px;
+	margin-bottom: 18px;
+}
+
+.section-heading h2 {
+	margin: 0 0 4px;
+	color: #6c3005;
+	font-size: 1.7rem;
+	font-style: normal;
+}
+
+.section-number {
+	flex: 0 0 auto;
+	margin-top: 6px;
+}
+
+.test-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 16px;
+}
+
+.test-card {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	padding: 22px;
+	border: 2px solid rgba(108, 48, 5, 0.45);
+	background: rgba(255, 246, 161, 0.48);
+	box-shadow: 5px 5px 0 rgba(108, 48, 5, 0.12);
+}
+
+.test-card h3 {
+	margin: 0 0 12px;
+	color: #6c3005;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-size: 1.35rem;
+	font-weight: 700;
+}
+
+.expected,
+.explanation {
+	margin: 0 0 15px;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	font-size: 0.88rem;
+	line-height: 1.55;
+}
+
+.expected {
+	color: #4c3a2d;
+}
+
+.test-card pre {
+	overflow-x: auto;
+	margin: auto 0 15px;
+	padding: 13px;
+	background: #30271f;
+	color: #fff6a1;
+	font-size: 0.78rem;
+	line-height: 1.55;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.test-card code {
+	font-family: 'Courier New', Courier, monospace;
+}
+
+.test-card .expected code {
+	padding: 2px 5px;
+	background: rgba(212, 109, 37, 0.16);
+	color: #6c3005;
+}
+
+.explanation {
+	margin: 0;
+	color: #68584b;
+	font-size: 0.8rem;
+}
+
+@media (max-width: 600px) {
+	.test-page {
+		width: min(100% - 24px, 520px);
+		padding-top: 34px;
+	}
+
+	.test-header {
+		margin-bottom: 32px;
+	}
+
+	.section-heading {
+		gap: 10px;
+	}
+
+	.test-card {
+		padding: 18px;
+	}
+}
+
 .uploadButton {
 	display: inline-block;
 	width: fit-content;

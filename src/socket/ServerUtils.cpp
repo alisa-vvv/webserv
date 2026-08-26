@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 20:52:11 by tutku             #+#    #+#             */
-/*   Updated: 2026/08/24 19:03:49 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/26 16:12:41 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,16 +66,16 @@ eServerError Server::_setNonBlocking(int fd)
 	if (flags == ERROR)
 	{
 		const std::string infoMsg ="F_GETFL failed: " + std::string(std::strerror(errno));
-		_printDebug("[FCNTL ERROR]", fd, infoMsg, true);
+		printDebug("[FCNTL ERROR]", fd, infoMsg, true);
 		return SERVER_SETNONBLOCKING_ERR;
 	}
 	int status = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 	if (status == ERROR)
 	{
 		const std::string infoMsg = "F_SETFL failed: " + std::string(std::strerror(errno));
-		_printDebug("[FCNTL ERROR]", fd, infoMsg, true);
+		printDebug("[FCNTL ERROR]", fd, infoMsg, true);
 		return SERVER_SETNONBLOCKING_ERR;
 	}
-	_printDebug("[NONBLOCKING]", fd, "enabled", false);
+	printDebug("[NONBLOCKING]", fd, "enabled", false);
 	return SERVER_OK;
 }

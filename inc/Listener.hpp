@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:35:04 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/24 18:42:14 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/26 16:12:41 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ class Listener
 		void				closeSocket();
 		
 		//debug
-		void			_printDebug(const std::string &eventStr, int fd, const std::string &infoMsg, bool error);
+		void			printDebug(const std::string &eventStr, int fd, const std::string &infoMsg, bool error);
 		std::string		_getSocketInfo() const;
 };
 

@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ServerDebug.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/24 15:11:09 by tutku             #+#    #+#             */
-/*   Updated: 2026/08/24 18:49:28 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/26 16:12:57 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-void Server::_printDebug(const std::string &eventStr, const Client &client, const std::string &infoMsg, bool error)
+void Server::printDebug(const std::string &eventStr, const Client &client, const std::string &infoMsg, bool error)
 {
 	if (error != true)
 	{
@@ -43,7 +43,7 @@ void Server::_printDebug(const std::string &eventStr, const Client &client, cons
 }
 
 //to print cgi events
-void Server::_printDebug(const std::string &eventStr, const Client &client, int cgiFd, const std::string &infoMsg, bool error)
+void Server::printDebug(const std::string &eventStr, const Client &client, int cgiFd, const std::string &infoMsg, bool error)
 {
 	if (error != true)
 	{
@@ -76,7 +76,7 @@ void Server::_printDebug(const std::string &eventStr, const Client &client, int 
 }
 
 //to print poll
-void Server::_printDebug(const std::string &eventStr, const std::string &infoMsg, bool error)
+void Server::printDebug(const std::string &eventStr, const std::string &infoMsg, bool error)
 {
 	if (error != true)
 	{
@@ -102,7 +102,7 @@ void Server::_printDebug(const std::string &eventStr, const std::string &infoMsg
 	}
 }
 
-void Server::_printDebug(const std::string &eventStr, int fd, const std::string &infoMsg, bool error)
+void Server::printDebug(const std::string &eventStr, int fd, const std::string &infoMsg, bool error)
 {
 	if (error != true)
 	{
@@ -130,7 +130,7 @@ void Server::_printDebug(const std::string &eventStr, int fd, const std::string 
 	}
 }
 
-void Server::_printSection(const std::string &msg)
+void Server::printSection(const std::string &msg)
 {
 	std::cout << BLUE
 			  << "==================" << msg << "=================="

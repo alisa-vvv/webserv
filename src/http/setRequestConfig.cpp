@@ -46,7 +46,7 @@ void Http::setRequestConfig(const Listener *listener)
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	int ind = findRequestConfig(listener);
 	if (ind == -1)
-		ind = 0; //first server as default if no config match? ticket13
+		ind = 0; //first server as default if no config match
 
 	const cfg_server_t *server = listener->getServerConfig(ind);
 	if (!server)

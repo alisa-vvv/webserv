@@ -35,7 +35,7 @@ void	Client::clientHandler(const std::string &recvStr)
 
 	if (!checkState(http)) {
 		setResponse(http.getResponseString());
-		http.printError("Set Request Config", "clientHandler", NOT_VAR);
+		//http.printError("Set Request Config", "clientHandler", NOT_VAR);
 		return;
 	}
 

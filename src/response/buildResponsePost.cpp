@@ -149,7 +149,6 @@ void Http::createUploadFile(std::string uploadDir, std::string extension)
 	}
 }
 
-
 void Http::handlePostResponse()
 {
 	std::string uploadDir = resolveUploadDir();

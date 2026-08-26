@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>webserv | Test cases</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="header">
+		<h1>
+			<a href="index.html" id="title">webserv</a>
+		</h1>
+			<h2 id="made-by">
+				made by Alisa, Ally, and Tutku
+			</h2>
+		</div>
+		<div id="navigation">
+			<h2> <a href="index.html" id="nav-link">Home</a> </h2>
+			<h2> <a href="read-me.html" id="nav-link">Read Me</a> </h2>
+			<h2> <a href="upload-store.html" id="nav-link">Uploads</a></h2>
+			<h2> <a href="curl-test-cases.html" id="nav-link">Curl test cases</a></h2>
+		</div>
+		<main class="test-page">
+			<header class="test-header">
+				<h1>Curl tests</h1>
+			</header>
+
+			<section class="test-section">
+				<div class="test-grid">
+					<article class="test-card"><h3>Serve a page</h3><p class="expected"><strong>Expected:</strong> The index page loads successfully.</p><pre><code>curl localhost:8080/index.html</code></pre><p class="explanation">Tests the basic GET path and static file response.</p></article>
+					<article class="test-card"><h3>Reject an unsupported body</h3><p class="expected"><strong>Expected:</strong> The server returns <code>415</code>.</p><pre><code>curl -X POST -H "Content-Type: plain/text" --data "1234567890" localhost:8080/</code></pre><p class="explanation">Tests content-type validation for a POST request.</p></article>
+					<article class="test-card"><h3>Delete an upload</h3><p class="expected"><strong>Expected:</strong> The server handles the DELETE request.</p><pre><code>curl -X DELETE localhost:8080/upload/upload.txt</code></pre><p class="explanation">Tests the DELETE route for an upload target.</p></article>
+					<article class="test-card"><h3>Reject an unknown method</h3><p class="expected"><strong>Expected:</strong> The server returns <code>405</code>.</p><pre><code>curl -X UNKNOWN localhost:8080</code></pre><p class="explanation">Tests that unsupported HTTP methods are rejected.</p></article>
+				</div>
+			</section>
+
+			<section class="test-section">
+				<div class="test-grid">
+					<article class="test-card"><h3>Basic GET: index file</h3><p class="expected"><strong>Expected:</strong> <code>200</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/index.html</code></pre><p class="explanation">Checks that a static file can be fetched directly.</p></article>
+					<article class="test-card"><h3>Root resolves to index</h3><p class="expected"><strong>Expected:</strong> <code>200</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/</code></pre><p class="explanation">Checks the configured index file for the root location.</p></article>
+					<article class="test-card"><h3>Redirect route</h3><p class="expected"><strong>Expected:</strong> <code>302</code> with <code>Location: /redirected.html</code></p><pre><code>curl -sS -i http://127.0.0.1:8080/redirect | sed -n "1,12p"</code></pre><p class="explanation">Tests redirect status and response headers.</p></article>
+					<article class="test-card"><h3>Return directive</h3><p class="expected"><strong>Expected:</strong> <code>302</code> with <code>Location: /error_pages/300.html</code></p><pre><code>curl -sS -i http://127.0.0.1:8080/testing_return | sed -n "1,12p"</code></pre><p class="explanation">Tests a configured return rule and its target.</p></article>
+					<article class="test-card"><h3>Autoindex directories</h3><p class="expected"><strong>Expected:</strong> Both directories return <code>200</code>.</p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/upload/
+curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/imgs/</code></pre><p class="explanation">Tests directory listing responses for configured folders.</p></article>
+					<article class="test-card"><h3>Custom 404 page</h3><p class="expected"><strong>Expected:</strong> <code>404</code> with custom HTML content.</p><pre><code>curl -sS http://127.0.0.1:8080/nope-404 | sed -n "1,8p"</code></pre><p class="explanation">Checks both the missing route status and its error-page body.</p></article>
+				</div>
+			</section>
+
+			<section class="test-section">
+				<div class="test-grid">
+					<article class="test-card"><h3>POST to the root</h3><p class="expected"><strong>Expected:</strong> <code>415</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: text/plain" --data "hello-webserv" http://127.0.0.1:8080/</code></pre><p class="explanation">Tests whether the route rejects this request content type.</p></article>
+					<article class="test-card"><h3>POST not allowed on uploads</h3><p class="expected"><strong>Expected:</strong> <code>405</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: text/plain" --data "x" http://127.0.0.1:8080/upload/</code></pre><p class="explanation">Tests method restrictions on the upload directory.</p></article>
+					<article class="test-card"><h3>Body too large</h3><p class="expected"><strong>Expected:</strong> <code>413</code> for a 6 MB body.</p><pre><code>dd if=/dev/zero bs=1M count=6 2&gt;/dev/null | tr "\000" "a" | curl -sS -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/octet-stream" --data-binary @- http://127.0.0.1:8080/</code></pre><p class="explanation">Tests the configured <code>client_max_body_size</code> limit of 5 MB.</p></article>
+					<article class="test-card"><h3>Missing file deletion</h3><p class="expected"><strong>Expected:</strong> <code>404</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" -X DELETE http://127.0.0.1:8080/upload/does-not-exist.txt</code></pre><p class="explanation">Tests the error response when DELETE targets no file.</p></article>
+					<article class="test-card"><h3>HEAD and OPTIONS</h3><p class="expected"><strong>Expected:</strong> Both requests return <code>405</code>.</p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" -I http://127.0.0.1:8080/index.html
+curl -sS -o /dev/null -w "%{http_code}\n" -X OPTIONS http://127.0.0.1:8080/</code></pre><p class="explanation">Tests handling for methods that are not configured.</p></article>
+				</div>
+			</section>
+
+			<section class="test-section">
+				<div class="test-grid">
+					<article class="test-card"><h3>Path traversal</h3><p class="expected"><strong>Expected:</strong> <code>400</code></p><pre><code>curl --path-as-is -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/../secret.html</code></pre><p class="explanation">Tests that parent-directory traversal is rejected.</p></article>
+					<article class="test-card"><h3>Double slash and backslash</h3><p class="expected"><strong>Expected:</strong> Both requests return <code>400</code>.</p><pre><code>curl --path-as-is -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080//etc/passwd
+curl --path-as-is -sS -o /dev/null -w "%{http_code}\n" "http://127.0.0.1:8080/..\secret"</code></pre><p class="explanation">Tests path normalization and alternate traversal attempts.</p></article>
+					<article class="test-card"><h3>CGI endpoint</h3><p class="expected"><strong>Expected:</strong> <code>200</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/confetti.py</code></pre><p class="explanation">Checks that a configured Python CGI script executes.</p></article>
+					<article class="test-card"><h3>Timeout CGI endpoint</h3><p class="expected"><strong>Expected:</strong> <code>408</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/timeout_script/timeout_test.py</code></pre><p class="explanation">Tests the server timeout for a script that does not finish.</p></article>
+					<article class="test-card"><h3>Query-string behavior</h3><p class="expected"><strong>Expected:</strong> <code>404</code> in the current configuration.</p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" "http://127.0.0.1:8080/index.html?x=1"</code></pre><p class="explanation">Checks how a query string affects static-file resolution.</p></article>
+					<article class="test-card"><h3>Malformed raw request</h3><p class="expected"><strong>Expected:</strong> <code>HTTP/1.1 400 Bad request</code></p><pre><code>printf "GET HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc 127.0.0.1 8080 | head -n 1</code></pre><p class="explanation">Tests parser validation using an incomplete request line.</p></article>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>
