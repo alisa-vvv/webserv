@@ -31,6 +31,17 @@ std::string Http::resolveUri(const std::string &uri)
 	}
 }
 
+void Http::buildCgiPassUri() {
+	_hasExtension = true;
+	const std::filesystem::path root = resolveUri(requestConfig.location->root);
+	const std::filesystem::path cgiPassPath = requestConfig.location->cgi_pass.path;
+	_builtUri.clear();
+	_builtUri.append(root);
+	_builtUri.append(_receivedUri);
+	_builtUri.append("/");
+	_builtUri.append(cgiPassPath.relative_path().lexically_normal().string());
+}
+
 /// @brief Validate the file for permissions, file traversal, readable, deletable etc.
 void Http::validateFile()
 {
@@ -44,6 +55,15 @@ void Http::validateFile()
 			return setResponseCode(HTTP_NOT_FOUND); //it dont exist
 		}
 		if (std::filesystem::is_directory(path)){
+			if (this->requestConfig.location->cgi_pass.path.size()) {
+				buildCgiPassUri();
+				// if (!std::filesystem::is_regular_file(this->_builtUri)) {
+				// 	printError("CGI pass file does not exist", "validateFile", NOT_VAR);
+				// 	return setResponseCode(HTTP_NOT_FOUND);
+				// } //check this
+				setState(HANDLING_CGI_EXTENSION);
+				return;
+			}
 			if (this->_method == GET) //if its a directory, its ok for get but not for other methods
 				return;
 			printError("isDirectory", "validateFile", NOT_VAR);
@@ -140,6 +160,7 @@ int Http::validateURI(std::string uri)
 	// check for  path traversal, spaces, double slashes
 	if (uri.find("..") != std::string::npos || uri.find(" ") != std::string::npos || uri.find("//") != std::string::npos)
 	{
+		std::cout << "the uri erroring is " << YELLOW << uri << RESET "\n";
 		printError("file traversal", "validateURI", NOT_VAR);
 		setResponseCode(HTTP_BAD_REQUEST);
 		return FAILURE;
