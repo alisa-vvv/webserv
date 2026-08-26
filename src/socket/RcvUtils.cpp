@@ -17,25 +17,25 @@ eServerError Server::_handleRecv(int clientFd)
 		bufferObj.append(buffer, bytesRead);
 		
 		//const std::string infoMsg = "bytes=" + std::to_string(bytesRead);
-		//_printDebug("[RECV]", client, infoMsg, false);
+		//printDebug("[RECV]", client, infoMsg, false);
 
 		const std::string &requestStr = bufferObj.getRecvStr();
 		if (requestStr.size() > MAX_REQUEST)
 		{
 			client.setRecvStatus(RECV_ERROR);
-			_printDebug("[RECV ERROR]", client, "request too large", true);
+			printDebug("[RECV ERROR]", client, "request too large", true);
 			return SERVER_RECV_ERR;
 		}
 		return (_checkRecvBuffer(client));
 	}
 	else if (bytesRead == 0)
 	{
-		_printDebug("[DISCONNECT]", client, "client closed connection", false);
+		printDebug("[DISCONNECT]", client, "client closed connection", false);
 
 		return SERVER_CLIENT_CLOSED;
 	}
 
-	_printDebug("[RECV ERROR]", client, "recv failed", true);
+	printDebug("[RECV ERROR]", client, "recv failed", true);
 	return SERVER_RECV_ERR;
 }
 
@@ -49,7 +49,7 @@ eServerError	Server::_checkRecvBuffer(Client &client)
 		return SERVER_OK;
 	if (status == RECV_ERROR)
 	{
-		_printDebug("[RECV REQUEST ERROR]", client, "invalid request", true);
+		printDebug("[RECV REQUEST ERROR]", client, "invalid request", true);
 		return SERVER_RECV_ERR;
 	}
 	if (status == COMPLETE)
@@ -77,7 +77,7 @@ eServerError Server::_handleSend(Client& client)
 	if (client.getBytesSent() > response.size())
 	{
 		const std::string infoMsg = "sent=" + std::to_string(client.getBytesSent()) + " response=" + std::to_string(response.size());
-		_printDebug("[SEND ERROR]", client, infoMsg, true);
+		printDebug("[SEND ERROR]", client, infoMsg, true);
 		return SERVER_SEND_ERR;
 	}
 	if (client.isResponseComplete())
@@ -93,19 +93,19 @@ eServerError Server::_handleSend(Client& client)
 
 	if (result == ERROR)
 	{
-		_printDebug("[SEND ERROR]", client, "send failed", true);
+		printDebug("[SEND ERROR]", client, "send failed", true);
 
 		return SERVER_SEND_ERR;
 	}
 	else if (result == 0)
 	{
-		_printDebug("[SEND ERROR]", client, "send returned 0", true);
+		printDebug("[SEND ERROR]", client, "send returned 0", true);
 		return SERVER_SEND_ERR;
 	}
 	else if (result > 0)
 	{
 		const std::string infoMsg = "bytes=" + std::to_string(result) + " total=" + std::to_string(client.getBytesSent()) + "/" + std::to_string(response.size());
-		_printDebug("[SEND]", client, infoMsg, false);
+		printDebug("[SEND]", client, infoMsg, false);
 
 		client.updateBytesSent(static_cast<size_t>(result));
 		client.updateLastActivity();
@@ -115,7 +115,7 @@ eServerError Server::_handleSend(Client& client)
 			client.setResponseStatus(false);
 
 			const std::string completeMsg = "bytes=" + std::to_string(client.getBytesSent());
-			_printDebug("[SEND COMPLETE]", client, completeMsg, false);
+			printDebug("[SEND COMPLETE]", client, completeMsg, false);
 			std::cout << std::endl;
 		}
 	}

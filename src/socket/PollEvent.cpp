@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:50:39 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/26 14:19:05 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/26 16:12:57 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ eServerError Server::_initPollEvent()
 {
 	int pollFdCount;
 
-	_printSection("SERVER RUNS SUCCESSFULLY");
+	printSection("SERVER RUNS SUCCESSFULLY");
 	while (gStop == 0)
 	{
 		pollFdCount = poll(_pollFds.data(), _pollFds.size(), POLL_TIMEOUT_MS);
@@ -52,7 +52,7 @@ eServerError Server::_initPollEvent()
 			}
 
 			const std::string infoMsg = "failed: " + std::string(std::strerror(errno));
-			_printDebug("[POLL ERROR]", infoMsg, true);
+			printDebug("[POLL ERROR]", infoMsg, true);
 
 			return SERVER_POLL_ERR;
 		}
@@ -93,7 +93,7 @@ eServerError Server::_pollEvents()
 		}
 		else if (_isCgiFd(fd))
 		{
-			eClientEventResult clientClosed = _handleCgiEvent(fd, i);
+			eClientEventResult clientClosed = handleCgiEvent(fd, i);
 			if (clientClosed == CLIENT_KEPT)
 				i++; 
 		}
@@ -117,7 +117,7 @@ eServerError Server::_handleListenerEvent(int i)
 	if (_pollFds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 	{
 		const std::string infoMsg = "POLLHUP | POLLERR | POLLNVAL";
-		_printDebug("[LISTENER ERROR]", fd, infoMsg, true);
+		printDebug("[LISTENER ERROR]", fd, infoMsg, true);
 
 		return SERVER_POLL_ERR;
 	}
@@ -151,7 +151,7 @@ eClientEventResult Server::_handleClientEvent(int i)
 		if (_clients.at(fd).getRecvStatus() == COMPLETE)
 		{
 			const std::string infoMsg = "bytes=" + std::to_string(_clients.at(fd).getRcvBuffer().totalBytesReceived);
-			_printDebug("[RECV COMPLETE]", _clients.at(fd), infoMsg, false);
+			printDebug("[RECV COMPLETE]", _clients.at(fd), infoMsg, false);
 			
 			clientState state = _clients.at(fd).getHttpClass().getState();
 
@@ -189,7 +189,7 @@ eClientEventResult Server::_handleClientEvent(int i)
 	return CLIENT_KEPT;
 }
 
-eClientEventResult Server::_handleCgiEvent(int cgiFd, int i)
+eClientEventResult Server::handleCgiEvent(int cgiFd, int i)
 {
 	int clientFd = _cgiFdToClientFd.at(cgiFd);
 
@@ -201,9 +201,9 @@ eClientEventResult Server::_handleCgiEvent(int cgiFd, int i)
 			infoMsg += "POLLERR ";
 		if (_pollFds[i].revents & POLLNVAL)
 			infoMsg += "POLLNVAL";
-		_printDebug("[CGI POLL ERROR]", _clients.at(clientFd), cgiFd, infoMsg, true);
+		printDebug("[CGI POLL ERROR]", _clients.at(clientFd), cgiFd, infoMsg, true);
 
-		_removeActiveCgi(cgiFd);
+		removeActiveCgi(cgiFd);
 		_closeClientFd(clientFd);
 		return CLIENT_REMOVED;
 	}
@@ -212,9 +212,9 @@ eClientEventResult Server::_handleCgiEvent(int cgiFd, int i)
 
 	if (isCgiDone == -1)
 	{
-		_printDebug("[CGI ERROR]", _clients.at(clientFd), cgiFd, "execution failed", true);
+		printDebug("[CGI ERROR]", _clients.at(clientFd), cgiFd, "execution failed", true);
 
-		_removeActiveCgi(cgiFd);
+		removeActiveCgi(cgiFd);
 		_closeClientFd(clientFd);
 		return CLIENT_REMOVED;
 	}
@@ -224,17 +224,21 @@ eClientEventResult Server::_handleCgiEvent(int cgiFd, int i)
 	}
 
 	// cgi finished and response ready
-	_printDebug("[CGI DONE]", _clients.at(clientFd), cgiFd, "", false);
-	_copyCgiResponse(cgiFd, clientFd);
+	printDebug("[CGI DONE]", _clients.at(clientFd), cgiFd, "", false);
+	copyCgiResponse(cgiFd, clientFd);
 
-	// set client to POLLOUT for sending
-	for (size_t j = 0; j < _pollFds.size(); j++)
+	_setPollout(clientFd);
+	return CLIENT_REMOVED;
+}
+
+void Server::_setPollout(int clientFd)
+{
+	for (size_t i = 0; i < _pollFds.size(); ++i)
 	{
-		if (_pollFds[j].fd == clientFd)
+		if (_pollFds[i].fd == clientFd)
 		{
-			_pollFds[j].events = POLLOUT;
-			break;
+			_pollFds[i].events = POLLOUT;
+			return;
 		}
 	}
-	return CLIENT_REMOVED;
 }

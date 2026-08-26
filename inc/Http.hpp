@@ -42,8 +42,8 @@ enum httpVersion {
 /// @brief This is a struct with references to the correct config file to use. context struct
 struct requestConfig
 {
-	const cfg_server_t	*server;
-	const t_location	*location;
+	const cfg_server_t	*server = nullptr;
+	const t_location	*location = nullptr;
 };
 
 class Http {

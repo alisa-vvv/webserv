@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:34:57 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/24 18:51:31 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/26 16:12:41 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,11 @@ eListenerError Listener::_createSocket()
 	if (_listenerFd == ERROR)
 	{
 		const std::string infoMsg = "failed: " + std::string(std::strerror(errno));
-		_printDebug("[SOCKET ERROR]", _listenerFd, infoMsg, true);
+		printDebug("[SOCKET ERROR]", _listenerFd, infoMsg, true);
 
 		return LISTENER_CREATESOCK_ERR;
 	}
-	_printDebug("[SOCKET]", _listenerFd, "created", false);
+	printDebug("[SOCKET]", _listenerFd, "created", false);
 	return LISTENER_OK;
 }
 
@@ -68,12 +68,12 @@ eListenerError Listener::_setSocketOptions()
 	if (setsockopt(_listenerFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == ERROR)
 	{
 		const std::string infoMsg ="failed: " + std::string(std::strerror(errno));
-		_printDebug("[SETSOCKOPT ERROR]", _listenerFd, infoMsg, true);
+		printDebug("[SETSOCKOPT ERROR]", _listenerFd, infoMsg, true);
 
 		return LISTENER_SETSOCKOPT_ERR;
 	}
 	
-	// _printDebug("[SETSOCKOPT]", _listenerFd, "SO_REUSEADDR enabled", false);
+	// printDebug("[SETSOCKOPT]", _listenerFd, "SO_REUSEADDR enabled", false);
 	return LISTENER_OK;
 }
 
@@ -98,7 +98,7 @@ eListenerError Listener::_setNonBlocking(int fd)
 	if (flags == ERROR)
 	{
 		const std::string infoMsg = "F_GETFL failed: " + std::string(std::strerror(errno));
-		_printDebug("[FCNTL ERROR]", fd, infoMsg, true);
+		printDebug("[FCNTL ERROR]", fd, infoMsg, true);
 
 		return LISTENER_SETNONBLOCKING_ERR;
 	}
@@ -106,11 +106,11 @@ eListenerError Listener::_setNonBlocking(int fd)
 	if (status == ERROR)
 	{
 		const std::string infoMsg = "F_SETFL failed: " + std::string(std::strerror(errno));
-		_printDebug("[FCNTL ERROR]", fd, infoMsg, true);
+		printDebug("[FCNTL ERROR]", fd, infoMsg, true);
 		
 		return LISTENER_SETNONBLOCKING_ERR;
 	}
-	_printDebug("[NONBLOCKING]", fd, "enabled", false);
+	printDebug("[NONBLOCKING]", fd, "enabled", false);
 	return LISTENER_OK;
 }
 
@@ -132,13 +132,13 @@ eListenerError Listener::_bindSocket()
 	if (bind(_listenerFd, reinterpret_cast<const struct sockaddr *>(&_address), sizeof(_address)) == ERROR)
 	{
 		const std::string infoMsg = "failed: " + std::string(std::strerror(errno));
-		_printDebug("[BIND ERROR]", _listenerFd, infoMsg, true);
+		printDebug("[BIND ERROR]", _listenerFd, infoMsg, true);
 
 		return LISTENER_BIND_ERR;
 	}
 
 	const std::string infoMsg = _getSocketInfo() + " successful";
-	_printDebug("[BIND]", _listenerFd, infoMsg, false);
+	printDebug("[BIND]", _listenerFd, infoMsg, false);
 
 	return LISTENER_OK;
 }
@@ -154,11 +154,11 @@ eListenerError Listener::_listenSocket()
 	if (listen(this->_listenerFd, BACKLOG) == ERROR)
 	{
 		const std::string infoMsg = "failed: " + std::string(std::strerror(errno));
-		_printDebug("[LISTEN ERROR]", _listenerFd, infoMsg, true);
+		printDebug("[LISTEN ERROR]", _listenerFd, infoMsg, true);
 
 		return LISTENER_LISTEN_ERR;
 	}
-	_printDebug("[LISTEN]", _listenerFd, "now listening", false);
+	printDebug("[LISTEN]", _listenerFd, "now listening", false);
 	std::cout << std::endl;
 	return LISTENER_OK;
 }

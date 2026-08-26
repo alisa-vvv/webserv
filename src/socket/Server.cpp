@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/08/26 14:19:24 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/26 16:12:57 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ eServerError Server::setup(void)
 {
 	eListenerError errListenerSetup;
 
-	_printSection("SETTING UP LISTENERS");
+	printSection("SETTING UP LISTENERS");
 	_buildListener();
 
 	for (size_t i = 0; i < _listeners.size(); i++)
@@ -43,7 +43,7 @@ eServerError Server::run()
 	_addListenerFdsToPoll();
 	if (_pollFds.empty()) //server has nothing to listen on
 	{
-		_printDebug("[POLL INIT ERROR]", "no listener fds available", true);
+		printDebug("[POLL INIT ERROR]", "no listener fds available", true);
 		return SERVER_POLL_ERR;
 	}
 
@@ -58,6 +58,11 @@ eServerError Server::run()
 }
 
 const std::map<int, cgi_t>& Server::getActiveCgis() const
+{
+	return _backgroundCgis;
+}
+
+std::map<int, cgi_t>& Server::getActiveCgis()
 {
 	return _backgroundCgis;
 }

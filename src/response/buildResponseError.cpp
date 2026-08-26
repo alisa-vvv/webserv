@@ -4,16 +4,23 @@
 void Http::handleErrorResponse()
 {
 	int stat = getStatusCode();
-	auto it = requestConfig.server->error_pages.find(stat);
-	if (it != this->requestConfig.server->error_pages.end())
+	if (requestConfig.server != NULL)
 	{
-		setBody(it->second);
-		if (getState() == CLIENT_ERROR)
+		std::map<int, std::string>::const_iterator it =
+			requestConfig.server->error_pages.find(stat);
+
+		if (it != this->requestConfig.server->error_pages.end())
+		{
+			setBody(it->second);
+			if (getState() == CLIENT_ERROR)
+				return;
+				
+			setResponseHeader("Content-Type", "text/html");
+			setState(READY_TO_SEND);
 			return;
+		}
 	}
-	else {
-		setBody(std::get<1>(HTTP_STATUS_MESSAGE.at(stat)));
-	}
+	setBody(std::get<1>(HTTP_STATUS_MESSAGE.at(stat)));
 	setResponseHeader("Content-Type", "text/html");
 	setState(READY_TO_SEND);
 }
