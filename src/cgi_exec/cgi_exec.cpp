@@ -192,6 +192,7 @@ static char**	constructEnvironment(
 	std::vector<std::string>	vars = {
 		"DOCUMENT_ROOT=" + server_config.root, // root directory of the server
 		"PATH=" + (std::string) (getenv("PATH")), // CHECK THIS
+		"PWD=" + (std::string) (getenv("PWD")),
 		"QUERY_STRING=" + query_string,
 		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
 		"REQUEST_URI=" + request_data.getReceivedUri(),
@@ -205,6 +206,7 @@ static char**	constructEnvironment(
 
 	char**	env = new char*[vars.size() + 1];
 	for (size_t i = 0; i < vars.size(); i++) {
+		//std::cerr << "path var: " << vars.at(i) << '\n';
 		const std::string&	cur_string = vars.at(i);
 		env[i] = new char[cur_string.size() + 1];
 		for (size_t j = 0; j < cur_string.size(); j++) {
