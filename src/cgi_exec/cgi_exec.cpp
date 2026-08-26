@@ -313,13 +313,9 @@ std::optional<cgi_t>	executeCGI(
 	Client& client,
 	std::map<int, cgi_t>&	background_cgis
 ) {
+	AllowedCgi	allowed_cgi;
 	int	in_pipe[2];
 	int	out_pipe[2];
-	static std::string	type = ".py";
-	static std::map<std::string, std::string>	type_exec {
-		{".py", "python"},
-	}; // change this if we want multiple cgi script types
-
 	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
 		// brr brr errorr
 		return (std::nullopt);
@@ -332,10 +328,11 @@ std::optional<cgi_t>	executeCGI(
 	}
 
 	cgi_t	cgi(client);
+	const e_cgi_extension type = client.getHttpClass().requestConfig.location->cgi_pass.extension;
 
 	char*	argv[] { NULL, NULL, NULL };
-	argv[0] = new char[type_exec[type].size() + 1]; // change if we want multiple cgi script types
-	fill_c_str_from_string(&argv[0][0], type_exec[type]);
+	argv[0] = new char[allowed_cgi.executables.at(type).size() + 1];
+	fill_c_str_from_string(&argv[0][0], allowed_cgi.executables.at(type));
 	argv[1] = new char[(client.getHttpClass().getBuiltUri()).size() + 1];
 	fill_c_str_from_string(&argv[1][0], client.getHttpClass().getBuiltUri());
 	argv[2] = NULL;

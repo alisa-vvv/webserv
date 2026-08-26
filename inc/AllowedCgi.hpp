@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/08/26 13:07:39 by avaliull            #+#    #+#           */
-/*   Updated: 2026/08/26 13:21:40 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/08/26 14:13:46 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ typedef enum	e_cgi_extension {
 
 class	AllowedCgi {
 public:
-	static const std::map<std::string, e_cgi_extension>	ext_strings;
+	static const	std::map<std::string, e_cgi_extension>	ext_strings;
+	static const	std::map<e_cgi_extension, std::string>	executables;
 
 	inline e_cgi_extension	match(std::string ext_token) const {
 		if (ext_strings.find(ext_token) == ext_strings.end()) {
