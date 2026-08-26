@@ -15,8 +15,6 @@
 #include <optional>
 #include "Client.hpp"
 
-// might mvoe this declaration elsewhere, still confused about our scturcuture
-// i think if it's not declared here we're making a big mistake lol
 class	cgi_t {
 public:
 	cgi_t() = delete;

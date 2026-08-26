@@ -103,8 +103,12 @@ int	gotCGIOutput(
 				cgi.output_string.push_back(buffer[i]);
 			}
 		} while (recv_ret > 0);
-		close(cgi.input);
-		close(cgi.output);
+		if (cgi.input > 0)
+			close(cgi.input);
+		cgi.input = -1;
+		if (cgi.output > 0)
+			close(cgi.output);
+		cgi.output = -1;
 		return (true);
 	}
 	else if (wait_res < 0) {
