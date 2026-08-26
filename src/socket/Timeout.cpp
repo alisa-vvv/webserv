@@ -15,6 +15,7 @@
 void Server::_setTimeoutResponse(Http& http, int timeoutCode)
 {
 	http.setResponseCode(timeoutCode);
+	
 	http.handleErrorResponse();
 
 	http.setResponseHeader("Content-Length", std::to_string(http.getBody().size()));

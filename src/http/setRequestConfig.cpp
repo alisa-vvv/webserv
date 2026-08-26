@@ -42,6 +42,7 @@ int Http::findRequestConfig(const Listener *listener)
 
 void Http::setRequestConfig(const Listener *listener)
 {
+	setRequestConfigExists();
 	if (listener->getConfigCount() <= 0)
 		return setResponseCode(HTTP_INTERNAL_SERVER_ERROR);
 	int ind = findRequestConfig(listener);
