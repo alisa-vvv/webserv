@@ -15,4 +15,4 @@
 class Client;
 class Http;
 
-void	createErrorResponse(Client& client, Http& http);
+void	createErrorResponse(Client& client, Http& http, const int& error_code);

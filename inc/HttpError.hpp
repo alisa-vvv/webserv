@@ -18,6 +18,7 @@ static const int HTTP_PAYLOAD_TOO_LARGE = 413; //request body too large
 static const int URI_TOO_LONG = 414; //URI too long
 static const int HTTP_UNSUPPORTED_MEDIA = 415; //unsupported media type
 static const int HTTP_INTERNAL_SERVER_ERROR = 500; //cgi process fails
+static const int HTTP_GATEWAY_TIMEOUT = 504; //Gateway timeout
 static const int HTTP_VERSION_NOT_SUPPORTED = 505; //HTTP Version not supported
 
 
@@ -39,7 +40,7 @@ static const std::map<int, std::tuple<std::string, std::string>> HTTP_STATUS_MES
 	{415, {"Unsupported Media Type", "www/error_pages/415.html"}},
 	{500, {"Internal Server Error", "www/error_pages/500.html"}},
 	// {502, {"Bad Gateway", "www/error_pages/502.html"}},
-	// {504, {"Gateway Timeout", "www/error_pages/504.html"}},
+	{504, {"Gateway Timeout", "www/error_pages/504.html"}},
 	{505, {"HTTP Version not supported", "www/error_pages/505.html"}}
 };
 

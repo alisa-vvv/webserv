@@ -136,7 +136,7 @@ int	checkCgiDone(
 	if (got_output == true) {
 		Http& http = cgi.client.getHttpClass();
 		if (cgi.timed_out) {
-			createErrorResponse(cgi.client, cgi.client.getHttpClass());
+			createErrorResponse(cgi.client, cgi.client.getHttpClass(), HTTP_GATEWAY_TIMEOUT);
 		}
 		else {
 			std::string	response_string = buildCGIResponseString(cgi.output_string);
@@ -197,7 +197,7 @@ static char**	constructEnvironment(
 		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
 		"REQUEST_URI=" + request_data.getReceivedUri(),
 		// FIX BELOW!!!
-		"SCRIPT_FILENAME=" + location.cgi_pass.path,  // path to the script (absolute)
+		"SCRIPT_FILENAME=" + (std::string) (getenv("PWD")) + location.root + location.cgi_pass.path,  // path to the script (absolute)
 		"SCRIPT_NAME=" + location.cgi_pass.path, // path to the script we're executing relative to root
 		"SERVER_NAME=" + server_config.server_names[0],
 		"SERVER_PORT=" + std::to_string(server_config.ports.at(0)),
@@ -206,7 +206,7 @@ static char**	constructEnvironment(
 
 	char**	env = new char*[vars.size() + 1];
 	for (size_t i = 0; i < vars.size(); i++) {
-		//std::cerr << "path var: " << vars.at(i) << '\n';
+		std::cerr << "path var: " << vars.at(i) << '\n';
 		const std::string&	cur_string = vars.at(i);
 		env[i] = new char[cur_string.size() + 1];
 		for (size_t j = 0; j < cur_string.size(); j++) {

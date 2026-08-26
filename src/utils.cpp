@@ -14,8 +14,8 @@
 #include "Client.hpp"
 #include "Http.hpp"
 
-void	createErrorResponse(Client& client, Http& http) {
-	http.setResponseCode(HTTP_REQUEST_TIMEOUT);
+void	createErrorResponse(Client& client, Http& http, const int& error_code) {
+	http.setResponseCode(error_code);
 	http.handleErrorResponse();
 	http.buildResponseString();
 	client.setResponse(http.getResponseString());
