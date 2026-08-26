@@ -19,4 +19,5 @@ void	createErrorResponse(Client& client, Http& http, const int& error_code) {
 	http.handleErrorResponse();
 	http.buildResponseString();
 	client.setResponse(http.getResponseString());
+	http.setState(READY_TO_SEND);
 }

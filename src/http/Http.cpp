@@ -47,6 +47,10 @@ std::string Http::getReceivedUri() const {
 	return (_receivedUri);
 }
 
+std::string Http::getQuery() const {
+	return (_query);
+}
+
 httpVersion Http::getVersion() const {
 	return (_version);
 }

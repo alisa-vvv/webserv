@@ -183,16 +183,12 @@ static char**	constructEnvironment(
 	const cfg_server_t&	server_config = *request_data.requestConfig.server;
 	const t_location&	location = *request_data.requestConfig.location;
 	std::string	request_uri = request_data.getReceivedUri();
-	std::string	query_string;
-	size_t		query_string_start = request_uri.find_first_of('?');
-	if (query_string_start != std::string::npos) {
-		query_string = request_uri.substr(query_string_start + 1, request_uri.back());
-	}
+
 	std::vector<std::string>	vars = {
 		"DOCUMENT_ROOT=" + server_config.root, // root directory of the server
 		"PATH=" + (std::string) (getenv("PATH")), // CHECK THIS
 		"PWD=" + (std::string) (getenv("PWD")),
-		"QUERY_STRING=" + query_string,
+		"QUERY_STRING=" + request_data.getQuery(),
 		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
 		"REQUEST_URI=" + request_data.getReceivedUri(),
 		// FIX BELOW!!!
@@ -316,6 +312,7 @@ std::optional<cgi_t>	executeCGI(
 	int	in_pipe[2];
 	int	out_pipe[2];
 	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
+	//if (true) {
 		// brr brr errorr
 		return (std::nullopt);
 	}

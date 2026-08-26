@@ -57,6 +57,7 @@ class Http {
 		bool								_hasExtension;
 		size_t								_clientMaxBodySize;
 		std::string							_receivedUri; //uri from original request
+		std::string							_query; // from uri after question mark
 		std::string							_builtUri; //uri built with root etc
 		std::string							_body;
 		std::string							_responseString;
@@ -111,6 +112,7 @@ class Http {
 		bool			getExtension() const;
 		std::string		getBuiltUri() const;
 		std::string		getReceivedUri() const;
+		std::string		getQuery() const;
 		std::string		getContentTypeExtension(const std::string &contentType) const;
 		std::uintmax_t	getClientMaxBodySize();
 		bool			requestConfigExists() const;

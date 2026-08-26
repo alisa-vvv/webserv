@@ -173,6 +173,12 @@ int Http::validateURI(std::string uri)
 		return FAILURE;
 	}
 
+	size_t	query_pos = uri.find("?");
+	if (query_pos != std::string::npos) {
+		_query = uri.substr(query_pos + 1);
+		uri.erase(query_pos);
+		_receivedUri = uri;
+	}
 	// check CGI extensions using exact final file extension only
 	if (hasCgiExtension(uri)) {
 		setState(HANDLING_CGI_EXTENSION);

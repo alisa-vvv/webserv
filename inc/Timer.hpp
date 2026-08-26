@@ -15,7 +15,7 @@
 #include <chrono>
 
 #define DEFAULT_TIMEOUT_S 30
-#define DEFAULT_TIMEOUT_S_CGI 2
+#define DEFAULT_TIMEOUT_S_CGI 30
 
 using std::chrono::time_point;
 using std::chrono::system_clock;
