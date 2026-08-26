@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/08/26 13:07:39 by avaliull            #+#    #+#           */
-/*   Updated: 2026/08/26 14:13:46 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/08/26 14:47:22 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 typedef enum	e_cgi_extension {
 	CGI_EXT_PY,
 	CGI_EXT_BLA,
+	CGI_EXT_BAD,
 	CGI_EXT_UNKNOWN,
 }	e_cgi_extension;
 

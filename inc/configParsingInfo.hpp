@@ -137,6 +137,11 @@ bool	fillLocationReturn(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 );
+bool	fillLocationMaxBodySize(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+);
 /**/
 
 // Contains vectors with allowed block names.
@@ -167,6 +172,7 @@ public:
 		{ "cgi_pass", fillLocationCgiPass },
 		{ "autoindex", fillLocationAutoIndex },
 		{ "return", fillLocationReturn },
+		{ "client_max_body_size", fillLocationMaxBodySize },
 	};
 
 	const std::vector<std::string>	method_valid_names {

@@ -169,6 +169,6 @@ val:
 	valgrind -s --track-fds=yes --track-origins=yes \
 	--leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)
 youpi:
-	./$(NAME) config/youpi
+	./$(NAME) config/youpi.conf	
 
 .PHONY:	clangd all clean fclean re test run leak debug gdb

@@ -634,16 +634,13 @@ bool	fillServerErrorPageField(
 	return (true);
 }
 
-// 1. can only be one arguent - DONE.
-// 2. has to be a number or a number + M or m - DONE.
-// 3. number has to be lower than defined maximum - DONE.
-bool	fillServerMaxBodySize(
+std::string	fillMaxBodySize(
 	Config& config,
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
 	if (isAboveMaxArgs(config, 1, tokens, token_index))
-		return (false);
+		return ("");
 
 	t_config_token&	size_token = tokens.at(token_index + 1);
 
@@ -653,7 +650,7 @@ bool	fillServerMaxBodySize(
 			"value for client_max_body_size option is too big",
 			"Config Error",
 			tokens.at(token_index).line_number);
-		return (false);
+		return ("");
 	}
 	if (size_token.val.back() == 'm' || size_token.val.back() == 'M') {
 		size_token.val.pop_back();
@@ -664,9 +661,24 @@ bool	fillServerMaxBodySize(
 			"format for client_max_body_size has to be [positive int][opt. M or m]",
 			"Config Error",
 			tokens.at(token_index).line_number);
-		return (false);
+		return ("");
 	}
-	config.servers.back().client_max_body_size = std::stol(size_token.val);
+	return (size_token.val);
+}
+
+// 1. can only be one arguent - DONE.
+// 2. has to be a number or a number + M or m - DONE.
+// 3. number has to be lower than defined maximum - DONE.
+bool	fillServerMaxBodySize(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	const std::string	res = fillMaxBodySize(config, token_index, tokens);
+	if (res.size() == 0)
+		return (false);
+
+	config.servers.back().client_max_body_size = std::stol(res);
 	if (config.servers.back().client_max_body_size > CLIENT_MAX_BODY_SIZE) {
 		configParserError(
 			config,
@@ -948,3 +960,37 @@ bool	fillLocationAutoIndex(
 ) {
 	return (fillAutoIndex(LOCATION, config, token_index, tokens));
 }
+
+bool	fillLocationMaxBodySize(
+	Config& config,
+	const size_t& token_index,
+	std::vector<t_config_token>& tokens
+) {
+	const std::string	res = fillMaxBodySize(config, token_index, tokens);
+	if (res.size() == 0)
+		return (false);
+
+	config.servers.back().locations.back().client_max_body_size = std::stol(res);
+	if (config.servers.back().locations.back().client_max_body_size > CLIENT_MAX_BODY_SIZE) {
+		configParserError(
+			config,
+			"value for client_max_body_size too big",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	tokens.at(token_index).type = EVALUATED;
+	tokens.at(token_index + 1).type = EVALUATED;
+
+	printParserDebug(
+		"location client_max_body_size field",
+		"config.servers.back().locations.back().client_max_body_size",
+		true,
+		std::nullopt,
+		std::nullopt,
+		config.servers.back().locations.back().client_max_body_size
+	);
+
+	return (true);
+}
+

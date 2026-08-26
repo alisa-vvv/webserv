@@ -57,7 +57,7 @@ typedef enum e_token_type {
 	EVALUATED,
 } e_token_type;
 
-
+//
 typedef struct	t_config_token {
 	e_token_type	type;
 	std::string		val;
@@ -104,6 +104,7 @@ typedef struct t_location {
 	std::map<httpMethod, bool>	allowed_methods { {GET, false}, {POST, false}, {DELETE, false} }; // needed
 	std::string					upload_store; // opt
 	t_cgi_pass					cgi_pass; // opt
+	int							client_max_body_size = -1; // opt
 	t_return					returns;
 }	t_location;
 
