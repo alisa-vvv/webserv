@@ -40,7 +40,7 @@ enum httpVersion {
 };
 
 /// @brief This is a struct with references to the correct config file to use. context struct
-struct requestConfig
+struct s_requestConfig
 {
 	const cfg_server_t	*server = nullptr;
 	const t_location	*location = nullptr;
@@ -62,10 +62,11 @@ class Http {
 		std::string							_responseString;
 		std::multimap<std::string, std::string>	_requestHeaders;
 		std::multimap<std::string, std::string>	_responseHeaders;
+		bool								_isRequestConfigSet;
 
 	public:
 		Http();
-		requestConfig	requestConfig;
+		s_requestConfig	requestConfig;
 
 		/*==========PARSING===========*/
 		void			parseRequest(const std::string &rawString);
@@ -77,7 +78,8 @@ class Http {
 		void			validateLayer();
 		void			validateFile();
 		void			buildAbsoluteUri();
-	std::string resolveUri(const std::string &uri);
+		void			buildCgiPassUri();
+		std::string		resolveUri(const std::string &uri);
 
 		/*==========ERROR LOADER================*/
 		void			handleErrorResponse(); //load error page content into body based on status
@@ -111,6 +113,7 @@ class Http {
 		std::string		getReceivedUri() const;
 		std::string		getContentTypeExtension(const std::string &contentType) const;
 		std::uintmax_t	getClientMaxBodySize();
+		bool			requestConfigExists() const;
 
 
 		/*============SETTERS==================*/
@@ -124,12 +127,11 @@ class Http {
 		void			setState(clientState state);
 		void			setContentType();
 		void			setClientMaxBodySize();
+		void			setRequestConfigExists();
 		
 		/*=======REQUEST Config===================*/
 		int				findRequestConfig(const Listener *listener);
 		void 			setRequestConfig(const Listener *listener);
-
-
 
 		/*===========DEBUGGER===================*/
 		void			debugPrintRequest();

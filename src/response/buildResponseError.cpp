@@ -4,7 +4,8 @@
 void Http::handleErrorResponse()
 {
 	int stat = getStatusCode();
-	if (requestConfig.server != NULL)
+
+	if (requestConfigExists() && requestConfig.server != NULL)
 	{
 		std::map<int, std::string>::const_iterator it =
 			requestConfig.server->error_pages.find(stat);

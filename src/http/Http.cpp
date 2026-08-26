@@ -67,6 +67,10 @@ std::uintmax_t	Http::getClientMaxBodySize(){
 	return _clientMaxBodySize;
 }
 
+bool Http::requestConfigExists() const {
+	return _isRequestConfigSet;
+}
+
 /*======SETTERS======*/
 
 /// @brief Set the status code to given status. Also sets client state to error
@@ -159,6 +163,10 @@ void Http::setClientMaxBodySize(){
 /// @param body 
 void Http::setRawBody(const std::string &body) {
 	this->_body = body;
+}
+
+void Http::setRequestConfigExists() {
+	_isRequestConfigSet = true;
 }
 
 /*======UTILS======*/
