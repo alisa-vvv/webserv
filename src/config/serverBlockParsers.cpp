@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>              +#+                */
 /*                                                        +#+                 */
 /*   Created: 2026/06/11 12:11:35 by avaliull            #+#    #+#           */
-/*   Updated: 2026/06/12 19:02:04 by avaliull            ########   odam.nl   */
+/*   Updated: 2026/08/26 13:54:24 by avaliull            ########   odam.nl   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,8 @@ static bool	fillCgiPass(
 	const size_t& token_index,
 	std::vector<t_config_token>& tokens
 ) {
+	static const AllowedCgi	allowed_cgi;
+
 	if (isAboveMaxArgs(config, 2, tokens, token_index))
 		return (false);
 
@@ -147,10 +149,9 @@ static bool	fillCgiPass(
 			tokens.at(token_index).line_number);
 		return (false);
 	}
-	if (ext_token.val == CGI_EXT_STR_PY) {
-		*extension_store = CGI_EXT_PY;
-	}
-	else {
+
+	*extension_store = allowed_cgi.match(ext_token.val);
+	if (*extension_store == CGI_EXT_UNKNOWN) {
 		configParserError(
 			config,
 			"CGI extension in cgi_pass doesn't match allowed extensions",
@@ -158,8 +159,31 @@ static bool	fillCgiPass(
 			tokens.at(token_index).line_number);
 		return (false);
 	}
+
 	if (argumentNotValidPath(config, tokens, token_index, token_index + 2))
 		return (false);
+	if (path_token.val.size() < ext_token.val.size() + 2) {
+		configParserError(
+			config,
+			"path to CGI file in cgi_pass is not a valid file or extension",
+			"Config Error",
+			tokens.at(token_index).line_number);
+		return (false);
+	}
+	for (size_t i = path_token.val.size() - ext_token.val.size(), j = 0;
+			i < path_token.val.size(); i++) {
+		if (path_token.val.at(i) != ext_token.val.at(j)) {
+			std::cout << "path_token.val.at(i): " << path_token.val.at(i);
+			std::cout << ", ext_token.val.at(j): " << ext_token.val.at(j) << '\n';
+			configParserError(
+				config,
+				"path to CGI file in cgi_pass doesn't match given extension",
+				"Config Error",
+				tokens.at(token_index).line_number);
+			return (false);
+		}
+		j++;
+	}
 	*path_store = path_token.val;
 
 	tokens.at(token_index).type = EVALUATED;

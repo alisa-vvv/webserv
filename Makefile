@@ -39,7 +39,8 @@ CXXFILES_PARSER	=	configParser.cpp\
 					configParserHelpers.cpp\
 					configParserError.cpp
 
-CXXFILES_CGI =		cgi_exec.cpp
+CXXFILES_CGI =		cgi_exec.cpp\
+					AllowedCgi.cpp
 
 CXXFILES_TIMER =	timer.cpp
 

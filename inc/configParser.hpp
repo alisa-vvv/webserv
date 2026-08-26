@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include "AllowedCgi.hpp"
 #include <string>
 #include <vector>
 #include <map>
@@ -80,13 +81,8 @@ enum httpMethod {
 	DELETE,
 	UNKNOWN,
 };
+
 	/* cgi_pass	*/
-#define CGI_EXT_STR_PY ".py"
-
-typedef enum	e_cgi_extension {
-	CGI_EXT_PY,
-}	e_cgi_extension;
-
 typedef struct t_cgi_pass {
 	std::string		path;
 	e_cgi_extension	extension;
