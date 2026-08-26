@@ -6,11 +6,12 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:04:11 by avaliull          #+#    #+#             */
-/*   Updated: 2026/08/25 15:21:42 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/26 14:14:14 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cgi_exec.hpp"
+#include "utils.hpp"
 #include "configParser.hpp"
 #include "Timer.hpp"
 #include <unistd.h>
@@ -26,6 +27,10 @@
 
 #define PYTHON_EXEC "python"
 #define PATH_TO_SCRIPT "/home/avaliull/Projects/lvl5/webserv/server/cgi-bin/hello_world.py"
+
+cgi_t::cgi_t(Client&	client_ref)
+	:	client(client_ref)
+{}
 
 void	fill_c_str_from_string(char *const c_str, const std::string& str) {
 	for (size_t i = 0; i < str.size(); i++) {
@@ -63,42 +68,29 @@ static void	cgi_bzero(
 	}
 }
 
+void	killCgi(cgi_t& cgi) {
+	cgi.timed_out = true;
+	std::cout << CLR_YEL << "[CGI TIMEOUT] " << CLR_NON;
+	std::cout << "killing cgi process (fd: " << cgi.output << ") due to timeout\n";
+	kill(cgi.child_pid, SIGTERM);
+}
+
 void	checkCgiTimeout(cgi_t& cgi) {
+	if (cgi.timed_out == true)
+		return ;
 	const bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S_CGI);
 
 	if (timed_out) {
-		std::cout << "Killing cgi process (fd: " << cgi.output << ") due to timeout\n";
-		Http& http = cgi.client.getHttpClass();
-		std::cout << "here, should construct timeout error and return true\n";
-		http.setResponseCode(HTTP_REQUEST_TIMEOUT);
-		http.handleErrorResponse();
-		http.buildResponse();
-		http.buildResponseString();
-		std::cout << "response: " << http.getResponseString() << '\n';
-		// we throw timeout error
-		kill(cgi.child_pid, SIGTERM);
-		close(cgi.input);
-	//	close(cgi.output); // i wanna die
+		killCgi(cgi);
 	}
 }
 
 int	gotCGIOutput(
 	cgi_t&	cgi
 ) {
-	const bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S_CGI);
+	checkCgiTimeout(cgi);
+
 	int			p_status = 0;
-
-	if (timed_out) {
-		Http& http = cgi.client.getHttpClass();
-		std::cerr << "here, should construct timeout error and return true\n";
-		http.setResponseCode(HTTP_REQUEST_TIMEOUT);
-		http.handleErrorResponse();
-		http.buildResponse();
-		http.buildResponseString();
-		std::cerr << "response: " << http.getResponseString() << '\n';
-		return (true);
-	}
-
 	static const int cgi_recv_buf = 512;
 	int wait_res = waitpid(cgi.child_pid, &p_status, WNOHANG);
 	if (wait_res > 0) {
@@ -138,10 +130,15 @@ int	checkCgiDone(
 		return (-1);
 	}
 	if (got_output == true) {
-		std::string	response_string = buildCGIResponseString(cgi.output_string);
-		cgi.client.setResponse(response_string);
-		cgi.client.getHttpClass().setState(READY_TO_SEND); // this sho
-		//std::cout << "checking response string:\n" << cgi.client.getResponse();
+		Http& http = cgi.client.getHttpClass();
+		if (cgi.timed_out) {
+			createErrorResponse(cgi.client, cgi.client.getHttpClass());
+		}
+		else {
+			std::string	response_string = buildCGIResponseString(cgi.output_string);
+			cgi.client.setResponse(response_string);
+		}
+		http.setState(READY_TO_SEND);
 		return (true);
 	}
 	return (0);
@@ -295,13 +292,12 @@ static void	handle_child(
 	exit(1);
 }
 
-static cgi_t	handle_parent(
+static void	handle_parent(
+	cgi_t&	new_cgi,
 	int in_pipe[2],
 	int out_pipe[2],
 	int child_pid
 ) {
-	cgi_t	new_cgi;
-
 	time_point<system_clock>	cgi_timer = system_clock::now();
 	close(in_pipe[0]);
 	close(out_pipe[1]);
@@ -311,7 +307,6 @@ static cgi_t	handle_parent(
 	new_cgi.input = in_pipe[1];
 	new_cgi.output = out_pipe[0];
 	new_cgi.timer = cgi_timer;
-	return (new_cgi);
 }
 
 std::optional<cgi_t>	executeCGI(
@@ -336,8 +331,7 @@ std::optional<cgi_t>	executeCGI(
 		return (std::nullopt);
 	}
 
-	cgi_t	cgi;
-	cgi_t	cgi_response_data;
+	cgi_t	cgi(client);
 
 	char*	argv[] { NULL, NULL, NULL };
 	argv[0] = new char[type_exec[type].size() + 1]; // change if we want multiple cgi script types
@@ -356,7 +350,7 @@ std::optional<cgi_t>	executeCGI(
 			   PYTHON_EXEC, argv, in_pipe, out_pipe);
 	}
 	else if (fork_ret > 0) {
-		cgi = handle_parent(in_pipe, out_pipe, fork_ret);
+		handle_parent(cgi, in_pipe, out_pipe, fork_ret);
 		cgi.client = client;
 		background_cgis.insert( {cgi.output, cgi} );
 	}

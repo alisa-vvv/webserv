@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 14:00:29 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/07/28 16:00:12 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/26 14:12:25 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,8 @@ void Server::closeListeners()
  */
 void Server::_closeClientFd(int fd)
 {
+	_cleanupCgiForClient(fd);
+
 	_removeFdFromPoll(fd);
 	_clients.erase(fd);
 	close(fd);
@@ -98,4 +100,27 @@ void Server::_closeAll()
 {
 	_closeClients();
 	closeListeners();
+}
+
+void Server::_cleanupCgiForClient(int clientFd)
+{
+	std::map<int, int>::iterator it = _cgiFdToClientFd.begin();
+
+	while (it != _cgiFdToClientFd.end())
+	{
+		if (it->second == clientFd)
+		{
+			int cgiFd = it->first;
+
+			if (_backgroundCgis.find(cgiFd) != _backgroundCgis.end())
+			{
+				killCgi(_backgroundCgis.at(cgiFd));
+				_removeFdFromPoll(cgiFd);
+				_backgroundCgis.erase(cgiFd);
+			}
+			_cgiFdToClientFd.erase(it);
+			break;
+		}
+		++it;
+	}
 }

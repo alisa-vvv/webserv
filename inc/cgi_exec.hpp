@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 13:00:51 by avaliull          #+#    #+#             */
-/*   Updated: 2026/08/18 11:30:41 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/26 13:58:53 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ std::tuple<int, size_t>	checkBackgroundCGIs(
 int	checkCgiDone(
 	cgi_t&	cgi
 );
+void	killCgi(cgi_t& cgi);
 
 std::string buildCGIResponseString(std::string cgiResponse);
 

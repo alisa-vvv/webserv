@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/08/24 19:03:38 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/26 14:08:48 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,13 +84,19 @@ private:
 
 	eServerError				_acceptClients(int serverListenFd);
 	eServerError				_setNonBlocking(int fd);
+
+	//timeout handling
+	void						_setTimeoutResponse(Http& http, int timeoutCode);
+	void						_checkTimeouts();
 	void						_checkClientTimeouts();
+	void						_checkCgiTimeouts();
 
-
+	//closing/removing
 	void						_closeClientFd(int fd);
 	void						_closeClients();
 	void						_closeAll();
 	void						_removeFdFromPoll(int fd);
+	void						_cleanupCgiForClient(int clientFd);
 	
 	public:
 	Server(const Config &config);

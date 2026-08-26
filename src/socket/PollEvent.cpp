@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PollEvent.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tutku <tutku@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:50:39 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/24 19:03:43 by tutku            ###   ########.fr       */
+/*   Updated: 2026/08/26 12:59:38 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,14 +64,7 @@ eServerError Server::_initPollEvent()
 			if (err != SERVER_OK)
 				return err;
 		}
-		_checkClientTimeouts();
-		for (size_t i = 0; i < _pollFds.size(); i++) {
-			const int fd = _pollFds.at(i).fd;
-			if (_isCgiFd(fd)) {
-				auto cgi_map = getActiveCgis();
-				checkCgiTimeout(cgi_map[fd]);
-			}
-		}
+		_checkTimeouts();
 	}
 	return SERVER_OK;
 }
@@ -80,7 +73,6 @@ eServerError Server::_pollEvents()
 {
 	eServerError err;
 	size_t i = 0;
-
 
 	while (i < _pollFds.size())
 	{

@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:35 by tutku             #+#    #+#             */
-/*   Updated: 2026/08/25 13:22:57 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/26 13:03:17 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,24 +57,7 @@ eServerError Server::run()
 	return SERVER_OK;
 }
 
-void Server::_checkClientTimeouts()
-{
-	std::map<int, Client>::iterator it = _clients.begin();
-
-	while (it != _clients.end())
-	{
-		const int clientFd = it->first;
-		const time_point<system_clock> lastActivity = it->second.getLastActivity();
-		
-		it++;
-		if (checkTimeOut(lastActivity, DEFAULT_TIMEOUT_S))
-		{
-			_printDebug("[TIMEOUT]", _clients.at(clientFd), "client inactive for too long", true);
-			_closeClientFd(clientFd);
-		}
-	}
-}
-const std::map<int, cgi_t>& Server::getActiveCgis() const //TODO:finish
+const std::map<int, cgi_t>& Server::getActiveCgis() const
 {
 	return _backgroundCgis;
 }

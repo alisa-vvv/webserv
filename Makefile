@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: tutku <tutku@student.42.fr>                +#+  +:+       +#+         #
+#    By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/22 19:01:25 by avaliull          #+#    #+#              #
-#    Updated: 2026/08/24 15:12:13 by tutku            ###   ########.fr        #
+#    Updated: 2026/08/26 11:30:40 by tcakir-y         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -67,7 +67,8 @@ CXXFILES_SOCKET =	Server.cpp\
 					PollEvent.cpp\
 					PollEventUtils.cpp\
 					ServerCleanup.cpp\
-					ServerDebug.cpp
+					ServerDebug.cpp\
+					Timeout.cpp
 		
 MAIN =				main.cpp
 
