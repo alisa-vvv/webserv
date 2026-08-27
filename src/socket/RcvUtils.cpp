@@ -104,7 +104,7 @@ eServerError Server::_handleSend(Client& client)
 	}
 	else if (result > 0)
 	{
-		const std::string infoMsg = "bytes=" + std::to_string(result) + " total=" + std::to_string(client.getBytesSent()) + "/" + std::to_string(response.size());
+		const std::string infoMsg = "bytes=" + std::to_string(result);
 		printDebug("[SEND]", client, infoMsg, false);
 
 		client.updateBytesSent(static_cast<size_t>(result));

@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:25:45 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/27 09:38:45 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/27 10:02:23 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,6 @@ void Server::_buildTimeoutResponse(Http& http, int timeoutCode)
 	
 	http.buildResponseString();
 	http.setState(READY_TO_SEND);
-
-	std::cout << "response: " << http.getResponseString() << '\n';
 }
 
 void Server::_checkClientTimeouts()

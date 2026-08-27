@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:50:39 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/26 16:12:57 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/27 09:56:44 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,13 +209,13 @@ eClientEventResult Server::handleCgiEvent(int cgiFd, int i)
 	}
 
 	int isCgiDone = checkCgiDone(_backgroundCgis.at(cgiFd));
-
+	
 	if (isCgiDone == -1)
 	{
 		printDebug("[CGI ERROR]", _clients.at(clientFd), cgiFd, "execution failed", true);
 
 		removeActiveCgi(cgiFd);
-		_closeClientFd(clientFd);
+		_sendTimeoutResponse(_clients.at(clientFd), HTTP_GATEWAY_TIMEOUT);
 		return CLIENT_REMOVED;
 	}
 	if (isCgiDone == 0) // cgi still running
