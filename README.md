@@ -1,13 +1,36 @@
-
 *This project has been created as part of the 42 curriculum by aalombro, avaliull, and tcakir-y.*
 
 
 **Description**
 
-This project is about writing your own HTTP server.
+This project is about writing an HTTP/1.1 server in C++20 as part of the 42 curriculum.
+
+The server uses non-blocking sockets and `poll()` to handle multiple clients. It supports locations, static files, directory autoindexing, redirects, custom error pages, file uploads, request body limits, and CGI execution.
 
 
 **Instructions**
+
+Requirements: a C++20 compiler and GNU Make on a POSIX-compatible system.
+
+Build the server from the project root:
+
+```sh
+make
+```
+
+Run it with one configuration file:
+
+```sh
+./webserv config/www.conf
+```
+
+The default configuration listens on `127.0.0.1:8080`. Open <http://127.0.0.1:8080/> in a browser or test it with:
+
+```sh
+curl -i http://127.0.0.1:8080/
+```
+
+Other useful commands are `make clean`, `make fclean`, `make re`, `make debug`, and `make val`. Example configurations are available in the [`config`](config/) directory. Manual test notes are available in [`docs/tests.md`](docs/tests.md).
 
 **Resources**\
 ***General resources about webserver***\
@@ -86,5 +109,7 @@ https://github.com/youneslaaroussi/ui-buttons \
 https://www.geeksforgeeks.org/html/how-to-create-a-file-upload-button-in-html 
 
 **AI Usage**
+
+AI tools were used as research and generating html pages during development. Suggestions were reviewed, adapted to the project, and tested by the authors.
 
 
