@@ -13,7 +13,7 @@ card = random_color()
 border = random_color()
 
 print("Content-Type: text/html")
-print()
+print("\r\n")
 
 print(f"""
 <!DOCTYPE html>

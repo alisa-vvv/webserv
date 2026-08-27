@@ -42,6 +42,9 @@ std::string buildCGIResponseString(std::string cgiResponse)
 {
 	size_t firstSpace = cgiResponse.find(" ");
 	size_t newLine = cgiResponse.find("\r\n"); 
+	if (newLine == std::string::npos) {
+		return "";
+	}
 	std::string startLine = cgiResponse.substr(0, firstSpace);
 	std::string cgiResponseString;
 	if (startLine == "HTTP/1.1" || startLine == "HTTP/1.0")
@@ -136,7 +139,11 @@ int	checkCgiDone(
 		}
 		else {
 			std::string	response_string = buildCGIResponseString(cgi.output_string);
-			cgi.client.setResponse(response_string);
+			if (response_string.size() == 0) {
+				createErrorResponse(cgi.client, cgi.client.getHttpClass(), HTTP_INTERNAL_SERVER_ERROR);
+			}
+			else
+				cgi.client.setResponse(response_string);
 		}
 		http.setState(READY_TO_SEND);
 		return (true);
