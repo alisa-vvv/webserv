@@ -359,3 +359,23 @@ body {
 		align-self: flex-end;
 	}
 }
+
+.socket-header {
+	border-left: 6px solid #7fb3d5;
+}
+
+.recv-header {
+	border-left: 6px solid #82c9a5;
+}
+
+.send-header {
+	border-left: 6px solid #d6a85f;
+}
+
+.timeout-header {
+	border-left: 6px solid #d97b7b;
+}
+
+.client-header {
+	border-left: 6px solid #9c86c8;
+}

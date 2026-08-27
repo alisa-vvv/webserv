@@ -6,69 +6,988 @@
 		<title>webserv | Test cases</title>
 		<link rel="stylesheet" href="style.css">
 	</head>
+
 	<body>
 		<div id="header">
-		<h1>
-			<a href="index.html" id="title">webserv</a>
-		</h1>
+			<h1>
+				<a href="index.html" id="title">webserv</a>
+			</h1>
+
 			<h2 id="made-by">
 				made by Alisa, Ally, and Tutku
 			</h2>
 		</div>
+
 		<div id="navigation">
-			<h2> <a href="index.html" id="nav-link">Home</a> </h2>
-			<h2> <a href="read-me.html" id="nav-link">Read Me</a> </h2>
-			<h2> <a href="upload-store.html" id="nav-link">Uploads</a></h2>
-			<h2> <a href="curl-test-cases.html" id="nav-link">Curl test cases</a></h2>
+			<h2><a href="index.html" id="nav-link">Home</a></h2>
+			<h2><a href="read-me.html" id="nav-link">Read Me</a></h2>
+			<h2><a href="upload-store.html" id="nav-link">Uploads</a></h2>
+			<h2><a href="curl-test-cases.html" id="nav-link">Curl test cases</a></h2>
 		</div>
+
 		<main class="test-page">
+
 			<header class="test-header">
 				<h1>Curl tests</h1>
 			</header>
 
+
+			<!-- ========================================================= -->
+			<!-- BASIC HTTP TESTS                                          -->
+			<!-- ========================================================= -->
+
 			<section class="test-section">
+				<header class="test-header">
+					<h1>Basic HTTP Tests</h1>
+				</header>
+
 				<div class="test-grid">
-					<article class="test-card"><h3>Serve a page</h3><p class="expected"><strong>Expected:</strong> The index page loads successfully.</p><pre><code>curl localhost:8080/index.html</code></pre><p class="explanation">Tests the basic GET path and static file response.</p></article>
-					<article class="test-card"><h3>Reject an unsupported body</h3><p class="expected"><strong>Expected:</strong> The server returns <code>415</code>.</p><pre><code>curl -X POST -H "Content-Type: plain/text" --data "1234567890" localhost:8080/</code></pre><p class="explanation">Tests content-type validation for a POST request.</p></article>
-					<article class="test-card"><h3>Delete an upload</h3><p class="expected"><strong>Expected:</strong> The server handles the DELETE request.</p><pre><code>curl -X DELETE localhost:8080/upload/upload.txt</code></pre><p class="explanation">Tests the DELETE route for an upload target.</p></article>
-					<article class="test-card"><h3>Reject an unknown method</h3><p class="expected"><strong>Expected:</strong> The server returns <code>405</code>.</p><pre><code>curl -X UNKNOWN localhost:8080</code></pre><p class="explanation">Tests that unsupported HTTP methods are rejected.</p></article>
+
+					<article class="test-card">
+						<h3>Serve a page</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> The index page loads successfully.
+						</p>
+
+						<pre><code>curl localhost:8080/index.html</code></pre>
+
+						<p class="explanation">
+							Tests the basic GET path and static file response.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Reject an unsupported body</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> The server returns <code>415</code>.
+						</p>
+
+						<pre><code>curl -X POST -H "Content-Type: plain/text" --data "1234567890" localhost:8080/</code></pre>
+
+						<p class="explanation">
+							Tests content-type validation for a POST request.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Delete an upload</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> The server handles the DELETE request.
+						</p>
+
+						<pre><code>curl -X DELETE localhost:8080/upload/upload.txt</code></pre>
+
+						<p class="explanation">
+							Tests the DELETE route for an upload target.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Reject an unknown method</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> The server returns <code>405</code>.
+						</p>
+
+						<pre><code>curl -X UNKNOWN localhost:8080</code></pre>
+
+						<p class="explanation">
+							Tests that unsupported HTTP methods are rejected.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Basic GET: index file</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>200</code>
+						</p>
+
+						<pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/index.html</code></pre>
+
+						<p class="explanation">
+							Checks that a static file can be fetched directly.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Root resolves to index</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>200</code>
+						</p>
+
+						<pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/</code></pre>
+
+						<p class="explanation">
+							Checks the configured index file for the root location.
+						</p>
+					</article>
+
 				</div>
 			</section>
 
+
+			<!-- ========================================================= -->
+			<!-- ROUTING / CONFIG TESTS                                    -->
+			<!-- ========================================================= -->
+
 			<section class="test-section">
+				<header class="test-header">
+					<h1>Routing & Config Tests</h1>
+				</header>
+
 				<div class="test-grid">
-					<article class="test-card"><h3>Basic GET: index file</h3><p class="expected"><strong>Expected:</strong> <code>200</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/index.html</code></pre><p class="explanation">Checks that a static file can be fetched directly.</p></article>
-					<article class="test-card"><h3>Root resolves to index</h3><p class="expected"><strong>Expected:</strong> <code>200</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/</code></pre><p class="explanation">Checks the configured index file for the root location.</p></article>
-					<article class="test-card"><h3>Redirect route</h3><p class="expected"><strong>Expected:</strong> <code>302</code> with <code>Location: /redirected.html</code></p><pre><code>curl -sS -i http://127.0.0.1:8080/redirect | sed -n "1,12p"</code></pre><p class="explanation">Tests redirect status and response headers.</p></article>
-					<article class="test-card"><h3>Return directive</h3><p class="expected"><strong>Expected:</strong> <code>302</code> with <code>Location: /error_pages/300.html</code></p><pre><code>curl -sS -i http://127.0.0.1:8080/testing_return | sed -n "1,12p"</code></pre><p class="explanation">Tests a configured return rule and its target.</p></article>
-					<article class="test-card"><h3>Autoindex directories</h3><p class="expected"><strong>Expected:</strong> Both directories return <code>200</code>.</p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/upload/
-curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/imgs/</code></pre><p class="explanation">Tests directory listing responses for configured folders.</p></article>
-					<article class="test-card"><h3>Custom 404 page</h3><p class="expected"><strong>Expected:</strong> <code>404</code> with custom HTML content.</p><pre><code>curl -sS http://127.0.0.1:8080/nope-404 | sed -n "1,8p"</code></pre><p class="explanation">Checks both the missing route status and its error-page body.</p></article>
+
+					<article class="test-card">
+						<h3>Redirect route</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>302</code> with
+							<code>Location: /redirected.html</code>
+						</p>
+
+						<pre><code>curl -sS -i http://127.0.0.1:8080/redirect | sed -n "1,12p"</code></pre>
+
+						<p class="explanation">
+							Tests redirect status and response headers.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Return directive</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>302</code> with
+							<code>Location: /error_pages/300.html</code>
+						</p>
+
+						<pre><code>curl -sS -i http://127.0.0.1:8080/testing_return | sed -n "1,12p"</code></pre>
+
+						<p class="explanation">
+							Tests a configured return rule and its target.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Autoindex directories</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> Both directories return <code>200</code>.
+						</p>
+
+						<pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/upload/
+curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/imgs/</code></pre>
+
+						<p class="explanation">
+							Tests directory listing responses for configured folders.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Custom 404 page</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>404</code> with custom HTML content.
+						</p>
+
+						<pre><code>curl -sS http://127.0.0.1:8080/nope-404 | sed -n "1,8p"</code></pre>
+
+						<p class="explanation">
+							Checks both the missing route status and its error-page body.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Query-string behavior</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>404</code> in the current configuration.
+						</p>
+
+						<pre><code>curl -sS -o /dev/null -w "%{http_code}\n" "http://127.0.0.1:8080/index.html?x=1"</code></pre>
+
+						<p class="explanation">
+							Checks how a query string affects static-file resolution.
+						</p>
+					</article>
+
 				</div>
 			</section>
 
+
+			<!-- ========================================================= -->
+			<!-- METHOD / BODY TESTS                                       -->
+			<!-- ========================================================= -->
+
 			<section class="test-section">
+				<header class="test-header">
+					<h1>Method & Request Body Tests</h1>
+				</header>
+
 				<div class="test-grid">
-					<article class="test-card"><h3>POST to the root</h3><p class="expected"><strong>Expected:</strong> <code>415</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: text/plain" --data "hello-webserv" http://127.0.0.1:8080/</code></pre><p class="explanation">Tests whether the route rejects this request content type.</p></article>
-					<article class="test-card"><h3>POST not allowed on uploads</h3><p class="expected"><strong>Expected:</strong> <code>405</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: text/plain" --data "x" http://127.0.0.1:8080/upload/</code></pre><p class="explanation">Tests method restrictions on the upload directory.</p></article>
-					<article class="test-card"><h3>Body too large</h3><p class="expected"><strong>Expected:</strong> <code>413</code> for a 6 MB body.</p><pre><code>dd if=/dev/zero bs=1M count=6 2&gt;/dev/null | tr "\000" "a" | curl -sS -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/octet-stream" --data-binary @- http://127.0.0.1:8080/</code></pre><p class="explanation">Tests the configured <code>client_max_body_size</code> limit of 5 MB.</p></article>
-					<article class="test-card"><h3>Missing file deletion</h3><p class="expected"><strong>Expected:</strong> <code>404</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" -X DELETE http://127.0.0.1:8080/upload/does-not-exist.txt</code></pre><p class="explanation">Tests the error response when DELETE targets no file.</p></article>
-					<article class="test-card"><h3>HEAD and OPTIONS</h3><p class="expected"><strong>Expected:</strong> Both requests return <code>405</code>.</p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" -I http://127.0.0.1:8080/index.html
-curl -sS -o /dev/null -w "%{http_code}\n" -X OPTIONS http://127.0.0.1:8080/</code></pre><p class="explanation">Tests handling for methods that are not configured.</p></article>
+
+					<article class="test-card">
+						<h3>POST to the root</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>415</code>
+						</p>
+
+						<pre><code>curl -sS -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: text/plain" --data "hello-webserv" http://127.0.0.1:8080/</code></pre>
+
+						<p class="explanation">
+							Tests whether the route rejects this request content type.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>POST not allowed on uploads</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>405</code>
+						</p>
+
+						<pre><code>curl -sS -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: text/plain" --data "x" http://127.0.0.1:8080/upload/</code></pre>
+
+						<p class="explanation">
+							Tests method restrictions on the upload directory.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Body too large</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>413</code> for a 6 MB body.
+						</p>
+
+						<pre><code>dd if=/dev/zero bs=1M count=6 2&gt;/dev/null | tr "\000" "a" | curl -sS -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/octet-stream" --data-binary @- http://127.0.0.1:8080/</code></pre>
+
+						<p class="explanation">
+							Tests the <code>client_max_body_size</code> override of 3 MB configured
+							for the root location.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Missing file deletion</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>404</code>
+						</p>
+
+						<pre><code>curl -sS -o /dev/null -w "%{http_code}\n" -X DELETE http://127.0.0.1:8080/upload/does-not-exist.txt</code></pre>
+
+						<p class="explanation">
+							Tests the error response when DELETE targets no file.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>HEAD and OPTIONS</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> Both requests return <code>405</code>.
+						</p>
+
+						<pre><code>curl -sS -o /dev/null -w "%{http_code}\n" -I http://127.0.0.1:8080/index.html
+curl -sS -o /dev/null -w "%{http_code}\n" -X OPTIONS http://127.0.0.1:8080/</code></pre>
+
+						<p class="explanation">
+							Tests handling for methods that are not configured.
+						</p>
+					</article>
+
 				</div>
 			</section>
 
+
+			<!-- ========================================================= -->
+			<!-- SECURITY / MALFORMED REQUEST TESTS                        -->
+			<!-- ========================================================= -->
+
 			<section class="test-section">
+				<header class="test-header">
+					<h1>Malformed & Path Tests</h1>
+				</header>
+
 				<div class="test-grid">
-					<article class="test-card"><h3>Path traversal</h3><p class="expected"><strong>Expected:</strong> <code>400</code></p><pre><code>curl --path-as-is -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/../secret.html</code></pre><p class="explanation">Tests that parent-directory traversal is rejected.</p></article>
-					<article class="test-card"><h3>Double slash and backslash</h3><p class="expected"><strong>Expected:</strong> Both requests return <code>400</code>.</p><pre><code>curl --path-as-is -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080//etc/passwd
-curl --path-as-is -sS -o /dev/null -w "%{http_code}\n" "http://127.0.0.1:8080/..\secret"</code></pre><p class="explanation">Tests path normalization and alternate traversal attempts.</p></article>
-					<article class="test-card"><h3>CGI endpoint</h3><p class="expected"><strong>Expected:</strong> <code>200</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/confetti.py</code></pre><p class="explanation">Checks that a configured Python CGI script executes.</p></article>
-					<article class="test-card"><h3>Timeout CGI endpoint</h3><p class="expected"><strong>Expected:</strong> <code>408</code></p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/timeout_script/timeout_test.py</code></pre><p class="explanation">Tests the server timeout for a script that does not finish.</p></article>
-					<article class="test-card"><h3>Query-string behavior</h3><p class="expected"><strong>Expected:</strong> <code>404</code> in the current configuration.</p><pre><code>curl -sS -o /dev/null -w "%{http_code}\n" "http://127.0.0.1:8080/index.html?x=1"</code></pre><p class="explanation">Checks how a query string affects static-file resolution.</p></article>
-					<article class="test-card"><h3>Malformed raw request</h3><p class="expected"><strong>Expected:</strong> <code>HTTP/1.1 400 Bad request</code></p><pre><code>printf "GET HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc 127.0.0.1 8080 | head -n 1</code></pre><p class="explanation">Tests parser validation using an incomplete request line.</p></article>
+
+					<article class="test-card">
+						<h3>Path traversal</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>400</code>
+						</p>
+
+						<pre><code>curl --path-as-is -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/../secret.html</code></pre>
+
+						<p class="explanation">
+							Tests that parent-directory traversal is rejected.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Double slash and backslash</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> Both requests return <code>400</code>.
+						</p>
+
+						<pre><code>curl --path-as-is -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080//etc/passwd
+curl --path-as-is -sS -o /dev/null -w "%{http_code}\n" "http://127.0.0.1:8080/..\secret"</code></pre>
+
+						<p class="explanation">
+							Tests path normalization and alternate traversal attempts.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Malformed raw request</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>HTTP/1.1 400 Bad request</code>
+						</p>
+
+						<pre><code>printf "GET HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc 127.0.0.1 8080 | head -n 1</code></pre>
+
+						<p class="explanation">
+							Tests parser validation using an incomplete request line.
+						</p>
+					</article>
+
 				</div>
 			</section>
+
+
+			<!-- ========================================================= -->
+			<!-- CGI TESTS                                                 -->
+			<!-- ========================================================= -->
+
+			<section class="test-section">
+				<header class="test-header">
+					<h1>CGI Tests</h1>
+				</header>
+
+				<div class="test-grid">
+
+					<article class="test-card">
+						<h3>CGI endpoint</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>200</code>
+						</p>
+
+						<pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/confetti.py</code></pre>
+
+						<p class="explanation">
+							Checks that a configured Python CGI script executes.
+						</p>
+					</article>
+
+				</div>
+			</section>
+
+
+			<!-- ========================================================= -->
+			<!-- SOCKET TESTS                                              -->
+			<!-- ========================================================= -->
+
+			<section class="test-section">
+				<header class="test-header socket-header">
+					<h1>Socket & Connection Tests</h1>
+				</header>
+
+				<div class="test-grid">
+
+					<article class="test-card">
+						<h3>Basic socket connection</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>HTTP/1.1 200 OK</code>
+						</p>
+
+						<pre><code>printf "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc 127.0.0.1 8080 | head -n 1</code></pre>
+
+						<p class="explanation">
+							Opens a raw TCP connection, sends a valid HTTP request,
+							and checks that the listener accepts and serves the client.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Server is listening</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> A listening socket appears on
+							<code>127.0.0.1:8080</code>.
+						</p>
+
+						<pre><code>ss -ltn | grep ":8080"</code></pre>
+
+						<p class="explanation">
+							Checks that socket creation, bind, and listen succeeded.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Idle connection does not block</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> The second request immediately returns <code>200</code>.
+						</p>
+
+						<pre><code>(sleep 20 | nc 127.0.0.1 8080 &gt;/dev/null) &amp;
+sleep 1
+curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/</code></pre>
+
+						<p class="explanation">
+							Keeps one client connected without sending anything and checks
+							that another client is still handled immediately.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Repeated connections</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> All requests return <code>200</code>.
+						</p>
+
+						<pre><code>for i in $(seq 1 50); do
+    curl -sS -o /dev/null -w "%{http_code} " http://127.0.0.1:8080/
+done
+echo</code></pre>
+
+						<p class="explanation">
+							Repeatedly opens and closes client sockets and helps test safe fd reuse.
+						</p>
+					</article>
+
+				</div>
+			</section>
+
+
+			<!-- ========================================================= -->
+			<!-- RECV TESTS                                                -->
+			<!-- ========================================================= -->
+
+			<section class="test-section">
+				<header class="test-header recv-header">
+					<h1>RECV & Request Buffer Tests</h1>
+				</header>
+
+				<div class="test-grid">
+
+					<article class="test-card">
+						<h3>Fragmented request</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>HTTP/1.1 200 OK</code>
+						</p>
+
+						<pre><code>(
+    printf "GET /index.html HTTP/1.1\r\n"
+    sleep 1
+    printf "Host: localhost\r\n"
+    sleep 1
+    printf "User-Agent: slow-client\r\n"
+    sleep 1
+    printf "\r\n"
+) | nc 127.0.0.1 8080 | head -n 1</code></pre>
+
+						<p class="explanation">
+							Sends one HTTP request in several pieces. Multiple recv calls must
+							be combined before the request is processed.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Very fragmented request</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>HTTP/1.1 200 OK</code>
+						</p>
+
+						<pre><code>(
+    printf "GET "
+    sleep 1
+    printf "/index.html "
+    sleep 1
+    printf "HTTP/1.1\r\n"
+    sleep 1
+    printf "Host: localhost\r\n"
+    sleep 1
+    printf "\r\n"
+) | nc 127.0.0.1 8080 | head -n 1</code></pre>
+
+						<p class="explanation">
+							Fragments even the request line itself. Tests that recv boundaries
+							are not treated as HTTP message boundaries.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Client disconnect during receive</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> The client is cleaned up and the next request returns <code>200</code>.
+						</p>
+
+						<pre><code>timeout 2 sh -c 'printf "GET / HTTP/1.1\r\nHost:" | nc 127.0.0.1 8080' || true
+curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/</code></pre>
+
+						<p class="explanation">
+							Disconnects while a request is incomplete and checks recv EOF/client cleanup.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Multiple receive buffers</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> All requests return <code>200</code>.
+						</p>
+
+						<pre><code>for i in $(seq 1 20); do
+    curl -sS -o /dev/null -w "%{http_code} " http://127.0.0.1:8080/index.html &amp;
+done
+wait
+echo</code></pre>
+
+						<p class="explanation">
+							Tests that every Client maintains its own receive buffer and state.
+						</p>
+					</article>
+
+				</div>
+			</section>
+
+
+			<!-- ========================================================= -->
+			<!-- SEND TESTS                                                -->
+			<!-- ========================================================= -->
+
+			<section class="test-section">
+				<header class="test-header send-header">
+					<h1>SEND & Response Tests</h1>
+				</header>
+
+				<div class="test-grid">
+
+					<article class="test-card">
+						<h3>Create a large response file</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> A 20 MB file is created in <code>www/</code>.
+						</p>
+
+						<pre><code>dd if=/dev/urandom of=www/large.bin bs=1M count=20</code></pre>
+
+						<p class="explanation">
+							Creates a large static file for testing partial send behavior.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Large response integrity</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>FILES MATCH</code>
+						</p>
+
+						<pre><code>curl -sS http://127.0.0.1:8080/large.bin -o downloaded.bin
+cmp www/large.bin downloaded.bin &amp;&amp; echo "FILES MATCH"</code></pre>
+
+						<p class="explanation">
+							Tests bytes-sent tracking and verifies that a large response is not
+							truncated, duplicated, or corrupted.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Large GET is not body-size limited</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>200</code>, not <code>413</code>.
+						</p>
+
+						<pre><code>curl -sS -o /dev/null -w "%{http_code} %{size_download}\n" http://127.0.0.1:8080/large.bin</code></pre>
+
+						<p class="explanation">
+							Confirms that client_max_body_size limits incoming request bodies,
+							not outgoing static GET responses.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Slow receiver</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> The normal request returns <code>200</code>
+							while the slow download continues.
+						</p>
+
+						<pre><code>curl -sS --limit-rate 100k http://127.0.0.1:8080/large.bin -o /tmp/slow.bin &amp;
+sleep 1
+curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/</code></pre>
+
+						<p class="explanation">
+							Tests POLLOUT and non-blocking send behavior when one receiver reads slowly.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Client disconnect during send</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> The server stays alive and the final request returns <code>200</code>.
+						</p>
+
+						<pre><code>curl -sS http://127.0.0.1:8080/large.bin 2&gt;/dev/null | head -c 1024 &gt;/dev/null || true
+curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/</code></pre>
+
+						<p class="explanation">
+							Stops reading after part of a large response and tests send-error/client cleanup.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Response Content-Length</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> The file size and Content-Length match.
+						</p>
+
+						<pre><code>stat -c "%s" www/large.bin
+curl -sS -D - -o /dev/null http://127.0.0.1:8080/large.bin | grep -i "Content-Length"</code></pre>
+
+						<p class="explanation">
+							Checks that the response advertises the correct number of bytes.
+						</p>
+					</article>
+
+				</div>
+			</section>
+
+
+			<!-- ========================================================= -->
+			<!-- TIMEOUT TESTS                                             -->
+			<!-- ========================================================= -->
+
+			<section class="test-section">
+				<header class="test-header timeout-header">
+					<h1>Timeout Tests</h1>
+				</header>
+
+				<div class="test-grid">
+
+					<article class="test-card">
+						<h3>Incomplete request timeout</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>HTTP/1.1 408 Request Timeout</code>
+						</p>
+
+						<pre><code>(
+    printf "GET / HTTP/1.1\r\n"
+    printf "Host: localhost\r\n"
+    sleep 35
+) | nc 127.0.0.1 8080 | head -n 1</code></pre>
+
+						<p class="explanation">
+							Never sends the final blank line, leaving the HTTP request incomplete.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Completely idle client timeout</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> The idle connection is closed cleanly after the timeout.
+						</p>
+
+						<pre><code>sleep 35 | nc 127.0.0.1 8080</code></pre>
+
+						<p class="explanation">
+							Connects to the listener but never sends a request.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Activity resets timeout</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>HTTP/1.1 200 OK</code>
+						</p>
+
+						<pre><code>(
+    printf "GET /index.html "
+    sleep 20
+    printf "HTTP/1.1\r\n"
+    sleep 20
+    printf "Host: localhost\r\n\r\n"
+) | nc 127.0.0.1 8080 | head -n 1</code></pre>
+
+						<p class="explanation">
+							The complete request takes more than 30 seconds, but activity occurs
+							before each timeout interval. Tests lastActivity updates.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>CGI timeout</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>504</code>
+						</p>
+
+						<pre><code>curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/timeout_script/timeout_test.py</code></pre>
+
+						<p class="explanation">
+							A CGI process that exceeds its timeout should return
+							<code>504 Gateway Timeout</code>.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>CGI timeout does not block clients</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> <code>NORMAL: 200</code>, followed later by
+							<code>CGI: 504</code>.
+						</p>
+
+						<pre><code>curl -sS -o /dev/null -w "CGI: %{http_code}\n" http://127.0.0.1:8080/timeout_script/timeout_test.py &amp;
+sleep 1
+curl -sS -o /dev/null -w "NORMAL: %{http_code}\n" http://127.0.0.1:8080/
+wait</code></pre>
+
+						<p class="explanation">
+							Tests that slow CGI execution does not block the poll loop.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Server works after timeout</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> Timeout handling completes and the next request returns <code>200</code>.
+						</p>
+
+						<pre><code>(
+    printf "GET / HTTP/1.1\r\nHost: localhost\r\n"
+    sleep 35
+) | nc 127.0.0.1 8080 | head -n 1
+
+curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/</code></pre>
+
+						<p class="explanation">
+							Checks that removing a timed-out Client does not damage later connections.
+						</p>
+					</article>
+
+				</div>
+			</section>
+
+
+			<!-- ========================================================= -->
+			<!-- CLIENT / CONCURRENCY TESTS                                -->
+			<!-- ========================================================= -->
+
+			<section class="test-section">
+				<header class="test-header client-header">
+					<h1>Client Lifecycle & Concurrency Tests</h1>
+				</header>
+
+				<div class="test-grid">
+
+					<article class="test-card">
+						<h3>20 simultaneous clients</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> All requests return <code>200</code>.
+						</p>
+
+						<pre><code>for i in $(seq 1 20); do
+    curl -sS -o /dev/null -w "%{http_code} " http://127.0.0.1:8080/ &amp;
+done
+wait
+echo</code></pre>
+
+						<p class="explanation">
+							Tests poll handling with many Client objects active at once.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>100 client stress test</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> Requests complete successfully and the server remains alive.
+						</p>
+
+						<pre><code>seq 1 100 | xargs -n1 -P20 sh -c \
+'curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/'</code></pre>
+
+						<p class="explanation">
+							Applies pressure to accept, poll, recv, send, and client cleanup.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Idle client plus active clients</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> All active clients return <code>200</code>.
+						</p>
+
+						<pre><code>(sleep 35 | nc 127.0.0.1 8080 &gt;/dev/null) &amp;
+sleep 1
+
+for i in $(seq 1 20); do
+    curl -sS -o /dev/null -w "%{http_code} " http://127.0.0.1:8080/ &amp;
+done
+
+wait
+echo</code></pre>
+
+						<p class="explanation">
+							Tests that one inactive client never blocks active ones.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>File descriptor reuse</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> All requests return <code>200</code>.
+						</p>
+
+						<pre><code>for i in $(seq 1 100); do
+    curl -sS -o /dev/null -w "%{http_code} " http://127.0.0.1:8080/ || break
+done
+echo</code></pre>
+
+						<p class="explanation">
+							Encourages the OS to reuse fd numbers and checks that stale Client state
+							is never associated with a new connection.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Client disconnect during CGI</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> The server stays alive and the final request returns <code>200</code>.
+						</p>
+
+						<pre><code>curl --max-time 1 -sS http://127.0.0.1:8080/timeout_script/timeout_test.py &gt;/dev/null || true
+sleep 35
+curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/</code></pre>
+
+						<p class="explanation">
+							Removes the HTTP client before its CGI finishes and tests cleanup of
+							CGI-to-client mappings.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Check for fd leaks</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> Before and after counts remain approximately the same.
+						</p>
+
+						<pre><code>pid=$(pgrep -n webserv)
+
+echo "Before:"
+ls /proc/$pid/fd | wc -l
+
+for i in $(seq 1 100); do
+    curl -sS http://127.0.0.1:8080/ &gt;/dev/null
+done
+
+sleep 1
+
+echo "After:"
+ls /proc/$pid/fd | wc -l</code></pre>
+
+						<p class="explanation">
+							Checks that completed clients do not leave sockets or descriptors open.
+						</p>
+					</article>
+
+
+					<article class="test-card">
+						<h3>Mixed workload</h3>
+
+						<p class="expected">
+							<strong>Expected:</strong> The final line prints
+							<code>SERVER STILL ALIVE: 200</code>.
+						</p>
+
+						<pre><code>curl -sS http://127.0.0.1:8080/large.bin -o /tmp/large-test.bin &amp;
+curl -sS http://127.0.0.1:8080/confetti.py &gt;/dev/null &amp;
+curl -sS http://127.0.0.1:8080/timeout_script/timeout_test.py &gt;/dev/null &amp;
+
+for i in $(seq 1 20); do
+    curl -sS http://127.0.0.1:8080/ &gt;/dev/null &amp;
+done
+
+wait
+
+curl -sS -o /dev/null -w "SERVER STILL ALIVE: %{http_code}\n" http://127.0.0.1:8080/</code></pre>
+
+						<p class="explanation">
+							Runs static responses, CGI, timeout CGI, and normal clients together
+							to exercise most of the event loop simultaneously.
+						</p>
+					</article>
+
+				</div>
+			</section>
+
 		</main>
 	</body>
 </html>

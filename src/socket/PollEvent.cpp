@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:50:39 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/27 09:56:44 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/27 11:52:38 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,7 +167,9 @@ eClientEventResult Server::_handleClientEvent(int i)
 					_closeClientFd(fd);
 					return CLIENT_REMOVED;
 				}
-				_pollFds[i].events = 0;
+				state = _clients.at(fd).getHttpClass().getState();
+				if (state != READY_TO_SEND)
+					_pollFds[i].events = 0;
 				return CLIENT_KEPT;
 			}
 		}

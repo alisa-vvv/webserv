@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 13:55:10 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/26 16:19:43 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/27 11:43:20 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,8 @@ eServerError Server::_startCgi(int clientFd)
 	if (!cgi.has_value())
 	{
 		printDebug("[CGI START ERROR]", client, "failed to start CGI", true);
-		return SERVER_CGI_ERR;
+		_sendTimeoutResponse(client, HTTP_INTERNAL_SERVER_ERROR);
+		return SERVER_OK;
 	}
 
 	int cgiFd = cgi->output;
