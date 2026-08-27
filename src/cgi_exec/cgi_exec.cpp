@@ -68,9 +68,8 @@ static void	cgi_bzero(
 }
 
 void	killCgi(cgi_t& cgi) {
-	cgi.timed_out = true;
-	std::cout << CLR_YEL << "[CGI TIMEOUT] " << CLR_NON;
-	std::cout << "killing cgi process (fd: " << cgi.output << ") due to timeout\n";
+	std::cout << CLR_YEL << "[CGI ERROR] " << CLR_NON;
+	std::cout << "killing cgi process (fd: " << cgi.output << ") due to timeout or error\n";
 	kill(cgi.child_pid, SIGTERM);
 }
 
@@ -80,6 +79,7 @@ void	checkCgiTimeout(cgi_t& cgi) {
 	const bool	timed_out = checkTimeOut(cgi.timer, DEFAULT_TIMEOUT_S_CGI);
 
 	if (timed_out) {
+		cgi.timed_out = true;
 		killCgi(cgi);
 	}
 }
@@ -92,7 +92,7 @@ int	gotCGIOutput(
 	int			p_status = 0;
 	static const int cgi_recv_buf = 512;
 	int wait_res = waitpid(cgi.child_pid, &p_status, WNOHANG);
-	if (wait_res > 0) {
+	if (wait_res != 0) {
 		char buffer[cgi_recv_buf];
 		int	recv_ret;
 		do {
@@ -110,10 +110,8 @@ int	gotCGIOutput(
 		cgi.output = -1;
 		return (true);
 	}
-	else if (wait_res < 0) {
-		// brr brr error
+	if (wait_res < 0)
 		return (-1);
-	}
 	return (false);
 }
 
@@ -121,8 +119,6 @@ int	gotCGIOutput(
 // 	int 0: no response from cgi
 // 	int 1: got response from cgi
 // 	int -1: error when reading cgi response
-// 	size_t 0: whenever int is not 1
-// 	size_t i: index of the cgi instance that returned a response
 int	checkCgiDone(
 	cgi_t&	cgi
 ) {
@@ -130,6 +126,7 @@ int	checkCgiDone(
 
 	got_output = gotCGIOutput(cgi);
 	if (got_output == -1) {
+		killCgi(cgi);
 		return (-1);
 	}
 	if (got_output == true) {
@@ -191,7 +188,6 @@ static char**	constructEnvironment(
 		"QUERY_STRING=" + request_data.getQuery(),
 		"REQUEST_METHOD=" + match_method_to_string(request_data.getMethod()), // GET or POST
 		"REQUEST_URI=" + request_data.getReceivedUri(),
-		// FIX BELOW!!!
 		"SCRIPT_FILENAME=" + request_data.getBuiltUri(),  // path to the script (absolute)
 		"SCRIPT_NAME=" + location.cgi_pass.path, // path to the script we're executing relative to root
 		"SERVER_NAME=" + server_config.server_names[0],
@@ -312,14 +308,11 @@ std::optional<cgi_t>	executeCGI(
 	int	in_pipe[2];
 	int	out_pipe[2];
 	if (pipe2(in_pipe, O_NONBLOCK) != 0) {
-	//if (true) {
-		// brr brr errorr
 		return (std::nullopt);
 	}
 	if (pipe2(out_pipe, O_NONBLOCK) != 0) {
 		close(in_pipe[0]);
 		close(in_pipe[1]);
-		// brr brr errorr
 		return (std::nullopt);
 	}
 
@@ -335,7 +328,6 @@ std::optional<cgi_t>	executeCGI(
 
 	int	fork_ret = fork();
 	if (fork_ret < 0) {
-		// brr brr errorr
 		return (std::nullopt);
 	}
 	else if (fork_ret == 0) {

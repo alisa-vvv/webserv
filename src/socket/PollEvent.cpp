@@ -216,8 +216,13 @@ eClientEventResult Server::handleCgiEvent(int cgiFd, int i)
 	{
 		printDebug("[CGI ERROR]", _clients.at(clientFd), cgiFd, "execution failed", true);
 
+		if (_backgroundCgis.at(cgiFd).timed_out) {
+			std::cout << "timed otu or what\n";
+			_sendTimeoutResponse(_clients.at(clientFd), HTTP_GATEWAY_TIMEOUT);
+		}
+		else
+			_sendTimeoutResponse(_clients.at(clientFd), HTTP_INTERNAL_SERVER_ERROR);
 		removeActiveCgi(cgiFd);
-		_sendTimeoutResponse(_clients.at(clientFd), HTTP_GATEWAY_TIMEOUT);
 		return CLIENT_REMOVED;
 	}
 	if (isCgiDone == 0) // cgi still running
