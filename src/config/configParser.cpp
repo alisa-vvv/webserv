@@ -15,6 +15,7 @@
 #include "configParsingInfo.hpp"
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <vector>
 #include <stack>
 #include <optional>
@@ -232,7 +233,7 @@ std::optional<Config>	parseConfig(
 			config_path = arg;
 	}
 	std::ifstream	config_file(config_path);
-	if (!config_file.is_open()) {
+	if (!config_file.is_open() || std::filesystem::is_directory(config_path)) {
 		displayParserError("Missing or inaccessible config file", "Config Error");
 		return (std::nullopt);
 	}
