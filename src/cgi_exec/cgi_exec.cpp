@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi_exec.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
+/*   By: avaliull <avaliull@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/25 12:04:11 by avaliull          #+#    #+#             */
-/*   Updated: 2026/08/26 14:14:14 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/27 15:32:55 by avaliull         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,7 +204,7 @@ static char**	constructEnvironment(
 
 	char**	env = new char*[vars.size() + 1];
 	for (size_t i = 0; i < vars.size(); i++) {
-		std::cerr << "path var: " << vars.at(i) << '\n';
+		//std::cerr << "path var: " << vars.at(i) << '\n';
 		const std::string&	cur_string = vars.at(i);
 		env[i] = new char[cur_string.size() + 1];
 		for (size_t j = 0; j < cur_string.size(); j++) {

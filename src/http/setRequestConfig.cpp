@@ -67,6 +67,13 @@ void Http::setRequestConfig(const Listener *listener)
 			bestMatch = &currentLoc;
 			continue;
 		}
+		size_t	query_pos = this->_receivedUri.find("?");
+		if (query_pos != std::string::npos) {
+			_query = _receivedUri.substr(query_pos + 1);
+			_receivedUri.erase(query_pos);
+			_receivedUri = _receivedUri + '/';
+		}
+
 		bool matchesLocation = this->_receivedUri == currentLoc.prefix
 			|| (this->_receivedUri.find(currentLoc.prefix) == 0
 				&& (currentLoc.prefix.back() == '/'

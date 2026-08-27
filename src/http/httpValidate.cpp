@@ -57,10 +57,6 @@ void Http::validateFile()
 		if (std::filesystem::is_directory(path)){
 			if (this->requestConfig.location->cgi_pass.path.size()) {
 				buildCgiPassUri();
-				// if (!std::filesystem::is_regular_file(this->_builtUri)) {
-				// 	printError("CGI pass file does not exist", "validateFile", NOT_VAR);
-				// 	return setResponseCode(HTTP_NOT_FOUND);
-				// } //check this
 				setState(HANDLING_CGI_EXTENSION);
 				return;
 			}
@@ -173,12 +169,6 @@ int Http::validateURI(std::string uri)
 		return FAILURE;
 	}
 
-	size_t	query_pos = uri.find("?");
-	if (query_pos != std::string::npos) {
-		_query = uri.substr(query_pos + 1);
-		uri.erase(query_pos);
-		_receivedUri = uri;
-	}
 	// check CGI extensions using exact final file extension only
 	if (hasCgiExtension(uri)) {
 		setState(HANDLING_CGI_EXTENSION);
