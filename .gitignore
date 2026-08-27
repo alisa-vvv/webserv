@@ -16,6 +16,7 @@ cache/
 *subject.pdf
 compile_commands.json
 www/upload/*
+!www/upload/test_upload.txt
 
 configParser
 config_parser
