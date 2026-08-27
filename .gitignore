@@ -13,6 +13,7 @@ infile*
 outfile*
 cache/
 .cache/
+docs/*
 *subject.pdf
 compile_commands.json
 www/upload/*
