@@ -45,7 +45,6 @@ int main (int argc, char *argv[])
 	}
 	server.closeListeners();
 
-	// @alisa we'll need to test this. this is to kill hanging child processes on exit
 	signal(SIGQUIT, SIG_IGN);
 	kill(0, SIGQUIT);
 

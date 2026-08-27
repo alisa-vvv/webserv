@@ -304,6 +304,9 @@ std::optional<cgi_t>	executeCGI(
 	Client& client,
 	std::map<int, cgi_t>&	background_cgis
 ) {
+	if (access(client.getHttpClass().getBuiltUri().c_str(), X_OK) != 0) {
+		return (std::nullopt);
+	}
 	AllowedCgi	allowed_cgi;
 	int	in_pipe[2];
 	int	out_pipe[2];
