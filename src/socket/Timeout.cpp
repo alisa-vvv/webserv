@@ -6,13 +6,13 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:25:45 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/26 16:21:46 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/27 09:38:45 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-void Server::_setTimeoutResponse(Http& http, int timeoutCode)
+void Server::_buildTimeoutResponse(Http& http, int timeoutCode)
 {
 	http.setResponseCode(timeoutCode);
 	
@@ -45,14 +45,8 @@ void Server::_checkClientTimeouts()
 		{
 			if (client.getRecvStatus() != COMPLETE) //still receiving but gave timeout
 			{
-				_setTimeoutResponse(http, HTTP_REQUEST_TIMEOUT);
 
-				client.setResponse(http.getResponseString());
-				client.setResponseStatus(true);
-				client.updateLastActivity();
-
-				_setPollout(clientFd);
-
+				_sendTimeoutResponse(client, HTTP_REQUEST_TIMEOUT);
 				printDebug("[TIMEOUT]", client, "cannot receive from the client", true);
 			}
 			else if (http.getState() == HANDLING_CGI_EXTENSION ||
@@ -92,10 +86,21 @@ void Server::_checkTimeouts()
 	_checkCgiTimeouts();
 }
 
-/*
-->> during recv, if it takes too long
-408 -> we did not receive data in full due to network issues ->timeout
+void Server::_sendTimeoutResponse(Client &client, int timeoutCode)
+{
+	Http &http = client.getHttpClass();
 
+	_buildTimeoutResponse(http, timeoutCode);
+
+	client.setResponse(http.getResponseString());
+	client.setResponseStatus(true);
+	client.updateLastActivity();
+
+	_setPollout(client.getClientFd());
+}
+
+
+/*
 CLIENT TIMEOUTS
 ├── Receiving request stuck → 408
 ├── Sending response stuck   → close
@@ -103,5 +108,4 @@ CLIENT TIMEOUTS
 
 CGI TIMEOUT
 └── CGI execution stuck      → 504
-
 */

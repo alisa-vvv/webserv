@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:58:28 by tutku             #+#    #+#             */
-/*   Updated: 2026/08/26 16:16:02 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/27 09:40:46 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,10 +86,11 @@ private:
 	eServerError				_setNonBlocking(int fd);
 
 	//timeout handling
-	void						_setTimeoutResponse(Http& http, int timeoutCode);
 	void						_checkTimeouts();
 	void						_checkClientTimeouts();
 	void						_checkCgiTimeouts();
+	void						_buildTimeoutResponse(Http& http, int timeoutCode);
+	void						_sendTimeoutResponse(Client &client, int timeoutCode);
 
 	//closing/removing
 	void						_closeClientFd(int fd);
