@@ -6,7 +6,7 @@
 /*   By: tcakir-y <tcakir-y@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:25:45 by tcakir-y          #+#    #+#             */
-/*   Updated: 2026/08/27 10:02:23 by tcakir-y         ###   ########.fr       */
+/*   Updated: 2026/08/28 14:59:33 by tcakir-y         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,16 +41,18 @@ void Server::_checkClientTimeouts()
 
 		if (checkTimeOut(lastActivity, DEFAULT_TIMEOUT_S))
 		{
+			std::cout << "Rcv status: " << (client.getRecvStatus() == COMPLETE) << '\n';
+			std::cout << "getState: " << (http.getState() == HANDLING_CGI_EXTENSION) << '\n';
 			if (client.getRecvStatus() != COMPLETE) //still receiving but gave timeout
 			{
-
 				_sendTimeoutResponse(client, HTTP_REQUEST_TIMEOUT);
 				printDebug("[TIMEOUT]", client, "cannot receive from the client", true);
 			}
-			else if (http.getState() == HANDLING_CGI_EXTENSION ||
-					http.getState() == HANDLING_CGI_STATIC)
+			else if (http.getState() == HANDLING_CGI_EXTENSION)
 			{
-				continue;
+				_cleanupCgiForClient(clientFd);
+				_sendTimeoutResponse(client, HTTP_REQUEST_TIMEOUT);
+				printDebug("[TIMEOUT]", client, "default request timeout, removing background cgi", true);
 			}
 			else if (http.getState() == READY_TO_SEND && !client.isResponseComplete()) //Sending response stuck
 			{
